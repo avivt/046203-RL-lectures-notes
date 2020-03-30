@@ -1,0 +1,60 @@
+\section{Exercises}
+
+\begin{exercise}[\textbf{The $c \mu$ rule revisited}]
+Consider again the job processing domain of Exercise \ref{ex:c_mu}:
+
+$N$ jobs are scheduled to run on a single server. At each time step $(t=0,1,2,�)$, the sever may choose one of the remaining unfinished jobs to process. If job $i$ is chosen, then with probability ${\mu _i} > 0$ it will be completed, and removed from the system; otherwise the job stays in the system, and remains in an unfinished state. Notice that the job service is memoryless - the probability of a job completion is independent of the number of times it has been chosen.
+Each job is associated with a waiting cost ${c_i} > 0$ that is paid for each time step that the job is still in the system. The server's goal is minimizing the total cost until all jobs leave the system.
+
+This time, we will solve the problem numerically, testing the various dynamic programming and reinforcement learning algorithms we have learned so far.
+
+We consider the following specific case, with $N = 5$:
+
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+{\bf $i$}  & {\bf 1} & {\bf 2} & {\bf 3} & {\bf 4} & {\bf 5} \\ \hline
+${\mu _i}$ & 0.6     & 0.5     & 0.3     & 0.7     & 0.1     \\ \hline
+${c_i}$    & 1       & 4       & 6       & 2       & 9       \\ \hline
+\end{tabular}
+\end{center}
+
+\paragraph{Part 1 - Planning}
+In this part all the Matlab functions may use the true model (i.e., the ${\mu _i}$'s and ${c_i}$'s).
+\begin{enumerate}
+  \item How many states and actions are in the problem?
+\end{enumerate}  
+  Let $S$ denote the state space. A deterministic policy $\pi $ is a mapping from states to actions. In our case, it will be represented in Matlab as a vector of length $|S|$, in which each element denotes the selected action ($1, \ldots ,N$) for the corresponding state.
+\begin{enumerate} 
+\setcounter{enumi}{1} 
+  \item Write a function (in Matlab) that take as input a policy, and returns the corresponding value function ${V^\pi }$, also represented as a vector of length $|S|$. You can solve it either directly by matrix inversion, or iteratively. Remember that the value of the terminal state (no more jobs left) is zero by definition.
+  \item Plot the values of the policy ${\pi _c}$ that selects the job with the maximal cost ${c_i}$, from the remaining unfinished jobs.
+  \item Write a function that calculates the optimal policy ${\pi ^*}$ using the policy iteration algorithm, and execute it, starting from the initial policy ${\pi _c}$. For each iteration of the algorithm, plot the value of the initial state ${s_0}$ (no jobs completed) for the current policy. How many steps are required for convergence?
+  \item Compare the optimal policy ${\pi ^*}$ obtained using policy iteration to the $c\mu $ law. Also plot ${V^{{\pi ^*}}}$ vs. ${V^{{\pi _c}}}$.
+  \item Write a simulator of the problem: a function that takes in a state $s$ and action $a$, and returns the cost of the state $c(s)$, and a random next state $s'$, distributed according to the transition probabilities of the problem.
+\end{enumerate}
+
+\paragraph{Part 2 - Learning}
+In this part the learning algorithms cannot use the true model parameters, but only have access to the simulator function written above.
+
+\begin{enumerate}
+\setcounter{enumi}{6}
+  \item \textbf{Policy evaluation:} consider again the policy ${\pi _c}$, and use the TD(0) algorithm to learn the value function ${V^{{\pi _c}}}$. Start from ${\hat V_{TD}}(s) = 0$ for all states. Experiment with several step size ${\alpha _n}$ schedules:
+      \begin{enumerate}
+        \item ${a_n} = 1/\left( {no.\,of\,visits\,to\,{s_n}} \right)$
+        \item ${a_n} = 0.01$
+        \item ${a_n} = \frac{{10}}{{100 + \left( {no.\,of\,visits\,to\,{s_n}} \right)}}$
+      \end{enumerate}
+For each step-size schedule, plot the errors ${\left\| {{V^{{\pi _c}}} - {{\hat V}_{TD}}} \right\|_\infty }$ and $\left| {{V^{{\pi _c}}}({s_0}) - {{\hat V}_{TD}}({s_0})} \right|$ as a function of iteration $n$. Explain the motivation behind each step-size schedule, and how it reflects in the results.
+
+  \item Now, run policy evaluation using TD($\lambda $). Choose your favorite step-size schedule, and plot the errors ${\left\| {{V^{{\pi _c}}} - {{\hat V}_{TD}}} \right\|_\infty }$ and $\left| {{V^{{\pi _c}}}({s_0}) - {{\hat V}_{TD}}({s_0})} \right|$ as a function of iteration $n$ for several choices of $\lambda $. Repeat each experiment $20$ times and display average results.
+  \item \textbf{Q-learning:} run Q-learning to find the optimal policy. Start from $\hat Q(s,a) = 0$ for all states and actions. Experiment with the 3 previous step-size schedules. Use $\epsilon$-greedy exploration, with $\epsilon = 0.1$.
+      
+      For some $\hat Q$, let  ${\pi _{\hat Q}}$ denote the greedy policy w.r.t. $\hat Q$, i.e., ${\pi _{\hat Q}}(s) = \arg {\min _a}\hat Q(s,a)$.
+      
+For each step-size schedule, plot the errors ${\left\| {{V^*} - {V^{{\pi _{\hat Q}}}}} \right\|_\infty }$ and $\left| {{V^*}({s_0}) - \arg {{\min }_a}\hat Q({s_0},a)} \right|$ as a function of iteration $n$. You may use the policy evaluation function you wrote in (2) to calculate ${V^{{\pi _{\hat Q}}}}$. If this step takes too long, you may plot the errors only for $n = 100,200,300,...$ etc.
+
+  \item Repeat the previous Q-learning experiment for your favorite step-size schedule but now with $\epsilon = 0.01$. Compare.
+\end{enumerate}
+\end{exercise}
+

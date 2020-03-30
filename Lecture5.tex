@@ -1,0 +1,497 @@
+This lecture covers the basic theory and main solution methods for stationary MDPs over an infinite horizon, with the discounted return criterion. In this case, stationary policies are optimal.
+
+The discounted return problem is the most "well behaved" among all infinite horizon problems (such as average return and stochastic shortest path), and the theory of it is relatively simple, both in the planning and the learning contexts. For that reason, as well as its usefulness, we will consider here the discounted problem and its solution in some detail.
+
+%Contents:
+%5.1 Problem Statement
+%5.2 Preliminaries: The Fixed-policy Value Function
+%5.3 Overview: Main Algorithms
+%5.4 Contraction Operators
+%5.5 Proof of Bellman's Optimality Equation
+%5.6 Value Iteration
+%5.7 Policy Iteration
+%5.8 Some variants on Value and Policy Iteration
+%5.9 Linear Programming Solutions
+
+\section{Problem Statement}\label{sec:inf_horizon_prob}
+
+We consider a stationary (time-invariant) MDP, with a finite state space $S$, finite action set $A$, and transition kernel $P = (P(s'|s,a))$ over the infinite time horizon ${\bf{T}} = \{ 0,1,2, \ldots \} $.
+
+Our goal is to maximize the expected discounted return, which is defined for each control policy $\pi $ and initial state ${s_0} = s$ as follows:
+\begin{align*}
+J_\gamma ^\pi (s) &= {E^\pi }(\sum\limits_{t = 0}^\infty  {{\gamma ^t}r({s_t},{a_t})} |{s_0} = s)\\
+ &\equiv {E^{\pi ,s}}(\sum\limits_{t = 0}^\infty  {{\gamma ^t}r({s_t},{a_t})} )
+\end{align*}
+Here,
+\begin{itemize}
+  \item $r : S\times A \to \mathbb R$ is the (running, or instantaneous) reward function.
+  \item $\gamma  \in (0,1)$ is the discount factor.
+\end{itemize}
+
+We observe that $\gamma  < 1$  ensures convergence of the infinite sum (since that the rewards $r({s_t},{a_t})$ are uniformly bounded). With $\gamma  = 1$ we obtain the total return criterion, which is harder to handle due to possible divergence of the sum.
+
+Let $J_\gamma ^*(s)$ denote the maximal value of the discounted return, over all (possibly history dependent and randomized) control policies, i.e.,
+\[J_\gamma ^*(s) = \mathop {\sup }\limits_{\pi  \in {\Pi _{GR}}} J_\gamma ^\pi (s).\]
+
+
+Our goal is to find an optimal control policy ${\pi ^*}$ that attains that maximum (for all initial states), and compute the numeric value of the optimal return $J_\gamma ^*(s)$.
+As we shall see, for this problem there always exists an optimal policy which is a  (deterministic) stationary policy.
+
+\textbf{Note:} As usual, the discounted performance criterion can be defined in terms of cost:
+\[J_\gamma ^\pi (s) = {E^{\pi ,s}}(\sum\limits_{t = 0}^\infty  {{\gamma ^t}c({s_t},{a_t})} )\]
+where $c(s,a)$ is the running cost function. Our goal is then to minimize the discounted cost $J_\gamma ^\pi (s)$.
+
+
+\section{The Fixed-Policy Value Function}\label{s:FP_VF}
+
+We start the analysis by defining and computing the value function for a fixed stationary policy. This intermediate step is required for later analysis of our optimization problem,  and also serves as a gentle introduction to the value iteration approach.
+
+For a stationary policy $\pi :S \to A$, we define the value function $V_{}^\pi (s),\;s \in S$ simply as the corresponding discounted return:
+\[V_{}^\pi (s) \buildrel \Delta \over = {E^{\pi ,s}}\left(\sum\limits_{t = 0}^\infty  {{\gamma ^t}r({s_t},{a_t})} \right)=J_\gamma ^\pi (s),   \quad s \in  S\]
+
+\begin{lemma}\label{lem:FP_Bellman} $V_{}^\pi $ satisfies the following set of $|S|$ linear equations:
+\begin{equation}\label{eq:FP_Bellman}
+{V^\pi }{\kern 1pt} (s) = r(s,\pi (s)) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\pi (s)){V^\pi }(s')} \;,\quad \;s \in S.
+\end{equation}
+\end{lemma}
+
+\begin{proof} We first note that
+\begin{align*}
+V_{}^\pi (s) &\buildrel \Delta \over = {E^\pi }(\sum\limits_{t = 0}^\infty  {{\gamma ^t}r({s_t},{a_t})} |{s_0} = s)\\
+ &= {E^\pi }(\sum\limits_{t = 1}^\infty  {{\gamma ^{t - 1}}r({s_t},{a_t})} |{s_1} = s),
+\end{align*}
+since both the model and the policy are stationary. Now,
+\begin{align*}
+V_{}^\pi (s) &= r(s,\pi (s)) + {E^\pi }(\sum\limits_{t = 1}^\infty  {{\gamma ^t}r({s_t},\pi ({s_t}))} |{s_0} = s)\\
+&= r(s,\pi (s)) + {E^\pi }\left[\left.{E^\pi }\left(\sum\limits_{t = 1}^\infty  {{\gamma ^t}r({s_t},\pi ({s_t}))} |{s_0} = s, s_1=s'\right)\right|{s_0} = s\right]\\
+ &= r(s,\pi (s)) + \sum\limits_{s' \in S}^{} {p(s'|s,\,} \pi (s)){E^\pi }(\sum\limits_{t = 1}^\infty  {{\gamma ^t}r({s_t},\pi ({s_t}))} |{s_1} = s')\\
+ &= r(s,\pi (s)) + \gamma \sum\limits_{s' \in S}^{} {p(s'|s,\,} \pi (s)){E^\pi }(\sum\limits_{t = 1}^\infty  {{\gamma ^{t - 1}}r({s_t},{a_t})} |{s_1} = s')\\
+ &= r(s,\pi (s)) + \gamma \sum\limits_{s' \in S}^{} {p(s'|s,\,} \pi (s)){V^\pi }(s').
+\end{align*}
+The first equality is by the smoothing theorem. The second equality follows since ${s_{_0}} = s$ and ${a_t} = \pi ({s_t})$, the third equality follows similarly to the finite-horizon case (Lemma \ref{lem:finite_horizon_VI} in the previous lecture), the fourth is simple algebra, and the last by the observation above.
+\end{proof}
+
+We can write the linear equations in \eqref{eq:FP_Bellman} in vector form as follows. Define the column vector ${r^\pi } = {({r^\pi }(s))_{s \in S}}$ with components ${r^\pi }(s) = r(s,\pi (s))$, and the transition matrix ${P^\pi }$ with components ${P^\pi }(s'|s) = p(s'|s,\pi (s))$. Finally, let ${V^\pi }$ denote a column vector with components ${V^\pi }(s)$. Then \eqref{eq:FP_Bellman} is equivalent to the linear equation set
+\begin{equation}\label{eq:PF_Bellman_vector}
+{V^\pi } = {r^\pi } + \gamma {P^\pi }{V^\pi }
+\end{equation}
+
+\begin{lemma}\label{lem:FP_Bellman_sol} The set of linear equations \eqref{eq:FP_Bellman} or \eqref{eq:PF_Bellman_vector}, with ${V^\pi }$ as variables, has a unique solution ${V^\pi }$, which is given by \[{V^\pi } = {(I - \gamma {P^\pi })^{ - 1}}{r^\pi }.\]
+\end{lemma}
+\begin{proof} We only need to show that the square matrix $I - \gamma {P^\pi }$ is non-singular.  Let $({\lambda _i})$ denote the eigenvalues of the matrix ${P^\pi }$. Since ${P^\pi }$ is a stochastic matrix (row sums are 1), then $|{\lambda _i}| \le 1$. Now, the eignevalues of $I - \gamma {P^\pi }$ are $(1 - \gamma {\lambda _i})$, and satisfy $|1 - \gamma {\lambda _i}| \ge 1 - \gamma  > 0$.                                                                                                            \end{proof}
+
+Combining Lemma \ref{lem:FP_Bellman} and Lemma \ref{eq:PF_Bellman_vector}, we obtain
+
+\begin{proposition}\label{prop:FP_Bellman} The fixed-policy value function ${V^\pi } = [{V^\pi }(s)]$ is the unique solution of equation \eqref{eq:PF_Bellman_vector}, given by \[{V^\pi } = {(I - \gamma {P^\pi })^{ - 1}}{r^\pi }.\]
+\end{proposition}
+
+Proposition \ref{prop:FP_Bellman} provides a closed-form formula for computing $V_{}^\pi$. For large systems, computing the inverse ${(I - \gamma {P^\pi })^{ - 1}}$ may be hard.  In that case, the following value iteration algorithm provides an alternative, iterative method for computing $V_{}^\pi$.
+
+\begin{algorithm_}\textbf{Fixed-policy value iteration}
+\begin{enumerate}
+  \item Let ${V_0} = {({V_0}(s))_{s \in S}}$ be arbitrary.
+  \item For $n = 0,1,2, \ldots $, set
+\[V_{n + 1}^{}{\kern 1pt} (s) = r(s,\pi (s)) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\pi (s))V_n^{}{\kern 1pt} (s')} \;,\quad \;s \in S\]
+\tab{or, equivalently,}
+\[{V_{n + 1}} = {r^\pi } + \gamma {P^\pi }{V_n}.\]
+\end{enumerate}
+\end{algorithm_}
+%Then \[{V_n} \to V_{}^\pi \]component-wise, that is,
+%\[{\lim _{n \to \infty }}{V_n}(s) = V_{}^\pi (s),\quad \;s \in S\]
+
+\begin{proposition}[\textbf{Convergence of fixed-policy value iteration}]\label{prop:FP_VI}
+We have ${V_n} \to V_{}^\pi$ component-wise, that is,
+\[{\lim _{n \to \infty }}{V_n}(s) = V_{}^\pi (s),\quad \;s \in S.\]
+\end{proposition}
+\begin{proof}
+Note first that
+\begin{align*}
+{V_1}{\kern 1pt} (s) &= r(s,\pi (s)) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\pi (s))V_0^{}{\kern 1pt} (s')} \;\\
+ &= {E^\pi }(r({s_0},{a_0}) + \gamma {V_0}({s_1})|{s_0} = s).
+\end{align*}
+Continuing similarly, we obtain that
+\[{V_n}{\kern 1pt} (s) = {E^\pi }(\sum\limits_{t = 0}^{n - 1} {{\gamma ^t}r({s_t},{a_t})}  + {\gamma ^n}{V_0}({s_n})|{s_0} = s).\]
+Note that ${V_n}{\kern 1pt} (s)$ is the $n$-stage discounted return, with terminal reward ${r_n}({s_n}) = {V_0}({s_n})$. Comparing with the definition of $V_{}^\pi $, we can see that
+\[{V^\pi }(s) - {V_n}{\kern 1pt} (s) = {E^\pi }(\sum\limits_{t = n}^\infty  {{\gamma ^t}r({s_t},{a_t})}  - {\gamma ^n}{V_0}({s_n})|{s_0} = s).\]
+Denoting ${R_{\max }} = {\max _{s,a}}|r(s,a)|$, ${\bar V_0} = {\max _s}|V(s)|$ we obtain
+\[|{V^\pi }(s) - {V_n}{\kern 1pt} (s)| \le {\gamma ^n}(\frac{{{R_{\max }}}}{{1 - \gamma }} + {\bar V_0})\]
+which converges to 0 since $\gamma  < 1$.                                                                                    �
+\end{proof}
+
+\paragraph{Comments:}
+\begin{itemize}
+  \item The proof provides an explicit bound on $|{V^\pi }(s) - {V_n}{\kern 1pt} (s)|$. It may be seen that the convergence is exponential, with rate $O({\gamma ^n})$.
+  \item Using vector notation, it may be seen that
+          \[{V_n}{\kern 1pt}  = {r^\pi } + {P^\pi }{r^\pi } +  \ldots  + {({P^\pi })^{n - 1}}{r^\pi } + {({P^\pi })^n}{V_0} = \sum\limits_{t = 0}^{n - 1} {{{({P^\pi })}^t}{r^\pi }}  + {({P^\pi })^n}{V_0}.\]
+Similarly,    ${V^\pi } = \sum\limits_{t = 0}^\infty  {{{({P^\pi })}^t}{r^\pi }}$.
+\end{itemize}
+
+\paragraph{In summary:}
+\begin{itemize}
+  \item Proposition \ref{prop:FP_Bellman} allows to compute $V_{}^\pi $ by solving a set of $|S|$ linear equations.
+  \item Proposition \ref{prop:FP_VI} computes $V_{}^\pi $ by an infinite recursion, that converges exponentially fast.
+\end{itemize}
+
+\section{Overview: The Main DP Algorithms}
+
+We now return to the optimal planning problem defined in Section \ref{sec:inf_horizon_prob}. Recall that  $J_\gamma ^*(s) = {\sup _{\pi  \in \Pi }}_{_{GR}}J_\gamma ^\pi (s)$ is the optimal discounted return. We further denote
+\[{V^*}(s) \buildrel \Delta \over = J_\gamma ^*(s),    \quad s \in S,\]
+and refer to ${V^*}$ as the optimal value function. Depending on the context, we consider ${V^*}$ either as a function $V^* : S \to \mathbb R$, or as a column vector ${V^*} = {[V(s)]_{s \in S}}$.
+
+The following optimality equation provides an explicit characterization of the value function, and shows that an optimal stationary policy can easily be computed if the value function is known.
+
+\begin{theorem}[\textbf{Bellman's Optimality Equation}]\label{thm:inf_Bellman} The following statements hold:
+\begin{enumerate}
+  \item $V_{}^*$ is the unique solution of the following set of (nonlinear) equations:
+\begin{equation}\label{eq:Bellman}
+V(s) = \mathop {\max }\limits_{a \in A} \left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)V(s')} } \right\},     \quad s \in S.
+\end{equation}
+  \item Any stationary policy ${\pi ^*}$ that satisfies
+\[{\pi ^*}(s) \in \arg {\max _{a \in A}}\left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)V(s')} } \right\},\]
+     is an optimal policy (for any initial state ${s_0} \in S$).
+\end{enumerate}
+\end{theorem}
+The optimality equation \eqref{eq:Bellman} is non-linear, and generally requires iterative algorithms for its solution. The main iterative algorithms are \textbf{value iteration} and \textbf{policy iteration}.
+
+\begin{algorithm_}\textbf{Value iteration}\label{alg:VI}
+\begin{enumerate}
+  \item Let ${V_0} = {({V_0}(s))_{s \in S}}$ be arbitrary.
+  \item For $n = 0,1,2, \ldots $, set
+\[{V_{n + 1}}(s) = \mathop {\max }\limits_{a \in A} \left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a){V_n}(s')} } \right\},    \quad \forall s \in S\]
+\end{enumerate}
+\end{algorithm_}
+
+\begin{theorem}[\textbf{Convergence of value iteration}]\label{thm:_VI}
+We have ${\lim _{n \to \infty }}{V_n} = V_{}^*$ (component-wise). The rate of convergence is exponential, at rate  $O({\gamma ^n})$.
+\end{theorem}
+
+The value iteration algorithm iterates over the value functions, with asymptotic convergence. The policy iteration algorithm iterates over stationary policies, with each new policy better than the previous one. This algorithm converges to the optimal policy in a finite number of steps.
+
+\begin{algorithm_}\textbf{Policy iteration}\label{alg:PI}
+\begin{enumerate}
+\item Initialization: choose some stationary policy ${\pi _0}$.
+\item For $k = 0,1, \ldots $:
+\begin{enumerate}
+\item Policy evaluation: compute ${V^{{\pi _k}}}$.
+     \coderemark{For example, use the explicit formula  ${V^{{\pi _k}}} = {(I - \gamma {P^{{\pi _k}}})^{ - 1}}{r^{{\pi _k}}}$.}
+\item Policy Improvement: Compute ${\pi _{k + 1}}$, a greedy policy with respect to ${V^{{\pi _k}}}$:
+\[{\pi _{k + 1}}(s) \in \arg {\max _{a \in A}}\left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a){V^{{\pi _k}}}(s')} } \right\},\quad \forall s \in S.\]
+\item Stop if  ${V^{{\pi _{k + 1}}}} = {V^{{\pi _k}}}$ (or if ${V^{{\pi _k}}}$ satisfied the optimality equation), else continue.
+\end{enumerate}
+\end{enumerate}
+\end{algorithm_}
+
+\begin{theorem}[\textbf{Convergence of policy iteration}]\label{thm:_PI}
+The following statements hold:
+\begin{enumerate}
+  \item Each policy ${\pi _{k + 1}}$ is improving over the previous one ${\pi _k}$, in the sense that ${V^{{\pi _{k + 1}}}} \ge {V^{{\pi _k}}}$ (component-wise).
+  \item ${V^{{\pi _{k + 1}}}} = {V^{{\pi _k}}}$ if and only if ${\pi _k}$ is an optimal policy.
+  \item Consequently, since the number of stationary policies is finite, ${\pi _k}$ converges to the optimal policy after a finite number of steps.
+\end{enumerate}
+\end{theorem}
+
+An additional solution method for DP planning relies on a Linear Programming formulation of the problem. A Linear Program (LP) is simply an optimization problem with linear objective function and linear constraints. We will provide additional details later in this Lecture.
+
+\section{Contraction Operators}
+
+The basic proof methods of the DP results mentioned above rely on the concept of a \emph{contraction operator}. We provide here the relevant mathematical background, and illustrate the contraction properties of some basic Dynamic Programming operators.
+
+\subsection{The contraction property}
+Recall that a norm $|| \cdot ||$ over $\mathbb R^n$  is a real-valued function $\|\cdot\| : \mathbb R^n \to \mathbb R$ such that, for any pair of vectors $x,y \in \mathbb R^n$  and scalar $a$,
+\begin{enumerate}
+  \item $||ax|| = |a| \cdot ||ax||$,
+  \item $||x + y|| \le ||x|| + ||y||$,
+  \item $||x|| = 0$ only if $x = 0$.
+\end{enumerate}
+
+Common examples are the p-norm $||x|{|_p} = (\sum\nolimits_{i = 1}^n {{{|{x_i}|}^p}{)^{1/p}}} $ for $p \ge 1$, and in particular the Euclidean norm ($p = 2$). Here we will mostly use the max-norm: \[||x|{|_\infty } = {\max _{1 \le i \le n}}|{x_i}|.\]
+
+Let $T:\mathbb R^d \to \mathbb R^d$  be a vector-valued function over $\mathbb R^d$   ($d \ge 1$). We equip $\mathbb R^d$  with some  norm $|| \cdot ||$, and refer to $T$ as an \emph{operator } over $\mathbb R^d$.  Thus, $T(v) \in \mathbb R^d$ for any $v \in \mathbb R^d$.
+We also denote ${T^n}(v) = T({T^{n - 1}}(v))$ for  $n \ge 2$. For example, ${T^2}(v) = T(T(v))$.
+
+\begin{definition} The operator $T$ is called a contraction operator if there exists $\beta  \in (0,1)$ (the contraction coefficient) such that
+                            \[||T({v_1}) - T({v_2})|| \le \beta ||{v_1} - {v_2}||,\]
+                            for all $v_1,v_2 \in \mathbb R^d$
+\end{definition}
+
+\subsection{The Banach Fixed Point Theorem}
+The following celebrated result applies to contraction operators. While we quote the result for $\mathbb R^d$, we note that it applies in much greater generality to any Banach space (a complete normed space), or even to any complete metric space, with essentially the same proof.
+
+\begin{theorem}[\textbf{Banach's fixed point theorem}]
+Let $T:\mathbb R^d \to \mathbb R^d$  be a contraction operator. Then
+\begin{enumerate}
+  \item The equation $T(v) = v$ has a unique solution  $V^*\in \mathbb R^d$.
+  \item For any $v_0 \in \mathbb R^d$,  ${\lim _{n \to \infty }}{T^n}({v_0}) = {V^*}$.
+          In fact,  $||{T^n}({v_0}) - {V^*}|| \le O({\beta ^n})$, where $\beta $ is the contraction coefficient.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(outline)
+\begin{enumerate}
+  \item Uniqueness: Let ${V_1}$ and ${V_2}$ be two solutions of $T(v) = v$, then
+\[||{V_1} - {V_2}|| = ||T({V_1}) - T({V_2})|| \le \beta ||{V_1} - {V_2}||,\]
+which implies that $||{V_1} - {V_2}|| = 0$, hence ${V_1} = {V_2}$.
+
+Existence (outline):  (i) show that ${V_n} \buildrel \Delta \over = {T^n}({V_0})$ (with ${V_0}$ arbitrary) is a Cauchy sequence. (ii) Since any Cauchy sequence in $\mathbb R^d$ converges, this implies that ${V_n}$ converges to some $V^*\in \mathbb R^d$. (iii) Now show that ${V^*}$ satisfies the equation $T(v) = v$.
+  \item We have just shown that, for any ${V_0}$, ${V_n} \buildrel \Delta \over = {T^n}({V_0})$ converges to a solution of $T(v) = v$, and that solution was shown before to be unique.  Furthermore, we have
+\begin{align*}
+||{V_n} - {V^*}||\; &= \;||T({V_{n - 1}}) - T({V^*})||\\
+&\le \beta ||{V_{n - 1}} - {V^*}||\;\; \le \;\; \ldots \;\; \le \;{\beta ^n}||{V_0} - {V^*}||\;\;
+\end{align*}
+\end{enumerate}
+\end{proof}
+
+
+\subsection{The Dynamic Programming Operators}\label{ss:DP_op}
+We next define the basic Dynamic Programming operators, and show that they are in fact contraction operators.
+
+For a fixed stationary policy $\pi :S \to A$, define the fixed policy DP operator $T^\pi:\mathbb R^{|S|} \to \mathbb R^{|S|}$  as follows: For any $V=(V(s))\in R^{|S|}$,
+\[(T_{}^\pi (V))(s) = r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\pi (s))V(s')} ,\quad s \in S\]
+In our column-vector notation, this is equivalent to  $T_{}^\pi (V) = {r^\pi } + \gamma {P^\pi }V$.
+
+Similarly, define the discounted-return \textbf{Dynamic Programming Operator}  $T^*:\mathbb R^{|S|} \to \mathbb R^{|S|}$ as follows: For any $V=(V(s))\in R^{|S|}$,
+\[(T_{}^*(V))(s) = \mathop {\max }\limits_{a \in A} \left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)V(s')} } \right\},\quad s \in S\]
+
+We note that $T_{}^\pi $ is a linear operator, while $T_{}^*$ is generally non-linear due to the maximum operation.
+
+Let $||V|{|_\infty } \buildrel \Delta \over = {\max _{s \in S}}|V(s)|$ denote the max-norm of $V$.  Recall that $0 < \gamma  < 1$.
+
+\begin{theorem}[\textbf{Contraction property}] The following statements hold:
+\begin{enumerate}
+  \item $T_{}^\pi $ is a $\gamma$-contraction operator with respect to the max-norm,  namely
+                      $||T_{}^\pi ({V_1}) - T_{}^\pi ({V_2})|{|_\infty } \le \gamma ||{V_1} - {V_2}|{|_\infty }$ for all $V_1,V_2\in R^{|S|}$.
+  \item Similarly, $T_{}^*$ is an $\gamma$-contraction operator with respect to the max-norm.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\begin{enumerate}
+  \item Fix ${V_1},{V_2}$. For every state $s$,
+\begin{align*}
+\left| {T_{}^\pi ({V_1})(s) - T_{}^\pi ({V_2})(s)} \right| &= \left| {\gamma \sum\nolimits_{s'} {p(s'|s,\pi (s))[{V_1}(s') - {V_2}(s')]} } \right|\\
+ &\le \gamma \sum\nolimits_{s'} {p(s'|s,\pi (s))\left| {{V_1}(s') - {V_2}(s')} \right|} \\
+ &\le \gamma \sum\nolimits_{s'} {p(s'|s,\pi (s))} {\left\| {{V_1} - {V_2}} \right\|_\infty } = \gamma {\left\| {{V_1} - {V_2}} \right\|_\infty }\;.
+\end{align*}
+Since this holds for every $s \in S$ the required inequality follows.
+  \item The proof here is more intricate due to the maximum operation. As before, we need to show that  $|T_{}^*({V_1})(s) - T_{}^*({V_2})(s)|\;\, \le \;\,\gamma {\left\| {{V_1} - {V_2}} \right\|_\infty }$. Fixing the state $s$, we consider separately the positive and negative parts of the absolute value:
+
+(a) $T_{}^*({V_1})(s) - T_{}^*({V_2})(s) \le \gamma {\left\| {{V_1} - {V_2}} \right\|_\infty }$:   Let $\bar a$ denote an action that attains the maximum in $T_{}^*({V_1})(s)$, namely $\bar a \in \mathop {\arg \max }\limits_{a \in A} \left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a){V_1}(s')} } \right\}$. Then
+\[T_{}^*({V_1})(s) = r(s,\bar a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\bar a){V_1}(s')} \]
+\[T_{}^*({V_2})(s) \ge r(s,\bar a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\bar a)V(s')} \]
+Since the same action $\bar a$ appears in both expressions, we can now continue to show the inequality (a) similarly to 1.
+
+(b) $T_{}^*({V_2})(s) - T_{}^*({V_1})(s) \le \gamma {\left\| {{V_1} - {V_2}} \right\|_\infty }$:   Follows symmetrically to (a).
+
+The inequalities (a) and (b) together imply that $|T_{}^*({V_1})(s) - T_{}^*({V_2})(s)|\;\, \le \;\,\gamma {\left\| {{V_1} - {V_2}} \right\|_\infty }$. Since this holds for any state $s$, it follows that $||T_{}^*({V_1}) - T_{}^*({V_2})|{|_\infty } \le \gamma {\left\| {{V_1} - {V_2}} \right\|_\infty }$.
+\end{enumerate}
+\end{proof}
+
+
+\section{Proof of Bellman's Optimality Equation}
+We prove in this section Theorem \ref{thm:inf_Bellman}, which is restated here:
+\begin{theorem*}[Bellman's Optimality Equation]
+The following statements hold:
+\begin{enumerate}
+  \item $V_{}^*$ is the unique solution of the following set of (nonlinear) equations:
+\begin{equation}\label{eq:Bellman2}
+V(s) = \mathop {\max }\limits_{a \in A} \left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)V(s')} } \right\},     \quad s \in S.
+\end{equation}
+  \item Any stationary policy ${\pi ^*}$ that satisfies
+\[{\pi ^*}(s) \in \arg {\max _{a \in A}}\left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)V(s')} } \right\},\]
+     is an optimal policy (for any initial state ${s_0} \in S$).
+\end{enumerate}
+\end{theorem*}
+We observe that the Optimality equation in part 1 is equivalent to
+$V = {T^*}(V)$
+where ${T^*}$ is the optimal DP operator from the previous section, which was shown to be a contraction operator with coefficient $\gamma $.  The proof also uses the value iteration property of Theorem \ref{thm:_VI}, which is proved in the next section.
+
+\begin{proof}[\textbf{Proof of Theorem \ref{thm:inf_Bellman}:}]
+We prove each part.
+\begin{enumerate}
+  \item As $T_{}^*$ is a contraction operator, existence and uniqueness of the solution to $V = T_{}^*(V)$ follows from the Banach fixed point theorem. Let $\hat V$ denote that solution. It also follows by that theorem that ${(T_{}^*)^n}({V_0}) \to \hat V$ for any ${V_0}$. But in Theorem \ref{thm:_VI} we show that ${(T_{}^*)^n}({V_0}) \to V_{}^*$, hence $\hat V = V_{}^*$,  so that $V_{}^*$ is indeed the unique solution of  $V = T_{}^*(V)$.
+  \item By definition of  ${\pi ^*}$ we have
+\[T_{}^{\pi *}(V_{}^*) = T_{}^*(V_{}^*) = V_{}^*,\]
+where the last equality follows from part 1. Thus the optimal value function satisfied the equation $T_{}^{\pi *}V_{}^* = V_{}^*$. But we already know (from Prop. \ref{prop:FP_VI}) that $V_{}^{\pi *}$ is the unique solution of that equation, hence $V_{}^{\pi *} = V_{}^*$. This implies that ${\pi ^*}$ achieves the optimal value (for any initial state), and is therefore an optimal policy as stated.
+\end{enumerate}
+\end{proof}
+
+\section{Value Iteration}
+
+The value iteration algorithm allows to compute the optimal value function ${V^*}$ iteratively to any required accuracy.
+The Value Iteration algorithm (Algorithm \ref{alg:VI}) can be stated as follows:
+\begin{enumerate}
+  \item Start with any initial value function ${V_0} = ({V_0}(s))$.
+  \item Compute recursively, for $n = 0,1,2, \ldots $,
+          \[{V_{n + 1}}(s) = \mathop {\max }\limits_{a \in A} \sum\nolimits_{s' \in S} {p(s'|s,a)[r(s,a,s') + \gamma {V_n}(s')]} ,       \quad \forall s \in S.\]
+  \item Apply a stopping rule obtain a required accuracy (see below).
+\end{enumerate}
+In terms of the DP operator $T_{}^*$, value iteration is simply stated as:
+\[{V_{n + 1}} = T_{}^*({V_n}), \quad n \ge 0.\]
+Note that the number of operations for each iteration is $O(|A| \cdot |S{|^2})$.
+Theorem \ref{thm:_VI} states that ${V_n} \to V_{}^*$, exponentially fast. The proof follows.
+
+\begin{proof}[\textbf{Proof of Theorem \ref{thm:_VI}:}]  Using our previous results on value iteration for the finite-horizon problem, it follows that
+\[{V_n}(s) = \mathop {\max }\limits_\pi  {E^{\pi ,s}}(\sum\limits_{t = 0}^{n - 1} {{\gamma ^t}{R_t} + } {\gamma ^n}{V_0}({s_n})).\]
+Comparing to the optimal value function
+\[{V^*}(s) = \mathop {\max }\limits_\pi  {E^{\pi ,s}}(\sum\limits_{t = 0}^\infty  {{\gamma ^t}{R_t}} ),\]
+it may be seen that that
+                                \[|{V_n}(s) - V_{}^*(s)| \le {\gamma ^n}(\frac{{{R_{\max }}}}{{1 - \gamma }} + ||{V_0}|{|_\infty }).\]
+As $\gamma  < 1$, this implies that ${V_n}$ converges to $V_\gamma ^*$  exponentially fast.                        \end{proof}
+
+
+\subsection{Error bounds and stopping rules:}
+It is important to have an on-line criterion for the accuracy of the n-the step solution ${V_n}$. The exponential bound in the last theorem is usually too crude and can be improved. Since our goal is to find an optimal policy, we need to know how errors in ${V^*}$ affect the sub-optimality of the derived policy. We quote some useful bounds without proof.  More refined error bounds can be found in the texts on Dynamic Programming.
+
+\begin{enumerate}
+  \item The distance of ${V_n}$ from the optimal solution is upper bounded as follows:
+                                           \[||{V_n} - V_{}^*|{|_\infty } \le {\textstyle{\gamma  \over {1 - \gamma }}}||{V_n} - {V_{n - 1}}|{|_\infty }\]
+Note that the right-hand side depends only on the computed values on the last two rounds, and hence is easy to apply. As the bound also decays exponentially (with rate $\gamma $), it allows to compute the value function to within any required accuracy. In particular, to ensure $||{V_n} - V_{}^*|{|_\infty } \le \varepsilon $, we can use the stopping rule  $||{V_n} - {V_{n - 1}}|{|_\infty } \le {\textstyle{{1 - \gamma } \over \gamma }}\varepsilon $.
+
+\item If $||V - V_{}^*|{|_\infty } \le \varepsilon $, then any stationary policy $\pi $ that is greedy with respect to $V$, i.e., satisfies
+\[\pi (s) \in \arg {\max _{a \in A}}\left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a){V_n}(s')} } \right\},\]
+is $2\varepsilon $-optimal, namely $||V_{}^\pi  - V_{}^*|{|_\infty } \le 2\varepsilon $.
+This allows obtain a $2\varepsilon $-optimal policy from an $\varepsilon $-approximation of  $V_{}^*$.
+\end{enumerate}
+
+\section{Policy Iteration}
+
+The policy iteration algorithm, introduced by Howard (1960), computes an optimal policy ${\pi ^*}$ in a finite number of steps. This number is typically small (on the same order as $|S|$).
+
+The basic principle behind Policy Iteration is Policy Improvement. Let $\pi$ be a stationary policy, and let $V_{}^\pi $ denote  its value function. A stationary policy $\bar \pi $ is called $\pi$- improving if it is a greedy policy with respect to ${V^\pi }$, namely
+\[\bar \pi (s) \in \arg {\max _{a \in A}}\left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a){V^\pi }(s')} } \right\}, \quad s \in S.\]
+
+\begin{lemma}[Policy Improvement] We have
+${V^{\bar \pi }} \ge {V^\pi }$ (component-wise), and equality holds if and only if  $\pi $ is an optimal policy.
+\end{lemma}
+
+\begin{proof} Observe first that
+\[{V^\pi } = T_{}^\pi ({V^\pi }) \le T_{}^*({V^\pi }) = T_{}^{\bar \pi }({V^\pi })\]
+The first equality follows since ${V^\pi }$ is the value function for the policy $\pi $, the inequality follows because of the maximization in the definition of  $T_{}^*$, and the last equality by definition of the improving policy $\bar \pi $.
+
+It is easily seen that $T_{}^\pi $ is a monotone operator (for any policy $\pi $), namely ${V_1} \le {V_2}$ implies $T_{}^\pi {V_1} \le T_{}^\pi {V_2}$. Applying $T_\gamma ^{\bar \pi }$  repeatedly to both sides of the above inequality ${V^\pi } \le T_{}^{\bar \pi }{V^\pi }$ therefore gives
+\[{V^\pi } \le T_{}^{\bar \pi }({V^\pi }) \le {(T_{}^{\bar \pi })^2}({V^\pi }) \le  \cdots  \le \mathop {\lim }\limits_{n \to \infty } {(T_{}^{\bar \pi })^n}({V^\pi }) = {V^{\bar \pi }},\]
+where the last equality follows by value iteration. This establishes the first claim.
+The equality claim is left as an \textbf{exercise}.
+\end{proof}
+
+The policy iteration algorithm performs successive rounds of policy improvement, where each policy ${\pi _{k + 1}}$ improves the previous one ${\pi _k}$. Since the number of stationary policies is bounded, so is the number of strict improvements, and the algorithm must terminate with an optimal policy after a finite number of steps.
+
+In terms of computational complexity, Policy Iteration requires $O(|A|\, \cdot \,|S{|^2}\, + |S{|^3})$ operations per step, with the number of steps being typically small.
+ In contrast, Value Iteration requires $O(|A| \cdot |S{|^2})$ per step, but the number of required iterations may be large, especially when the discount factor $\gamma $ is close to 1.
+
+
+\section{Some Variants on Value Iteration and Policy Iteration}
+
+\subsection{Value Iteration - Gauss Seidel Iteration}
+In the standard value iteration: ${V_{n + 1}} = T_{}^*({V_n})$, the vector ${V_n}$ is held fixed while all entries of ${V_{n + 1}}$ are updated.
+An alternative is to update each element ${V_n}(s)$ of that vector as to ${V_{n + 1}}(s)$ as soon as the latter is computed, and continue the calculation with the new value.
+This procedure is guaranteed to be "as good" as the standard one, in some sense, and often speeds up convergence.
+
+
+\subsection{Asynchronous Value  Iteration}
+Here, in each iteration ${V_n} \Rightarrow {V_{n + 1}}$, only a subset of the entries of  ${V_n}$ (namely, a subset of all states) is updated.
+It can be shown that if each state is updated infinitely often, then ${V_n} \to {V^*}$.
+Asynchronous update can be used to focus the computational effort on "important'' parts of a large-state space.
+
+
+
+\subsection{Modified (a.k.a. Generalized or Optimistic) Policy Iteration}\label{ss:mod_PI}
+
+This scheme combines policy improvement steps with value iteration for policy evaluation. This way the requirement for exact policy evaluation (computing  ${V^{{\pi _k}}} = {(I - \gamma {P^{{\pi _k}}})^{ - 1}}{r^{{\pi _k}}}$) is avoided.
+
+The procedure starts with some initial value vector ${V_0}$, and iterates as follows:
+\begin{itemize}
+  \item Greedy policy computation:
+
+Compute ${\pi _k} \in \arg {\max _\pi }T_{}^\pi ({V_k})$, a greedy policy with respect to ${V_k}$.
+  \item Partial value iteration:
+
+Perform ${m_k}$ steps of value iteration, ${V_{k + 1}} = {(T_\gamma ^{{\pi _k}})^{{m_k}}}({V_k})$.
+\end{itemize}
+
+This algorithm guarantees convergence of ${V_k}$ to ${V^*}$.
+
+\section{Linear Programming Solutions}
+
+An alternative approach to value and policy iteration is the linear programming method. Here the optimal control problem is formulated as a linear program (LP), which can be solved efficiently using standard LP solvers. There are two formulations: primal and dual. As this method is less related to learning we will only sketch it briefly.
+
+\subsection{Some Background on Linear Programming}
+A Linear Program (LP) is an optimization problem that involves minimizing (or maximizing) a linear objective function subject to linear constraints. A standard form of a LP is
+\begin{equation}\label{eq:LP}
+ \textrm{minimize } {b^T}x,   \quad \textrm{subject to } Ax \ge c,  x \ge 0.
+\end{equation}
+where $x = {({x_1},{x_2}, \ldots ,{x_n})^T}$ is a vector of real variables arranged as a column vector.
+The set of constraints is linear and defines a \emph{convex polytope} in $\mathbb R^n$, namely a closed and convex set $U$ that is the intersection of a finite number of half-spaces. $U$ has a finite number of vertices, which are points that cannot be generated as a convex combination of other points in  $U$. If  $U$ is bounded, it equals the convex combination of its vertices. It can be seen that an optimal solution (if finite) will be in one of these vertices.
+
+The LP problem has been extensively studied, and many efficient solvers exist. In 1947, Danzig introduced the Simplex algorithm, which essentially moves greedily along neighboring vertices.  In the 1980's effective algorithms (interior point and others) were introduced which had polynomial time guarantees.
+
+\paragraph{Duality:} The \emph{dual} of the LP in \eqref{eq:LP} is defined as the following LP:
+\begin{equation}\label{eq:LP_dual}
+\textrm{maximize } {c^T}y,   \quad \textrm{subject to } {A^T}y \le b,  y \ge 0.
+\end{equation}
+The two dual LPs have the same optimal value, and the solution of one can be obtained from that of the other. The common optimal value can be understood by the following computation:
+
+\begin{align*}
+\mathop {\min }\limits_{x \ge 0,Ax \ge c} {b^T}x &= \mathop {\min }\limits_{x \ge 0} \mathop {\max }\limits_{y \ge 0} \left\{ {{b^T}x + {y^T}(c - Ax)} \right\}\\
+ &= \mathop {\max }\limits_{y \ge 0} \mathop {\min }\limits_{x \ge 0} \left\{ {{c^T}y + {x^T}(b - Ay)} \right\} = \mathop {\max }\limits_{y \ge 0,Ay \le b} {c^T}x.
+\end{align*}
+where the second equality follows by the min-max theorem.
+
+\paragraph{Note:} For an LP of the form:
+\begin{equation*}
+ \textrm{minimize } {b^T}x,   \quad \textrm{subject to } Ax \ge c,
+\end{equation*}
+%minimize \[{b^T}x\],   subject to \[Ax \ge c\],
+the dual is
+\begin{equation*}
+\textrm{maximize } {c^T}y,   \quad \textrm{subject to } {A^T}y = b,  y \ge 0.
+\end{equation*}
+%maximize \[{c^T}y\],   subject to \[{A^T}y = b\],  \[y \ge 0\]
+
+\subsection{The Primal LP}
+Recall that ${V^*}$satisfies the optimality equations:
+\[V(s) = \mathop {\max }\limits_{a \in A} \left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)V(s')} } \right\},     \quad s \in S.\]
+\begin{proposition}\label{prop:LP_prop}
+${V^*}$ is the smallest function (component-wise) that satisfies the following set of
+inequalities:
+\begin{equation}\label{eq:LP_prop}
+v(s) \ge r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)v(s')} ,\quad \forall s,a.
+\end{equation}
+\end{proposition}
+\begin{proof}
+Suppose $v = (v(s))$ satisfies \eqref{eq:LP_prop}. That is, $v \ge T_{}^\pi v$ for every stationary policy. Then by the monotonicity of $T_{}^\pi $,
+\[v \ge T_{}^\pi (v)\;\; \Rightarrow \;\;T_{}^\pi (v)\; \ge {(T_{}^\pi )^2}(v)\;\; \Rightarrow \;\; \ldots \; \Rightarrow \;\;{(T_{}^\pi )^k}(v)\; \ge {(T_{}^\pi )^{k + 1}}v,\]
+so that
+\[v \ge T_{}^\pi (v) \ge {(T_{}^\pi )^2}(v) \ge  \ldots  \ge \mathop {\lim }\limits_{n \to \infty } {(T_{}^\pi )^n}(v) = {V^\pi }.\]
+Now, if we take $\pi$  as the optimal policy we obtain $v \ge {V^*}$ (component-wise).
+\end{proof}
+It follows from Proposition \ref{prop:LP_prop} that ${V^*}$ is the solution of the following linear program:
+\paragraph{Primal LP:	}
+\[\mathop {\min }\limits_{(v(s))} \;\;\sum\limits_s {v(s)}, \quad \textrm{ subject to \eqref{eq:LP_prop} } .\]
+Note that the number of inequality constraints is ${N_S}\times{N_A}$.
+
+\subsection{The Dual LP}
+The dual of our Primal LP turns out to be:
+
+\paragraph{Dual LP:} 	\[\mathop {\max }\limits_{({f_{s,a}})} \quad \;\sum\limits_{s,a} {{f_{s,a}}r(s,a)} \]
+   		subject to:	\[{f_{s,a}} \ge 0\quad \forall s,a\]
+				\[\sum\limits_{s,a} {{f_{s,a}}}  = {\textstyle{1 \over {1 - \gamma }}}\]
+				\[{p_0}(s') + \gamma \sum\limits_{s,a} {p(} s'|s,a){f_{s,a}} = \sum\limits_{a} {{f_{s',a}}\quad \forall s'}  \in S\]
+where ${p_0} = ({p_0}(s'))$ is any probability vector (usually taken as a 0/1 vector).
+
+\paragraph{Interpretation:}
+\begin{enumerate}
+  \item The variables ${f_{s,a}}$ correspond to the "state action frequencies" (for a given policy):
+                            \[{f_{s,a}} \sim E(\sum\limits_{t = 0}^\infty  {{\gamma ^t}{I_{\{ {s_t} = s,{a_t} = a\} }})}  = \sum\limits_{t = 0}^\infty  {{\gamma ^t}P({s_t} = s,{a_t} = a)}, \]
+and ${p_0}(s') \sim p({s_0} = s')$ is the initial state distribution.
+  \item It is easy to see that the discounted return can be written in terms of ${f_{s,a}}$ as $\sum\limits_s {{f_{s,a}}r(s,a)} $, which is to be maximized.
+  \item The above constraints easily follow from the definition of ${f_{s,a}}$.
+\end{enumerate}
+\paragraph{Further comments:}
+\begin{itemize}
+  \item The optimal policy can by obtained directly from the solution of the dual using:
+                                           \[\pi (a|s) = \frac{{{f_{s,a}}}}{{{f_s}}} \equiv \frac{{{f_{s,a}}}}{{\sum\nolimits_a {{f_{s,a}}} }}\]
+This policy can be stochastic if the solution to the LP is not unique. However, it will be deterministic even in that case if we choose $f$ as an \emph{extreme} solution of the LP.
+  \item The number of constraints in the dual is ${N_S}{N_A} + ({N_S} + 1)$. However, the inequality constraints are simpler than in the primal.
+\end{itemize}

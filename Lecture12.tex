@@ -1,0 +1,343 @@
+Recall that Reinforcement Learning is concerned with learning optimal control policies by interacting with the environment. So far, we have focused on learning methods that rely on learning the value function, from which the optimal policy can be inferred.
+Policy gradient methods take a different approach. Here a set of \textbf{policies} is directly parameterized by a continuous set of parameters, which are then optimized online. The basic algorithms use online gradient descent, hence achieve only local optimality in the parameter space.
+% To allow efficient learning, the parameter vector should be of a reasonably low dimension. 
+This also means that the set of possible policies is restricted, and might require a fair amount of prior knowledge for its effective definition. On the other hand, the restriction to a given set of policies simplifies the treatment of various aspects of the RL problem such as large or continuous state and action spaces. For these reasons, policy gradient methods are finding many applications in the area of robot learning.
+Policy Gradient algorithms belong to a larger class of Policy Search algorithms. An extensive survey can be found in:
+\begin{itemize}
+  \item M. Deisenroth, G. Neumann and J. Peters, "A Survey on Policy Search for Robotics," Foundations and Trends in Robotics, Vol. 2, 2011, pp. 1-142.
+\end{itemize}
+%
+%Contents:
+%13.1  Problem Description
+%13.2  Finite Difference Methods
+%13.3  Likelihood Ratio Methods
+
+\section{Problem Description}
+
+We consider the standard MDP model in discrete time, with states  ${x_t} \in X$, actions ${u_t} \in U$, transition kernel $\{ p(x'|x,u)\} $ , rewards  ${R_t} = {r_t}({x_t},{u_t})$, and policies $\pi  \in \Pi $.
+
+For concreteness, we consider an episodic (finite horizon) problem with the total return criterion, which is to be maximized:
+\[{J^\pi } = {\mathbb E^{\pi ,{x_0}}}(\;\sum\limits_{t = 0}^T {{R_t}} \,).\]
+Here ${x_0}$ is a given initial state. We may allow the final time $T$ to depend on the state (as in the Stochastic Shortest Path problem), as long as it is bounded.
+
+We next assume that we are given parameterized set of policies: $\{ {\pi _\theta },\,\theta  \in \Theta \} $, where $\theta $ is an $I$-dimensional parameter vector. We also refer to this set as a policy representation. The representation is often application-specific and should take into account prior knowledge on the problem.
+
+We assume the following:
+\begin{itemize}
+  \item The actions set $U$ is continuous - typically a subset of $\mathbb R^l$.
+If the original action set is finite, we extend it to a continuous set by considering  random (mixed) actions.
+  \item The parameter set $\Theta $ is a continuous subset of $\mathbb R^I$.
+  \item The policy set $\{ {\pi _\theta },\,\theta  \in \Theta \} $ is smooth in $\theta $. In particular, assuming each ${\pi _\theta }$ is a stationary policy,  ${\pi _\theta }(s)$ is a continuous function of $\theta $ for each state $s$.
+\end{itemize}
+
+\paragraph{Policy representation:} Some common generic representations include:
+\begin{itemize}
+  \item Linear policies:
+                                      $$u = {\pi _\theta }(x) = {\theta ^T}\phi (x),$$
+where $\phi (x)$ is a suitable set of basis functions (or  feature vectors).
+  \item Radial Basis Function Networks:
+             $${\pi _\theta }(x) = {w^T}\phi (x),  \textrm{ with }  {\phi _i}(x) = \exp ( - {\textstyle{1 \over 2}}{(x - {\mu _i})^T}{D_i}(x - {\mu _i})),$$
+where ${D_i}$ is typically a diagonal matrix. The vector $\theta $ of tunable parameters includes $w$ (the linear parameters), and possibly $({\mu _i})$ and $({D_i})$ (nonlinear parameters).
+  \item Neural Networks. For example, a Multi-Layer Perceptron (MLP):
+  $$
+    {\pi _\theta }(x) = \psi(b_2 + w_2^T \psi(b_1 + {w_1^T}\phi (x))),
+  $$
+  where $\psi$ is a non-linear activation function (e.g., $\tanh$ or sigmoid) and the vector $\theta$ includes the weight and the bias terms ($w_1,w_2,b_1,b_2$) in the neural network. This can be seen as a generalization of the linear policy to include non-linearities.
+  \item Logistic (a.k.a. softmax) functions: For a discrete (finite) action space, one can use the Boltzman-like probabilities
+                           $${\pi _\theta }(u|x) = \exp (w_u^T\phi (x))/\sum\nolimits_{u'} {\exp (w_{u'}^T\phi (x)} ),$$
+where  $\theta  = {({w_u})_{u \in U}}$. It is convenient to designate one of the actions as 'anchor', with ${w_u} = 0$.
+\item Stochastic policies: in certain cases a stochastic policy is required for sufficient exploration of the system. This is typically modelled by adding noise to a deterministic policy. For example, in a linear policy with Gaussian noise:
+$$
+P(u|x) = {\pi _\theta }(u|x) \sim \mathcal{N}\left( {w ^T}\phi (x), \sigma \right),
+$$
+where the parameter vector $\theta$ contains $w$ and the covariance matrix $\sigma$.
+\end{itemize}
+
+In robotics, a parameterized path is often described through a parameterized dynamical system, the output of which is used as a reference input to a feedback controller.
+
+\paragraph{Gradient Updates:}  Plugging in the parameter-dependent policy ${\pi _\theta }$ in ${J^\pi }$,  we obtain the parameter-dependent return function:
+\[J(\theta ) = {J^{{\pi _\theta }}}.\]
+
+We wish to find a parameter $\theta $ that maximizes $J(\theta )$, at least locally. We discuss two high-level approaches for this task.
+
+\section{Search in Parameter Space}
+In this approach, the problem is viewed as a black-box optimization of the function $J(\theta )$.
+Black-box optimization (a.k.a. derivative free optimization) refers to optimization of an objective function through a black-box interface: the algorithm may only query the function $J(\theta )$ for a point $\theta$; gradient information or the explicit form of $J(\theta)$ are not known. 
+
+In our setting, for each given value of the parameter vector $\theta $, we can simulate or operate the system with control policy ${\pi _\theta }$ and measure the return  $\hat J(\theta ) = \sum\nolimits_{t = 0}^T {{R_t}} $, which gives a estimate of the expected return $J(\theta )$. We note that for stochastic systems or policies, this estimate will be noisy.
+
+Note: The search in parameter space approach ignores the structure of our problem, namely, that trajectories are the result of rolling out a policy in an MDP. Only the mapping between $\theta$ and the resulting cumulative reward is considered.
+
+Many black-box optimization algorithms have been proposed in the literature. We describe several that have been popular in RL literature.
+
+\subsection{Gradient Approximation}
+
+These methods use function evaluations of $J(\theta )$ to approximate the gradient ${\nabla _\theta }J(\theta )$.
+Given the gradient, we may consider a gradient ascent scheme, of the form
+\begin{equation}\label{eq:grad_ascent_scheme}
+{\theta _{k + 1}} = {\theta _k} + {\alpha _k}\,{\nabla _\theta }J({\theta _k}).
+\end{equation}
+Here  $({\alpha _k})$ is the gain (or learning rate) sequence, and
+\[{\nabla _\theta }J(\theta ) = \frac{{\partial J(\theta )}}{{\partial \theta }}\]
+is the gradient of the return function with respect to $\theta $.
+
+It remains of course to determine how to compute the required gradient. We next outline two options.
+
+Note: Whenever required, we assume without further mention that $J(\theta )$ is continuously differentiable, and that the expectation and derivative in its definition can be interchanged.
+
+\subsubsection*{Finite Difference Methods}
+Finite difference methods are among the most common and straightforward methods for estimating the gradient in a variety of applications.
+
+Suppose that, for each given value of the parameter vector $\theta $, we can simulate or operate the system with control policy ${\pi _\theta }$ and measure the return  $\hat J(\theta ) = \sum\nolimits_{t = 0}^T {{R_t}} $, which gives a estimate of the expected return $J(\theta )$. We note that this estimate will be noisy when either the policy or the system contain random moves.
+
+\paragraph{Component-wise gradient estimates:} We can now obtain a noisy estimate of each component of the gradient vector using a finite difference of the form:
+\[\frac{{\partial J(\theta )}}{{\partial {\theta _i}}} \approx \frac{{\hat J(\theta  + \delta {e_i}) - \hat J(\theta )}}{\delta },\]
+or, preferably, the symmetric difference
+  \[\frac{{\partial J(\theta )}}{{\partial {\theta _i}}} \approx \frac{{\hat J(\theta  + \delta {e_i}) - \hat J(\theta  - \delta {e_i})}}{{2\delta }}.\]
+\paragraph{Note:}
+\begin{itemize}
+  \item Since the estimates $\hat J$ are typically noisy, repeated trials and averaging of several such differences are needed to reduce the estimation error. However, one can also use the noisy estimates with a low gain in the gradient ascent scheme, which has a similar averaging effect.
+  \item The choice of the step size $\delta $ is crucial, as it controls the tradeoff between the relative noise level and the non-linearity of $J(\theta )$. We will not get into this issue here.
+  \item A useful method to reduce the variance of the above difference is to use coupled random simulation, meaning that the random variables that govern the random choices in the simulation (or action choices) are drawn only once, and used for both estimates $\hat J(\theta  + \delta {e_i})$ and $\hat J(\theta  - \delta {e_i})$. These and other variance reduction methods are standard tools in the area of Monte-Carlo simulation.
+\end{itemize}
+
+\paragraph{Least-squared gradient estimates:}  Suppose we simulates/operate the system with a set of parameters ${\theta ^{[k]}} = \theta  + \Delta {\theta ^{[k]}}$, $1 \le k \le K$, to obtain a corresponding set of reward estimates ${\hat J^{[k]}} = \hat J(\theta  + \Delta {\theta ^{[k]}})$.
+
+We can now use the linear relations
+\begin{equation}\label{eq:LS_grad}
+    \hat J(\theta  + \Delta {\theta ^{[k]}}) \approx J(\theta ) + \Delta {\theta ^{[k]}} \cdot \nabla J(\theta )
+\end{equation}
+to obtain a least-squares estimate of $\nabla J(\theta )$. For example, if an estimate $\hat J(\theta )$ is pre-computed, the relation
+\[\Delta {J^{[k]}} \buildrel \Delta \over = \hat J(\theta  + \Delta {\theta ^{[k]}}) - \hat J(\theta ) \approx \Delta {\theta ^{[k]}} \cdot \nabla J(\theta )\]
+leads to the LS estimate
+\[\hat \nabla J(\theta ) = {({\bf{\Delta }}{{\bf{\Theta }}^T}{\bf{\Delta \Theta }})^{ - 1}}{\bf{\Delta }}{{\bf{\Theta }}^T}{\bf{\Delta J}},\]
+where ${\bf{\Delta \Theta }} = {[\Delta {\theta ^{[1]}}, \ldots ,\Delta {\theta ^{[K]}}]^T}$, and ${\bf{\Delta J}} = {[\Delta {J^{[1]}}, \ldots ,\Delta {J^{[K]}}]^T}$.  (Note that we consider here $\Delta {\theta ^{[k]}}$ as a column vector, so that ${\bf{\Delta \Theta }}$ is a $K \times I$ matrix).
+
+If $\hat J(\theta )$ is not given in advance, we can use directly the relations from \eqref{eq:LS_grad} in matrix form,
+\[{\bf{\hat J}} \buildrel \Delta \over = \left[ {\begin{array}{*{20}{c}}
+{{{\hat J}^{[1]}}}\\
+ \vdots \\
+{{{\hat J}^{[K]}}}
+\end{array}} \right] \approx M\left[ {\begin{array}{*{20}{c}}
+{J(\theta )}\\
+{\nabla J(\theta )}
+\end{array}} \right],\quad \quad M = [{\bf{1}},{\bf{\Delta \Theta }}]\]
+to obtain the joint estimate ${({M^T}M)^{ - 1}}M\,{\bf{\hat J}}$ for $J(\theta )$ and $\nabla J(\theta )$.
+
+\section{Population Based Methods}
+
+This family of methods maintain a distribution over the parameter vector $\theta$, and use function evaluations to `narrow in' the distribution on an optimal choice. Assume that we have a parametrized distribution over the policy parameters $P_\phi(\theta)$. Note the distinction between the policy parameters $\theta$ and the parameters $\phi$ for the distribution of $\theta$ values.
+
+For example, $P_\phi(\theta)$ can be a multivariate Gaussian, where $\phi$ encodes the mean and covariance of the Gaussian. 
+
+\paragraph{Cross Entropy Method (CEM)}
+This method updates $\phi$ iteratively according to the following scheme:
+\begin{enumerate}
+    \item Given current parameter $\phi_i$, sample $N$ population members
+    $$
+    \theta_k \sim P_{\phi_i}(\theta), \quad k=1,\dots,N.
+    $$
+    \item For each $k$, simulate the system with ${\pi_{\theta_k} }$ and measure the return $J(\theta_k)$.
+    \item Let $K^*$ denote a set of the $p$\% top performing parameters
+    \item Improve the parameter: 
+    \begin{equation*}
+    \phi_{i+1} = \argmax_\phi \sum_{k \in K^*} \log P_{\phi}(\theta_k). 
+    \tag{$\star$}
+    \end{equation*}
+\end{enumerate}
+The intuition here is that by refitting the distribution $P_\phi$ to the top performing parameters in the population, we are iteratively improving the distribution.
+
+Note that other forms of the improvement step ($\star$) have been proposed in the literature. For example, in Reward Weighted Regression (RWR) the parameters are updated according to $$\phi_{i+1} = \argmax_\phi \sum_{k \in 1,\dots,N} J(\theta_k)\log P_{\phi}(\theta_k).$$
+
+\section{Likelihood Ratio Methods}
+Likelihood ratio-based methods allow to obtain a (noisy) estimate of the reward gradient from a \textbf{single} trial. The approach is again standard in the Monte-Carlo simulation area, where it is also known as the Score Function methods. Its first use in the controlled process (or RL) context is known as the REINFORCE algorithm. Interestingly, the RL formulation of this method can exploit the MDP structure of the problem, by using dynamic programming ideas to reduce variance in the estimation. 
+
+Let ${\bf{\tau }} = ({x_0},{u_0}, \ldots ,{x_T})$ denote the process history, or sample path, of a single run of our episodic problem.  For simplicity we consider here a discrete model (finite state and action sets). Let ${p_\theta }({\bf{\tau }})$ denote the probability mass function induced on the process by the policy ${\pi _\theta }$. That is, assuming ${\pi _\theta }$ is a Markov policy,
+\[{p_\theta }({\bf{\tau }}) = p({x_0})\prod\limits_{t = 0}^{T - 1} {{\pi _\theta }({u_t}|{x_t})p({x_{t + 1}}|{x_t},{u_t})}. \]
+Denote $R({\bf{\tau }}) = \sum\nolimits_{t = 0}^{T - 1} {r({x_t},{u_t}) + {r_T}({x_T})} $, so that
+\[J(\theta ) = {\mathbb E^\theta }(R({\bf{\tau }})) = \sum\nolimits_{\bf{\tau }} {R({\bf{\tau }}){p_\theta }({\bf{\tau }})\,} .\]
+Observe now that${\nabla _\theta }{p_\theta }({\bf{\tau }}) = {p_\theta }({\bf{\tau }})\,{\nabla _\theta }\log {p_\theta }({\bf{\tau }})$. Therefore, assuming that the expectation and derivative can be interchanged,
+\begin{align*}
+\nabla J(\theta ) &= \sum\nolimits_{\bf{\tau }} {R({\bf{\tau }}){\nabla _\theta }{p_\theta }({\bf{\tau }})} \\
+ &= \sum\nolimits_{\bf{\tau }} {[R({\bf{\tau }}){\nabla _\theta }\log {p_\theta }({\bf{\tau }})]\,{p_\theta }({\bf{\tau }})} \\
+ &= {\mathbb E^\theta }\left( {R({\bf{\tau }}){\nabla _\theta }\log {p_\theta }({\bf{\tau }})} \right).
+\end{align*}
+Furthermore, observing the above expression for ${p_\theta }({\bf{\tau }})$,
+\[{\nabla _\theta }\log {p_\theta }({\bf{\tau }}) = \sum\limits_{t = 0}^{T - 1} {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} .\]
+Importantly, the latter expression depends only on the derivative of the control policy, which is known to us, and not on the (unknown) process dynamics and reward function.
+
+We can now obtain an unbiased estimate of $\nabla J(\theta )$ as follows:
+\begin{itemize}
+  \item Simulate/implement a single episode ("rollout") of the controlled system with policy ${\pi _\theta }$.
+  \item Compute $R({\bf{\tau }})$ as $R({\bf{\tau }}) = \sum\nolimits_{t = 0}^{T - 1} {r({x_t},{u_t}) + {r_T}({x_T})} $, or directly using the observed rewards $R({\bf{\tau }}) \buildrel \Delta \over = \sum\nolimits_{t = 0}^T {{R_t}} $.
+  \item Compute   $\hat \nabla J(\theta ) = R({\bf{\tau }})\sum\limits_{t = 0}^{T - 1} {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} $
+This is typically a noisy estimate, which can of course be improved by averaging over repeated trials.
+\end{itemize}
+
+\subsubsection{Illustrative Example}
+
+Consider the bandit setting, where the MDP has only a single state and the horizon is $T=1$. The policy and reward are given as follows:
+\begin{equation*}
+    \begin{split}
+        r(u) &= u, \\
+        \pi_\theta(u) &= \frac{1}{\sqrt{2 \pi \sigma^2}} \exp (- \frac{(u - \theta)^2}{2 \sigma^2}).
+    \end{split}
+\end{equation*}
+We have that $J(\theta) = \mathbb{E}[u] = \theta$, and thus $\nabla_\theta J(\theta) = 1.$
+Using the policy gradient formula, we calculate:
+\begin{equation*}
+    \begin{split}
+        \nabla_\theta \log \pi_\theta(u) &= \frac{u - \theta}{\sigma^2}, \\
+        \nabla_\theta J(\theta) &= \mathbb{E} [\frac{u(u - \theta)}{\sigma^2}] \\
+        &= \frac{1}{\sigma^2} (\mathbb{E} [u^2] - (\mathbb{E} [u])^2) = 1.
+    \end{split}
+\end{equation*}
+Note the intuitive interpretation of the policy gradient here: we average the change to the mean action $u-\theta$ and the reward it produces $r(u)=u$. In this case, actions above the mean lead to higher reward, thereby `pushing' the mean action $\theta$ to increase. Also note the relation to the reward-weighted regression expression above.
+
+\subsection{Variance Reduction}
+We now provide a generalization of the policy gradient. We will consider an episodic MDP setting, and assume that for every policy parameter $\theta$, an absorbing state is reached w.p.~1. We can therefore replace the finite horizon return with an infinite sum ${J^\pi } = {\mathbb E^{\pi ,{x_0}}}(\;\sum\limits_{t = 0}^\infty {{R_t}} \,)$. We also recall the value and action value functions $V^\pi(x)$ and $Q^\pi(x,u)$. 
+\begin{proposition}\label{prop:pg_control_variates}
+The policy gradient can be written as:
+\begin{equation*}
+    \nabla_\theta J(\theta) = {\mathbb E^\theta }\left( \sum_{t=0}^\infty \Psi_t {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right),
+\end{equation*}
+where $\Psi_t$ can be either one of the following terms:
+\begin{enumerate}
+    \item Total reward, $\sum_{t=0}^\infty r(x_t,u_t) - b(x_t)$, where $b$ is a state-dependent baseline
+    \item Future reward following action $u_t$, $\sum_{t'=t}^\infty r(x_t,u_t) - b(x_t)$
+    \item State-action value function, $Q^\pi(x_t,u_t)$
+    \item Advantage function, $Q^\pi(x_t,u_t) - V^\pi(x_t)$
+    \item Temporal difference, $r(x_t,u_t) + V^\pi(x_{t+1})- V^\pi(x_t)$
+\end{enumerate}
+\end{proposition}
+
+All the above formulations are unbiased estimates of the policy gradient. However, they differ in their variance, and variance reduction plays an important role in practical applications\footnote{In the simulation literature, the technique of changing the variance of the estimate by adding terms that do not change its bias is known as \textit{control variates}.}. Let illustrate this in the previous bandit example.
+
+\subsubsection{Illustrative Example (cont'd)}
+Consider the previous bandit setting, where we recall that
+$        r(u) = u, \quad
+        \pi_\theta(u) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp (- \frac{(u - \theta)^2}{2 \sigma^2}).$
+Find a fixed baseline $b$ that minimizes the variance of the policy gradient estimate.
+
+The policy gradient formula in this case is:
+\begin{equation*}
+        \nabla_\theta J(\theta) = \mathbb{E} [\frac{(u-b)(u - \theta)}{\sigma^2}] = 1, 
+\end{equation*}
+and we can calculate the variance
+\begin{equation*}
+\begin{split}
+        \frac{1}{\sigma^4}\textrm{Var}\left[(u-b)(u - \theta)\right]  
+        &=\frac{1}{\sigma^4}\mathbb{E}\left[\left((u-b)(u - \theta)\right)^2 - 1\right] \\
+        &=\frac{1}{\sigma^4}\mathbb{E}\left[\left((u-\theta)(u - \theta) + (\theta-b)(u - \theta)\right)^2 - 1\right] \\
+        &=\frac{1}{\sigma^4}\mathbb{E}\left[(u-\theta)^4 + (\theta-b)(u - \theta)^3 + (\theta-b)^2(u - \theta)^2 - 1\right] \\
+        &=\frac{1}{\sigma^4}\mathbb{E}\left[(u-\theta)^4 + (\theta-b)^2(u - \theta)^2 - 1\right],
+\end{split}
+\end{equation*}
+which is minimized for $b=\theta$.
+
+\textbf{Note 1}: The average reward, state-action value function, and advantage function baselines are commonly used in practice. While in our illustrative example the average reward was optimal, in general it is not necessarily so. An in-depth discussion of this topic can be found in:  
+\begin{itemize}
+  \item Greensmith, E., Bartlett, P.L. and Baxter, J., 2004. Variance reduction techniques for gradient estimates in reinforcement learning. Journal of Machine Learning Research, 5(Nov), pp.1471-1530.
+\end{itemize}
+Nevertheless, these baselines often lead to significant performance gains in practice.
+
+\textbf{Note 2}: Typically, the value functions $V^\pi$ and $Q^\pi$ will not be known, and will have to be estimated along with the policy gradient using TD methods or regression. An important question here is how the error in value function estimation affects the policy gradient bias. There exist special policy classes and function approximators that are said to be \textit{compatible}, where the value estimation error is orthogonal to the policy gradient bias. In general, however, this is not the case. 
+
+
+\subsubsection{Proof of Proposition \ref{prop:pg_control_variates}}
+\begin{proof}
+We will start by establishing a useful property. 
+Let $p_\theta(z)$ be some parametrized distribution. Differentiating $\sum\nolimits_{z } {{p_\theta }(z)}  = 1$  yields
+\begin{equation}\label{eq:helper}
+\sum\nolimits_{z} {(\nabla \log {p_\theta }({z})} ){p_\theta }({z}) = {\mathbb E^\theta }(\nabla \log {p_\theta }({z})) = 0.
+\end{equation}
+
+We can now observe that adding a state-dependent baseline to the policy gradient does not add bias:
+\begin{equation*}
+\begin{split}
+{\mathbb E^\theta }\left( \sum_{t=0}^\infty b(x_t) {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right) &= \sum_{t=0}^\infty {\mathbb E^\theta }\left[ b(x_t) {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right] \\ 
+&= \sum_{t=0}^\infty {\mathbb E^\theta }\left[ {\mathbb E^\theta }\left[ \left. b(x_t) {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right| x_t \right]\right] \\ 
+&= \sum_{t=0}^\infty {\mathbb E^\theta }\left[ b(x_t) {\mathbb E^\theta }\left[ \left. {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right| x_t \right]\right] \\ 
+&= 0,
+\end{split}
+\end{equation*}
+where the last equation follows from applying \eqref{eq:helper} to the inner expectation. Note that the justification for exchanging the expectation and infinite sum in the first equality is not straightforward. In this case it can be shown to hold by the Fubini theorem, using the assumption that every trajectory reaches a terminal state in a bounded time w.p.~1.
+
+We continue to show the independence on past rewards. We have that
+\begin{equation*}
+\begin{split}
+& {\mathbb E^\theta }\left[ \sum_{t=0}^\infty \sum_{t'=0}^{t-1} r(x_{t'},u_{t'}) {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right] \\
+&= \sum_{t=0}^\infty {\mathbb E^\theta }\left[ \sum_{t'=0}^{t-1} r(x_{t'},u_{t'}) {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right] \\
+&= \sum_{t=0}^\infty {\mathbb E^\theta }\left[ {\mathbb E^\theta }\left[ \left. \sum_{t'=0}^{t-1} r(x_{t'},u_{t'}) {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right| x_0,u_0,\dots,x_t \right]\right] \\
+&= \sum_{t=0}^\infty {\mathbb E^\theta }\left[ \sum_{t'=0}^{t-1} r(x_{t'},u_{t'}) {\mathbb E^\theta }\left[ \left. {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right| x_0,u_0,\dots,x_t \right]\right] \\
+&= \sum_{t=0}^\infty {\mathbb E^\theta }\left[ \sum_{t'=0}^{t-1} r(x_{t'},u_{t'}) {\mathbb E^\theta }\left[ \left. {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right| x_t \right]\right] \\
+&=0, 
+\end{split}    
+\end{equation*}
+where in the second to last equality we used the Markov property, and in the last equality we again applied \eqref{eq:helper}. We have thus proved (1) and (2).
+
+\textbf{Exercise 1:} where would this derivation fail for future rewards?
+% Solution: the Markov property is required to obtain an expectation on P(u|x) which is the distribution of the policy, as required by \eqref{eq:helper}.
+
+We continue to prove (3).
+\begin{equation*}
+\begin{split}
+& {\mathbb E^\theta }\left[ \sum_{t=0}^\infty \sum_{t'=t}^{\infty} r(x_{t'},u_{t'}) {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right] \\
+& \sum_{t=0}^\infty {\mathbb E^\theta }\left[ \sum_{t'=t}^{\infty} r(x_{t'},u_{t'}) {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} \right] \\
+& \sum_{t=0}^\infty {\mathbb E^\theta }\left[ {\mathbb E^\theta }\left[ \left. \sum_{t'=t}^{\infty} r(x_{t'},u_{t'}) {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})}\right| x_t, u_t\right] \right] \\
+& \sum_{t=0}^\infty {\mathbb E^\theta }\left[ {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} {\mathbb E^\theta }\left[ \left. \sum_{t'=t}^{\infty} r(x_{t'},u_{t'}) \right| x_t, u_t\right] \right] \\
+& \sum_{t=0}^\infty {\mathbb E^\theta }\left[ {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} Q^\pi(x_t,u_t) \right]. \\
+\end{split}    
+\end{equation*}
+
+\textbf{Exercise 2:} Prove (4) and (5).
+
+\end{proof}
+
+\subsection{Natural Policy Gradient}
+In the gradient ascent scheme \eqref{eq:grad_ascent_scheme}, the idea is to take small steps that iteratively improve the policy. The question is, what is the best metric to define `small steps' in?
+Taking a step $\eta$ in the gradient direction is equivalent to solving the following optimization problem:
+\begin{equation}\label{eq:grad_descent_opt}
+    \begin{split}
+        \argmax_{\Delta \theta}&\quad \Delta \theta^\top \nabla J(\theta), \\
+        s.t. &\quad \Delta \theta^\top \Delta \theta \leq \eta.
+    \end{split}
+\end{equation}
+Thus, standard gradient ascent takes a small improvement step w.r.t.~a Euclidean distance in the parameter space. However, this scheme can be highly sensitive to the specific parametrization employed - it might be that a small change in parameters causes a very drastic change to the behavior of the policy. The natural gradient attempts to rectify this situation by replacing the Euclidean distance between two parameters $\theta $  and $\theta+\Delta\theta$ by the Kullback-Leibler distance\footnote{The Kullback–Leibler (KL) distance between two distributions $P,Q$ is defined as $D_{KL}(P||Q) = \sum_{x}P(x)\log \frac{P(x)}{Q(x)}$. It is a standard tool in information theory.} between the probability distributions ${p_\theta }({\bf{\tau }})$ and ${p_{\theta+\Delta\theta}}({\bf{\tau }})$ induced by these parameters. Using a Taylor expansion, the KL distance can be approximated as 
+\begin{equation*}
+    D_{KL}({p_\theta }({\bf{\tau }})||{p_{\theta+\Delta\theta}}({\bf{\tau }})) \approx \Delta \theta^\top F_\theta \Delta \theta,
+\end{equation*}
+where $F_\theta$ is the Fisher Information Matrix, $F_\theta = \sum_\tau p_\theta(\tau) \nabla \log p_\theta(\tau) \nabla \log p_\theta(\tau)^\top.$
+
+Replacing the constraint in \eqref{eq:grad_descent_opt} with $\Delta \theta^\top F_\theta \Delta \theta \leq \eta$ leads to a modified gradient definition known as the Natural Gradient: :
+\[{\nabla ^N}J(\theta ) = F_{\theta}^{ - 1}\nabla J(\theta ).\]
+% where $\nabla J$ is the standard gradient, and $F(\theta )$ is the Fisher Information Matrix:
+% \begin{align*}
+% F(\theta ) &= \sum\nolimits_{\bf{\tau }} {{p_\theta }({\bf{\tau }})} (\nabla \log {p_\theta }({\bf{\tau }})){(\nabla \log {p_\theta }({\bf{\tau }}))^T}\\
+%  &= {\mathbb E_{{\bf{\tau }} \sim {p_\theta }}}\left( {(\nabla \log {p_\theta }({\bf{\tau }})){{(\nabla \log {p_\theta }({\bf{\tau }}))}^T}} \right).
+% \end{align*}
+Note that the Fisher Information Matrix can be calculated by sampling, since $\log p_\theta(\tau)$ only requires knowing the policy (as in the policy gradient derivation above). 
+Natural policy gradient schemes lead in general to faster and more robust convergence to the optimal policy.
+
+% \paragraph{Variations and improvements:}
+% \begin{enumerate}
+%   \item Baseline variance reduction:  A somewhat more general estimate for $\nabla J(\theta )$ can be obtained by subtracting a constant from$R({\bf{\tau }})$, namely
+%                                       \[\hat \nabla J(\theta ) = (R({\bf{\tau }}) - b)\sum\limits_{t = 0}^{T - 1} {{\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})} .\]
+% This estimate remains unbiased, as differentiating $\sum\nolimits_{\bf{\tau }} {{p_\theta }({\bf{\tau }})}  = 1$  yields
+%                               \[\sum\nolimits_{\bf{\tau }} {(\nabla \log {p_\theta }({\bf{\tau }})} ){p_\theta }({\bf{\tau }}) = {\mathbb E^\theta }(\nabla \log {p_\theta }({\bf{\tau }})) = 0.\]
+% A proper choice of the constant $b$ can however significantly reduce the variance.  The optimal value of  $b$ can itself be estimated from the data.
+%   \item Natural Gradients:  The gradient $\nabla J(\theta )$ is highly sensitive to the specific parametrization employed, even if the set of policies ${\{ {\pi _\theta }\} _{\theta  \in \Theta }}$ is the same.
+% For example, replacing the component ${\theta_1}$ of the parameter vector by $\theta_1' = 10\,\theta_1$ changes the gradient direction.
+% The natural gradient attempts to rectify this situation by replacing the Euclidean distance between two parameters $\theta $  and $\theta '$ by an appropriate distances between the probability distributions ${p_\theta }({\bf{\tau }})$ and ${p_{\theta '}}({\bf{\tau }})$ induced by these parameters. This leads a modified gradient definition known as the Natural Gradient: :
+% \[{\nabla ^N}J(\theta ) = F{(\theta )^{ - 1}}\nabla J(\theta ),\]
+% where $\nabla J$ is the standard gradient, and $F(\theta )$ is the Fisher Information Matrix:
+% \begin{align*}
+% F(\theta ) &= \sum\nolimits_{\bf{\tau }} {{p_\theta }({\bf{\tau }})} (\nabla \log {p_\theta }({\bf{\tau }})){(\nabla \log {p_\theta }({\bf{\tau }}))^T}\\
+%  &= {\mathbb E_{{\bf{\tau }} \sim {p_\theta }}}\left( {(\nabla \log {p_\theta }({\bf{\tau }})){{(\nabla \log {p_\theta }({\bf{\tau }}))}^T}} \right).
+% \end{align*}
+% Natural policy gradient schemes have been developed which estimate the natural gradient by observing the system. These algorithms lead in general to faster and more robust convergence to the optimal policy.
+%   \item Q-Function based gradient estimates:   In stationary problems (infinite horizon or SSP), the variance of the gradient estimates can be improved significantly by using a modified expression which involves the Q-function. This formulation is therefore the most commonly used.
+% Consider an SSP problem, where T is the arrival time to some set of states. Let ${Q^{{\pi _\theta }}}(x,u)$ denote the Q-function under the stationary policy ${\pi _\theta }$.  Then the following holds (the proof will be discussed in the Tirgul):
+% \[{\nabla _\theta }J(\theta ) = {\mathbb E^\theta }\sum\limits_{t = 0}^{T - 1} {({\nabla _\theta }\log {\pi _\theta }({u_t}|{x_t})){Q^{{\pi _\theta }}}({x_t},{u_t})} .\]
+% This expression is known as the \emph{policy gradient theorem}. It can be used to estimate the gradient, by running in parallel an (independent) algorithm for estimating Q.
+% \end{enumerate}

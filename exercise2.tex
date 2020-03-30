@@ -1,0 +1,13 @@
+\section{Exercises}
+\begin{exercise}[\textbf{Markov chains}]
+Let $\left\{ {{X_n}} \right\}$  be a time-homogenous Markov processes in discrete time which takes values in $\left\{ {0,1,..} \right\}$ (an infinite countable set).
+\begin{enumerate}
+  \item Assume the process satisfies for each $i \in \left\{ {0,1,...} \right\}$:
+$${p_{i,0}} = q, \quad {p_{i,i + 1}} = 1 - q, \quad 0 < q < 1.$$
+Plot the state transition diagram for $\left\{ {0,1,2,3} \right\}$. If the chain is recurrent, find the stationary distribution, if it is not find the transient states.
+  \item Consider the same process as above and assume $P\left( {{X_0} = 0} \right) = 1$. Define ${Y_n} = \left| {\left\{ {\tau :{X_\tau } = 0,\tau  \le n} \right\}} \right|$ as the number of visits to 0 until time $n$. Also define ${Z_n} = {\left( {\begin{array}{*{20}{c}} {{X_n}}&{{Y_n}}\end{array}}\right)^T}$. Is $\left\{ {{Z_n}} \right\}$ a Markov process? Is it recurrent? Is it transient?
+  \item Assume the process satisfies for each $i \in \left\{ {1,2,...} \right\}$:
+$${p_{0,1}} = 1, \quad {p_{i,i + 1}} = {p_{i,i - 1}} = 0.5.$$
+Is the process recurrent? If so, find a stationary distribution if it exists or explain why there is none. If the process is not recurrent, what are the transient states?
+\end{enumerate}
+\end{exercise}

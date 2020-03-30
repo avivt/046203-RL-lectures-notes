@@ -1,0 +1,1295 @@
+%\documentclass[11pt]{article}
+%\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ...
+%%\geometry{landscape}                % Activate for for rotated page geometry
+%%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+%\usepackage{graphicx}
+%\usepackage{amssymb}
+%\usepackage{epstopdf}
+%\usepackage{amsfonts}
+%\usepackage{amsthm}
+%\usepackage{amsmath}
+%\usepackage{tikz}
+%\usepackage{algorithm2e}
+%\usepackage{url}
+%\usepackage{comment}
+%
+%\newcommand{\mdp}{\mathcal{M}}
+%\newcommand{\Mdp}{\mathcal{M}}
+%\newcommand{\Agent}{\mathcal{G}}
+%\newcommand{\env}{\mdp}
+%\newcommand{\Env}{\mdp}
+%\newcommand{\Actions}{\mathcal{A}}
+%\newcommand{\action}{a}
+%\newcommand{\actionp}{a^{\prime}}
+%\newcommand{\actionpp}{a^{\prime\prime}}
+%\newcommand{\States}{\mathcal{S}}
+%\newcommand{\state}{s}
+%\newcommand{\statep}{\state^{\prime}}
+%\newcommand{\statepp}{\state^{\prime\prime}}
+%\newcommand{\eststate}{x}
+
+%\newcommand{\obs}{o}
+%\newcommand{\Obs}{\mathcal{O}}
+%\newcommand{\reward}{r}
+%\newcommand{\terminalreward}{r^T}
+%\newcommand{\rew}{\reward}
+%\newcommand{\Rewards}{\mathcal{R}}
+%\newcommand{\history}{h}
+%\newcommand{\histories}{\mathcal{H}}
+%\newcommand{\Histories}{\mathcal{H}}
+%\newcommand{\Trans}{T}
+%\newcommand{\Horizon}{t_f}
+%\newcommand{\TUtility}{U_T}
+%\newcommand{\Utility}{U_{\gamma}}
+%\newcommand{\AUtility}{U_A}
+%\newcommand{\TValue}{J}
+%\newcommand{\TAValue}{K}
+%\newcommand{\Value}{V}
+%\newcommand{\hatValue}{{\widehat{V}}}
+%\newcommand{\AValue}{Q}
+%\newcommand{\hatAValue}{{\widehat{Q}}}
+%\newcommand{\AvgRValue}{\rho}
+%\newcommand{\hatAvgRValue}{{\widehat{\rho}}}
+%\newcommand{\RelValue}{W}
+%\newcommand{\hatRelValue}{{\widehat{W}}}
+
+%\newcommand{\stateestfunction}{f_{su}}
+%\newcommand{\stateobsfunction}{f_{so}}
+%\newcommand{\statetransfunction}{f_{ss}}
+%\newcommand{\rewfunction}{f_r}
+%\newcommand{\field}[1]{\mathbb{#1}}
+%\newcommand{\Reals}{\field{R}}
+%%\newcommand{\eqref}[1]{(\ref{#1})}
+%\newcommand{\policy}{\pi}
+%\newcommand{\hatpolicy}{{\widehat{\pi}}}
+%\newcommand{\Policies}{\Pi}
+%\newcommand{\nspolicy}{\mu}
+%
+%\newcommand{\union}{\ensuremath{\bigcup}}
+%\newcommand{\comps}{\ensuremath{\mathbb{C}}}
+%\newcommand{\reals}{\ensuremath{\mathbb{R}}}
+%\newcommand{\Var}{\ensuremath{\mathrm{Var}}}
+%\newcommand{\var}{\ensuremath{\mathrm{Var}}}
+%\newcommand{\E}{\ensuremath{\mathbb{E}}}
+%\renewcommand{\P}{\ensuremath{\mathbb{P}}}
+%\newcommand{\R}{\ensuremath{\mathbb{R}}}
+%\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+
+%\newcommand{\mixtime}{\tau}
+%\newcommand{\epshorizon}{\tau}
+%
+%\def\argmax{\operatornamewithlimits{arg\,max}}
+%\def\argmin{\operatornamewithlimits{arg\,min}}
+
+%\newcommand{\bydef}{\stackrel{\bigtriangleup}{=}}
+%\newcommand\defeq{\stackrel{\mathrm{def}}{=}}
+%\newcommand{\half}{\frac{1}{2}}
+
+%\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+%
+%\newtheorem{proposition}{Proposition}
+%\newtheorem{corollary}{Corollary}
+%\newtheorem{assumption}{Assumption}
+%\newtheorem{lemma}{Lemma}
+%\newtheorem{definition}{Definition}
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{example}{Example}
+%\newtheorem{remark}{Remark}
+%
+%\title{Learning in Simple Bandits Problems}
+%\author{Shie Mannor}
+%%\date{}                                           % Activate to display a given date or no date
+%
+%\begin{document}
+%\maketitle
+%
+%
+%
+
+In the classical $k$-armed bandit (KAB) problem there are $k$ alternative arms, each with a stochastic reward whose probability distribution is initially unknown. A decision maker can try these arms in some order, which may depend on the rewards that have been observed so far. A common objective in this context is to find a policy for choosing the next arm to be tried, under which the sum of the expected rewards comes as close as possible to the ideal reward, i.e., the expected reward that would be obtained if we were to try the ``best'' arm at all times.
+There are many variants of the $k$-armed bandit problem that are distinguished by the objective of the decision maker, the process governing the reward of each arm, and the information available to the decision maker at the end of every trial.
+
+$K$-armed bandit problems are a family of sequential decision problems that are among the most studied problems in statistics, control, decision theory, and machine learning. In spite of the simplicity of KAB problems, they encompass many of the basic problems of sequential decision making in uncertain environments such as the tradeoff between exploration and exploitation.
+There are many variants of the KAB problem including Bayesian, Markovian, adversarial, and exploratory variants. KAB formulations arise naturally in multiple fields and disciplines including communication networks, clinical trials, search theory, scheduling, supply chain automation, finance, control, information technology, etc.
+The term ``multi-armed bandit" is borrowed from slot machines (the well known one-armed bandit) where a decision maker has to decide if to insert a coin to the gambling machine and pull a lever possibly getting a significant reward, or to quit without spending any money.
+
+In this chapter we focus on the stochastic setup where the reward of each arm is assumed to be generated by an IID process.
+
+
+\section{Model and Objectives}
+
+%The model - arms, rewards, etc.
+
+The KAB model is  comprised of a set of arms
+$A$ with $K=|A|$. When sampling arm $a\in A$ a reward which is a
+random variable $R(a)$ is received.
+Denote the arms by $a_1, \cdots , a_n$ and $p_i =\E[R(a_i)]$.
+%i.e.,
+%viewed as coins, so that
+%the $i$-th arm has probability $p_i$ for reward of 1 and
+%$1-p_i$ for a reward of 0.
+For simplicity of notations we enumerate the arms according to
+their expected reward $p_1 > p_2>...>p_n$.
+
+In general, the arm with the highest expected reward is called the {\em best
+arm}, and denoted by $a^*$, and its expected reward $r^*$ is the
+{\em optimal reward}; with our notational convenience above arm $a^* = 1$ and $ r^* = p_1$. An arm whose expected reward is strictly
+less than $r^*$, the expected reward of the best arm, is called a
+{\em non-best arm}. An arm $a$ is called an {\em
+$\epsilon$-optimal arm} if its expected reward is at most
+$\epsilon$ from the optimal reward, i.e., $p_a = \E[R(a)] \geq r^*
+-\epsilon$.
+
+An algorithm for the KAB problem, at each time step
+$t$, samples an arm $a_t$ and receives a reward $r_t$ (distributed
+according to $R(a_t)$). When making its selection the algorithm
+may depend on the history (i.e., the actions and rewards) up to
+time $t-1$. The algorithm may also randomize between several options, leading to a random policy.
+In stochastic KAB problems there is no advantage to a randomized strategy.
+
+%Objectives
+
+There are two common objectives for the KAB problem that represent two different learning scenarios. Those objectives represent different situations. In the first situation, the decision maker only cares about the detecting the best arm or approximately the best arm. The rewards that are accumulated during the learning period are of no concern to the decision maker and he only wishes to maximize the probability of reporting the best arm at the end of the learning period.
+Typically, the decision maker is given a certain number of stages to {\em explore} the arms. That is, the decision maker needs to choose an arm which is either optimal or approximately optimal with high probability in a short time. This setup is that of pure exploration.
+The second situation is where the reward that is accumulated during the learning period counts. Usually, the decision maker cares about maximizing the cumulative reward\footnote{We consider reward maximization as opposed to cost minimization, but all we discuss here works for minimizing costs as well.}.
+The cumulative reward is a random variable: its values are affected by random values generated by selecting the different arms. We typically look at the expected cumulative reward:
+$$
+ \E \left[ \sum_{\tau=1}^t r_t \right].
+$$
+In this setup the decision maker has to typically tradeoff between two contradicting desires:
+exploration and exploitation. Exploration means finding the best arm and exploitation means choosing the arm that is
+believed to be the best so far. The KAB problem is the simplest learning problems where the problem of balancing exploration and exploitation, known as the exploration-exploitation dilemma is observed.
+The total expected reward scale linearly with time. It is often more instructive to consider the {\em regret}.
+The regret measures the difference between the best reward and the accumulated reward:
+$$
+regret_t = t r^* - \sum_{\tau=1}^t r_t.
+$$
+The regret itself is a random variable since the actual reward is a random variable. We therefore focus on the expected regret:
+$$
+\E [regret_t] = t r^* - \E \Big[ \sum_{\tau=1}^t r_t \Big].
+$$
+We note that by linearity of expectation, the expected regret is always non-negative. The actual regret, however, can be negative.
+
+\section{Exploration-Exploitation problem setup}
+
+The KAB problem comes with two main flavors: exploration only and exploration-exploitation. Since the arms are assumed IID, this is a simple problem in terms of dynamics. The challenge is that we do not know if we should look for a better arm than the one we currently think is the best or should stick to the arm that is estimated to be the best do far.
+
+A very simple algorithm is the so-called $\epsilon$-greedy algorithm. According to this algorithm, we throw an unbiased coin at every time instance whose probability of getting ``heads" is $\epsilon$.
+If the coin falls on ``heads," we choose an arm at random. If it falls on ``tails," we choose the arm whose estimate is the highest so far. The exploration rate, $\epsilon$, may depend on the number of iteration. While the $\epsilon$-greedy algorithm is very simple conceptually, it is not a great algorithm in terms of performance. The main reason is that some of the exploration is useless: we might have enough data to estimate an arm, or at least know with confidence that its value is lower than competing arms, and the additional samples are just not particularly useful.
+Instead, there are more elegant algorithms which we will describe below.
+
+%The context (Benner \& Tushman)
+
+%Simple algorithms like epsilon-greedy
+%SM: Anything else?
+
+%Successive elimination (throw away ``bad arms")
+
+%\newpage
+
+\section{The Exploratory Multi-armed Bandit Problem}
+
+In this variant the emphasis is on efficient exploration rather than on exploration-exploitation tradeoff. As in the stochastic MAB problem, the decision maker is given access to $n$ arms where each arm is associated with an independent and identically distributed random variable with unknown statistics. The decision maker�s goal is to identify the ``best'' arm. That is the decision maker wishes to find the arm with highest expected reward as quickly as possible.
+The exploratory MAB problem is a sequential hypothesis testing problem but with the added complication that the decision maker can choose where to sample next, making it among the simplest active learning problems.
+
+
+Next we define the desired properties of an algorithm formally.
+\begin{definition}
+An algorithm is a $(\epsilon,\delta)$-PAC algorithm for the multi
+armed bandit with {\em sample complexity} $T$, if it outputs an
+$\epsilon$-optimal arm, $a'$, with probability at least
+$1-\delta$, when it terminates, and the number of time steps the
+algorithm performs until it terminates is bounded by $T$.
+\end{definition}
+
+
+In this section we look for an $(\epsilon,\delta)$-PAC algorithms
+for the MAB problem. Such algorithms are required to output with
+probability $1 - \delta$ an $\epsilon$-optimal arm. We start with
+a naive solution that samples each arm $1/(\epsilon/2)^2
+\ln(2n/\delta) $ and picks the arm with the highest empirical
+reward. The sample complexity of this naive algorithm is
+$O(n/\epsilon^2\log(n/\delta))$. The naive algorithm is described
+in Algorithm \ref{alg:naive}. In Section \ref{sub:successive} we
+consider an algorithm that eliminates one arm after the other. In
+Section \ref{sub:median} we finally describe the Median
+Elimination algorithm whose sample complexity is optimal in the
+worst case.
+%This result in an algorithm whose arm sample complexity is:
+%
+%\begin{equation}
+%\label{eq:basicalg}
+%O(\frac{n}{\epsilon^2}\log(\frac{n}{\delta}))\, .
+%\end{equation}
+
+\medbreak
+
+\begin{algorithm}[H]
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\Input{$\epsilon>0$, $\delta>0$} \Output{An arm}
+\ForEach{ {\rm Arm} $a\in A$}{
+     Sample it $\ell = \frac{4}{\epsilon^2}\ln(\frac{2n}{\delta})$
+     times\;Let $\hat{p}_a$ be the average reward of arm $a$;}
+    Output $a'= \arg\max_{a \in A} \{ \hat{p}_a\}$\;
+\caption{\label{alg:naive} Naive Algorithm}
+%\textbf{Naive}$(\epsilon,\delta)$}
+\end{algorithm}
+
+\begin{theorem}
+The algorithm {\em Naive}$(\epsilon,\delta)$ is an
+$(\epsilon,\delta)$-PAC algorithm with arm sample complexity
+$O\left((n/\epsilon^2)\log(n/\delta)\right)$.
+\end{theorem}
+\proof
+The sample complexity is immediate from the
+definition of the algorithm (there are $n$ arms and each arm
+is pulled $ \frac{4}{\epsilon^2}\ln(\frac{2n}{\delta})$ times). We now prove it is
+an $(\epsilon,\delta)$-PAC  algorithm.
+
+Let $a'$ be an arm for which $\E(R(a')) < r^* - \epsilon$. We want to
+bound the probability of the event $\hat{p}_{a'}
+> \hat{p}_{a^*}$.
+\begin{eqnarray*}
+P \left(\hat{p}_{a'} > \hat{p}_{a^*}\right) & \le &
+P\left(\hat{p}_{a'} >  \E[R(a')] + \epsilon/2 \mbox{ or } \hat{p}_{a^*}
+<
+r^* -\epsilon/2\right)\\
+& \leq & P\left(\hat{p}_{a'} >  \E[R(a')] + \epsilon/2\right) +  P
+\left( \hat{p}_{a^*} < r^* -\epsilon/2\right) \\
+& \le & 2\exp(- 2(\epsilon/2)^2 \ell)\,,
+\end{eqnarray*}
+%
+where the last inequality uses the Hoeffding inequality. Choosing
+$\ell = (2/\epsilon^2)\ln(2n/\delta)$ assures that $P
+\left(\hat{p}_{a'} > \hat{p}_{a^*}\right) \le \delta/n$.
+Since there are at most $n-1$ such arms $a'$, by the Union Bound, the probability of selecting an arm that is not $\epsilon$-optimal will be at most $\frac{(n-1)\delta}{n} < \delta$, and thus the probability of selecting an $\epsilon$-optimal arm will be at least $1 - \delta$.
+
+
+
+
+%Summing over all possible $a'$ we have that the failure probability is at most $(n-1)(\delta/n) <\delta$.
+\qed
+
+
+\subsection{Successive Elimination}
+\label{sub:successive}
+
+The successive elimination algorithm attempts to sample each arm a minimal
+number of times and eliminate the arms one after the other.
+To motivate the successive elimination algorithm, we first assume that the
+expected rewards of the arms are known, but the matching of the
+arms to the expected rewards is unknown. Let $\Delta_i = p_{1} -
+p_{i} >0$.
+Our aim is to sample arm $a_i$ for
+$(1/\Delta_i^2) \ln(n/\delta)$ times, and then
+eliminate it. This is done in phases. Initially, we sample each
+arm $(1/\Delta_n^2)\ln(n/\delta)$ times. Then we
+eliminate the arm which has the lowest empirical reward (and never
+sample it again). At the $i$-th phase we sample each of the $n-i$
+surviving arms
+$$O\left(\left(\frac{1}{\Delta_{n-i}^2} -
+\frac{1}{\Delta_{n-i+1}^2}\right)\log{(\frac{n}{\delta})}\right)$$
+times and
+then eliminate the empirically worst arm. The algorithm described as
+Algorithm \ref{alg:sucknown} below. In Theorem \ref{th:sucelimknown} we prove
+that the algorithm is $(0,\delta)$-PAC and compute its sample complexity.
+
+\medbreak
+\begin{algorithm}[H]
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\Input{$\delta>0$, bias of arms $p_1,p_2,\ldots, p_n$} \Output{An arm}
+Set $S = A$; $t_i =  (8/\Delta_i^2) \ln (2n/\delta)
+    $; and $t_{n+1}=0$, for every arm $a$: $\hat{p}_a = 0$,
+    $i=0$\;
+    \While{$i < n-1$}
+    {
+    Sample every arm $a \in S$ for $t_{n-i} - t_{n-i+1}$ times\;
+    Let $\hat{p}_a$ be the average reward of arm $a$ (in all
+    rounds)\;
+    Set $S = S \setminus \{a_{\min}\}$, where
+    $a_{\min}=\arg\min _{a\in S} \{ \hat{p}_a\}$,
+    $i = i + 1$\;
+    }
+    Output S\;
+\caption{Successive Elimination with Known Biases \label{alg:sucknown}}
+%$(\delta)$ \label{alg:sucknown}}
+\end{algorithm}
+\begin{theorem} \label{th:sucelimknown}
+Suppose that $\Delta_i>0$ for $i=2,3,\ldots,n$. Then the Successive
+Elimination with Known Biases algorithm is an $(0,\delta)$-PAC
+algorithm and its arm sample complexity is
+\begin{equation} \label{eq:sucelim}
+O\left(\log\left(\frac{n}{\delta}\right)\sum_{i=2}^{n}\frac{1}{\Delta_i^2}\right).
+\end{equation}
+\end{theorem}
+\begin{proof}
+
+
+
+
+First we show that the algorithm outputs the best arm with probability $1 - \delta$.
+This is done by showing that, in each phase, the probability of eliminating the
+best arm is bounded by $\frac{\delta}{n}$. It is clear that the failure probability at phase $i$ is
+maximized if all the $i-1$ worst arms have been eliminated in the first $i-1$ phases. Since we eliminate a single arm at each phase of the algorithm, the probability of the best arm being eliminated at phase $i$ is bounded by
+$Pr[\hat{p}_1 < \hat{p}_2, \hat{p}_1 < \hat{p}_3, \ldots, \hat{p}_1 < \hat{p}_{n-i}] \leq Pr[\hat{p}_1 < \hat{p}_{n-i}]$.
+
+The probability that $\hat{p}_1 < \hat{p}_{n-i}$, after sampling each arm for $O(\frac{1}{\Delta^2_i}\log\frac{n}{\delta})$ times is bounded by $\frac{\delta}{n}$. Therefore the total probability of failure is bounded by $\delta$.
+
+
+The sample complexity of the algorithm is as follows.
+In the first round we sample $n$ arms $t_n$ times. In the second
+round we sample $n-1$ arms $t_{n-1 } - t_n$ times. In the $k$th round ($1\leq k<n$)
+we sample $n-k+1$ surviving arms for $t_{n-k} - t_{n-k+1}$ times. The total number of arms samples is therefore
+$t_2 + \sum_{i=2}^n t_i$ which is of the form (\ref{eq:sucelim}).\\
+
+\begin{comment}
+We now prove that the algorithm is correct with probability at least $1-\delta$.
+Consider first a simplified algorithm which is similar to the naive algorithm, suppose that
+each arm is pulled $8/(\Delta_{2}^2) \ln(2n/\delta)$ times.
+For every $2\le i \le n-1$ we define the event
+$$
+E_i = \left\{\hat{p_1}^{t_j} \geq \hat{p_i}^{t_j}
+|\forall t_j \,{\rm s.t.}\, j \geq i\right\},$$
+where  $\hat{p_i}^{t_j}$ is the
+empirical value the $i$th arm at time $t_j$. If the events
+$E_i$ hold for all $i>1$ the algorithm is successful.
+\begin{eqnarray*}
+\P[\mbox{not}( E_i)] &\leq& \sum_{j=i}^n \P[\hat{p_n}^{t_j} <
+\hat{p_i}^{t_j}]\\
+& \leq & \sum_{j=i}^n 2\exp(-2(\Delta_i/2)^2 t_j) \leq \sum_{j=i}^n
+2\exp(-2(\Delta_i/2)^2 8/ \Delta_j^2 \ln(2n/ \delta))\\
+& \leq & \sum_{j=i}^n 2 \exp (-\ln (4n^2 / \delta^2)) \\
+& \leq & (n-i+1) \delta^2/n^2 \leq \frac{\delta}{n}.
+\end{eqnarray*}
+Using the union bound over all $E_i$'s we obtain that the simplified
+algorithm satisfies all $E_i$ with probability at least $1- \delta$.
+Consider the original setup. If arm $1$ is eliminated at time $t_j$
+for some is implies that some arm $i<j$ has higher empirical value
+at time $t_j$. The probability of failure of the here is bounded by
+the probability of failure in the simplified setting.
+\end{comment}
+\end{proof}
+%\qed
+
+
+
+ Next, we relax the requirement that the expected rewards of the
+arms are known in advance, and introduce the Successive Elimination
+algorithm that works with any set of biases. The algorithm we
+present as Algorithm \ref{alg:sucunknown} finds the best arm (rather
+than $\epsilon$-best) with high probability. We later explain in Remark
+\ref{rem:epssucc} how
+to modify it to be an $(\epsilon,\delta)$-PAC algorithm.\\
+\bigskip
+\begin{algorithm}[H]
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\Input{$\delta>0$} \Output{An arm}
+Set $t=1$ and $S = A$\; Set for every arm $a$: $\hat{p}_a^1 = 0$\;
+Sample every arm $a \in S$ once and let
+    $\hat{p}_a^t$ be the average reward of arm $a$ by time $t$ \textcolor{red}{move into repeat?} \;
+    \Repeat{$|S| > 1$\textcolor{red}{=1?}}{
+    Let $\hat{p}^t_{max} = \max_{a \in S} \hat{p}_a^t$ and
+     $\alpha_t = \sqrt{\ln(c n t^2/ \delta)/t}$, where $c$ is a constant\;
+     \ForEach{ {\rm arm $a \in S$ such that } $\hat{p}^t_{max} - \hat{p}^t_a \geq
+     2\alpha_t$}{ set $S = S \setminus \{a\}$;}
+     $t = t+1$\;
+    }
+\caption{Successive elimination with unknown biases \label{alg:sucunknown}}
+\end{algorithm}
+
+\begin{theorem}
+Suppose that $\Delta_i>0$ for $i=2,3,\ldots,n$. Then the Successive
+Elimination algorithm (Algorithm \ref{alg:sucunknown}) is a
+$(0,\delta)$-PAC algorithm, and with probability at least $1-\delta$
+the number of samples is bounded by
+$$
+O\left(\sum_{i=2}^{n}\frac{\ln(\frac{n}{\delta\Delta_i})}{\Delta_i^2}\right).
+$$
+\end{theorem}
+\begin{proof}
+Our main argument is that, at any time $t$ and for any action $a$, the observed probability $\hat{p}_a^t$
+is within $\alpha_t$ of the true probability $p_a$.
+%Let $\alpha_t=\sqrt{\frac{\ln(c n t^2/ \delta)}{t}}$.
+For any time $t$ and action $a\in S_t$ we have that,
+\[
+\P[ |\hat{p}_a^t -p_a | \geq  \alpha_t ] \leq 2e^{-2\alpha_t^2 t }
+\leq \frac{2\delta}{cnt^2}.
+\]
+By taking the constant $c$ to be greater than 4 and from the union bound we have that
+with probability at least $1-\delta/n$ for any
+time $t$ and any action $a\in S_t$, $|\hat{p}_a^t -p_a | \leq
+\alpha_t$. Therefore, with probability $1-\delta$, the best arm is
+never eliminated. Furthermore, since $\alpha_t$ goes to zero as
+$t$ increases, eventually every non-best arm is eliminated. This
+completes the proof that the algorithm is $(0,\delta)$-PAC.
+
+It remains to compute the arm sample complexity. To eliminate a
+non-best arm $a_i$ we need to reach a time $t_i$ such that,
+\[
+\hat{\Delta}_{t_i} = \hat{p}^{t_i}_{a_1}-\hat{p}^{t_i}_{a_i} \geq
+2 \alpha_{t_i}.
+\]
+The definition of $\alpha_t$ combined with the assumption that
+$|\hat{p}_a^t -p_a | \leq  \alpha_t$ yields that
+\[
+\Delta_i -2\alpha_t = (p_1-\alpha_t) -(p_i +\alpha_t)\geq
+\hat{p}_1-\hat{p}_i \geq  2 \alpha_t,
+\]
+which holds with probability at least $1-\frac{\delta}{n}$ for
+\[
+t_i=O\left(\frac{\ln (n/\delta\Delta_i)}{\Delta_i^2}\right).
+\]
+To conclude, with probability of at least $1-\delta$ the number of
+arm samples is $2t_2 +\sum_{i=3}^n t_i$, which completes the proof.
+\end{proof}
+
+\begin{remark}
+{\rm We can improve the dependence on the parameter
+$\Delta_i$ if at the $t$-th phase we sample each action in $S_t$
+for $2^t$ times rather than once and take $\alpha_t =
+\sqrt{\ln(c n \ln(t)/ \delta)/t}$. This will give us a
+bound on the number of samples with a dependency of
+$$
+O\left(\sum_{i=2}^{n}\frac{\log\left(-\frac{n}{\delta}\log(\Delta_i)\right)}{\Delta_i^2}\right).
+$$
+}
+\end{remark}
+
+\begin{remark}
+{\rm
+\label{rem:epssucc}
+One can easily modify the successive
+elimination algorithm so that it is $(\epsilon,\delta)$-PAC. Instead
+of stopping when only one arm survives the elimination, it is
+possible to settle for stopping when either only one arm remains
+or when each of the $k$ surviving arms were sampled
+$O(\frac{1}{\epsilon ^2} \log(\frac{k}{\delta}))$. In the latter case
+the algorithm returns the best arm so far. In this case it is not
+hard to show that the algorithm finds an $\epsilon$-optimal arm with
+probability at least $1-\delta$ after
+$$
+O\left(\sum_{i:\Delta_i > \epsilon}
+\frac{\log(\frac{n}{\delta\Delta_i})}{\Delta_i^2} +
+\frac{N(\Delta, \epsilon)}{\epsilon ^2} \log\left(\frac{N(\Delta, \epsilon)}{\delta}\right)
+\right)\,,
+$$
+where $N(\Delta, \epsilon)= |\{i \;|\; \Delta_i < \epsilon\}|$ is the
+number of arms which are $\epsilon $-optimal.
+}
+\end{remark}
+
+
+\subsection{Median elimination}
+\label{sub:median}
+
+The following algorithm substitutes the term $O(\log (1/\delta))$ for
+$O(\log(n/\delta))$ of the naive bound. The idea is
+to eliminate the worst half of the arms at each iteration. We do not
+expect the best arm to be empirically ``the best,'' we only expect
+an $\epsilon$-optimal arm to be above the median.
+
+
+\begin{algorithm}[H]
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\Input{$\epsilon >0, \delta>0$} \Output{An arm}
+Set $S_1 = A$, $\epsilon_1 = \epsilon/4$, $\delta_1 = \delta/2$,
+$\ell =1$. \Repeat{$|S_\ell| = 1$}{Sample every arm $a \in S_\ell$ for
+    $1/(\epsilon_\ell / 2)^2 \log(3 / \delta_\ell)$ times, and
+    let $\hat{p}_a^\ell$ denote its empirical value\;
+    Find the median of $\hat{p}_a^\ell$, denoted by $m_\ell$\;
+    $S_{\ell+1} = S_\ell \setminus \{ a: \hat{p}_a^\ell <
+    m_\ell\}$\;
+    $\epsilon_{\ell+1} = \frac{3}{4}\epsilon_\ell$;
+    $\delta_{\ell+1} = \delta_\ell / 2$; $\ell = \ell + 1$\;
+    } \caption{Median Elimination}
+%($\epsilon$, $\delta$)}
+\end{algorithm}
+
+
+\begin{theorem}
+\label{the-n-coins} The Median Elimination($\epsilon$,$\delta$)
+algorithm is an $(\epsilon,\delta)$-PAC algorithm and
+%with probability at least $1 - \delta$,
+%outputs an $\epsilon$-best arm  and uses
+its sample complexity is
+$$O\left(\frac{n}{\epsilon^2} \log\left(\frac{1}{\delta}\right)\right).$$
+\end{theorem}
+
+%Let $S_\ell$ denote the set of arms in the beginning of the $\ell$-th period.
+First we show that in the $\ell$-th phase the expected reward of
+the best arm in $S_\ell$ drops by at most $\epsilon_\ell$.
+
+\begin{lemma}
+\label{lem-round-n} For the  {\em Median
+Elimination}$(\epsilon,\delta)$ algorithm we have that for every phase $\ell$:
+\begin{eqnarray*}
+\P[\max_{j \in S_\ell}p_j \leq \max_{i \in S_{\ell+1}}p_i +
+\epsilon_\ell] \geq 1 -\delta_\ell.
+\end{eqnarray*}
+\end{lemma}
+
+\begin{proof}
+Without loss of generality we look at the first round and assume
+that $p_1$ is the reward of the best arm. We bound the failure
+probability by looking at the event $E_1 = \{\hat{p}_1 < p_1 -
+\epsilon_1 / 2\}$, which is the case that  the empirical estimate
+of the best arm is pessimistic.
+%on the two complementing events:
+%\begin{itemize}
+%\item $E_1 = \hat{p_1} < p_1 - \epsilon_1 / 2$ -
+%%the empirical estimate of the best arm is pessimistic.
+%\item $E_2 = \hat{p_1} \geq p_1 - \epsilon_1 / 2$ -
+%the empirical estimate of the best arm is good.
+%\end{itemize}
+Since we sample sufficiently, we have that $\P[E_1]  \leq \delta_1
+/ 3$.
+%This implies
+%that any event further conditioned on $E_1$ has also probability of no more
+%than $\delta_1 / 3$.
+
+In case $E_1$ does not hold, we calculate the probability that an
+arm $j$ which is not an $\epsilon_1$-optimal arm is empirically better
+than the best arm.
+$$
+\P\left[\hat{p}_j \geq \hat{p}_1  \;|\;\hat{p}_1 \geq p_1 -\epsilon_1
+/2 \right] \leq
+\P\left[ \hat{p}_j \geq p_j +  \epsilon_1 / 2  \;|\;
+\hat{p}_1 \geq p_1 -\epsilon_1 / 2 \right] \leq \delta_1 / 3
+$$
+Let $\#\mbox{bad}$ be the number of arms which are not
+$\epsilon_1$-optimal but are empirically better than the best arm.
+We have that $\E[\#\mbox{bad} \;|\;\hat{p}_1 \geq p_1 -\epsilon_1
+/2] \le n \delta_1/3$. Next we apply Markov inequality to obtain,
+\begin{eqnarray*}
+\P[\#\mbox{bad} \geq n/2 \;|\;\hat{p}_1 \geq p_1 -\epsilon_1 /2]
+\leq \frac{ n\delta_1 / 3}{n / 2} = 2\delta_1 / 3.
+\end{eqnarray*}
+Using the union bound gives us that the probability of failure is
+bounded by $\delta_1$. \qed
+\end{proof}
+
+
+Next we prove that arm sample complexity is bounded by
+$O((n/\epsilon^2) \log(1/\delta))$.
+
+\begin{lemma}
+\label{lem-time-n} The sample complexity of the {\em Median Elimination}$(\epsilon,\delta)$
+is $O\left((n/\epsilon^2)\log(1/\delta)\right)$.
+\end{lemma}
+
+\begin{proof}
+%First we observe that the number of iterations is $\log_2(n)$.
+The number of arm samples in the $\ell$-th round is $4 n_\ell\log(3 / \delta_\ell)/\epsilon_\ell^2$. By definition we
+have that
+\begin{enumerate}
+\item $\delta_1 = \delta /2\enspace ; \enspace \delta_\ell =
+\delta_{\ell-1} / 2 = \delta / 2^\ell$ \item $n_1 = n \enspace ;
+\enspace n_\ell = n_{\ell-1} / 2 = n / 2^{\ell-1}$ \item
+$\epsilon_1 = \epsilon / 4 \enspace ; \enspace \epsilon_\ell =
+\frac{3}{4}\epsilon_{\ell-1} =
+\left(\frac{3}{4}\right)^{\ell-1}\epsilon / 4 $
+\end{enumerate}
+Therefore we have
+\begin{eqnarray*}
+\sum_{\ell=1}^{\log_2(n)}\frac{n_\ell\log(3 /
+\delta_\ell)}{(\epsilon_\ell / 2)^2} & = &
+4\sum_{\ell=1}^{\log_2(n)}\frac{n / 2^{\ell-1}\log(2^\ell 3/
+\delta)}{((\frac{3}{4})^{\ell-1}\epsilon / 4)^2}\\
+& = & 64 \sum_{\ell=1}^{\log_2(n)}
+n(\frac{8}{9})^{\ell-1}(\frac{\log(1 / \delta)}{\epsilon^2} +
+\frac{\log(3)}{\epsilon^2} +
+\frac{\ell \log(2)}{\epsilon^2})\\
+& \leq & 64 \frac{n \log(1/\delta)}{\epsilon^2} \sum_{\ell=1}^\infty
+(\frac{8}{9})^{\ell-1}( \ell C' +C) = O(\frac{n\log(1
+/\delta)}{\epsilon^2})
+\end{eqnarray*} \qed
+\end{proof}
+
+Now we can prove Theorem \ref{the-n-coins}.
+
+\begin{proof}
+ From Lemma \ref{lem-time-n} we have that the sample complexity is
+bounded by $O\left(n\log(1 /\delta)/\epsilon^2\right)$. By Lemma
+\ref{lem-round-n} we have that the algorithm fails with
+probability $\delta_i$ in each round so that over all rounds the
+probability of failure is bounded by
+$\sum_{i=1}^{\log_2(n)}\delta_i \le \delta $. In each round we
+reduce the optimal reward of the surviving arms by at most
+$\epsilon_i$ so that the total error is bounded by
+$\sum_{i=1}^{\log_2(n)}\epsilon_i \le \epsilon$.
+\end{proof} \qed
+
+%The concept of utility function: maximizing expected total reward (discounted or not), minimizing regret
+
+\section{Regret Minimization for the Stochastic K-armed Bandit Problem}
+
+A different flavor of the KAB problem focuses on the notion of regret, or learning loss. In this formulation there are k arms as before and when selecting arm m a reward which is independent and identically distributed is given (the reward depends only on the identity of the arm and not on some internal state or the results of previous trials). The decision maker objective is to maximize her expected reward. Of course, if the decision maker had known the statistical properties of each arm she would have always chosen the arm with the highest expected reward. However, the decision maker does not know the statistical properties of the arms in advance.
+
+More formally, if the reward when choosing arm m has expectation $r_m$ the regret is defined as:
+$$
+R(t) = t \max_m r_m - \E \Big[ \sum_{\tau=1}^t r(t) \Big],
+$$
+where r(t) is sampled from the arm m(t). This represents the expected loss for not choosing the arm with the highest expected reward.
+This variant of the KAB problem highlights the tension between acquiring information (exploration) and using the available information (exploitation). The decision maker should carefully balance between the two since if she chooses to only try the arm with the highest estimated reward she might regret not exploring other arms whose reward is underestimated but is actually higher than the reward of the arm with highest estimated reward.
+
+A basic question in this context was if R(t) can be made to grow sub-linearly. Robbins [4] answered this question in the affirmative. It was later proved in [5] that it is possible in fact to obtain logarithmic regret. Matching lower bounds (and constants) were also derived.
+
+
+\subsection{UCB1}
+We now present an active policy for the multi-armed bandit
+problem (taken from the paper ``Finite-time Analysis of the Multiarmed Bandit
+Problem" that can be found in the course website).
+The acronym stands for Upper Confidence Bound.
+
+\begin{algorithm}
+  \caption{UCB1}\label{alg:UCB1}
+%  \begin{Balgorithm}
+  \texttt{Initialization}  \\
+   \textbf{for} $t=1,\ldots,d$  \\
+     Pull arm $y_t = t$ \\
+     Receive reward $r_t$ \\
+     Set $R_t = r_t$ and $T_t = 1$  \\
+   \textbf{end for}  \\
+ \texttt{Loop}  \\
+   \textbf{for} $t=d+1,d+2,\ldots$  \\
+     Pull arm $y_t \in \arg\max_j \left(\tfrac{R_j}{T_j} + \sqrt{\tfrac{2
+         \ln(n)}{T_j}}\right)$ \\
+     Receive reward $r_t$ \\
+     Set $R_{y_t} = R_{y_t}+r_t$ and $T_{y_t} = T_{y_t} + 1$  \\
+  \textbf{end for}
+%\end{Balgorithm}
+\end{algorithm}
+
+The algorithm remembers the number of times each arm has been pulled
+and the cumulative reward obtained for each arm. Based on this
+information, the algorithm calculates an upper bound on the true
+expected reward of the arm and then it chooses the arm for which this upper
+bound is maximized.
+
+To analyze UCB1, we first need a concentration measure for martingales.
+
+\begin{theorem}[Azuma] \label{thm:azuma}
+  Let $X_1,\ldots,X_n$ be a martingale (i.e. a sequence of random
+  variables s.t. $\E[X_i|X_{i-1},\ldots,X_1] = X_{i-1}$ for all $i>1$ and
+  $\E[X_1]=0$). Assume that $|X_i-X_{i-1}| \le 1$ with probability
+  $1$. Then, for any $\epsilon > 0$ we have
+\[
+\P[ |X_n | \ge n\epsilon] \le 2\exp\left( - n\epsilon^2/2\right) ~.
+\]
+\end{theorem}
+
+The above theorem implies:
+\begin{lemma} \label{lem:azuma2}
+Let $X_1,\ldots,X_n$ be a sequence of random variables over $[0,1]$
+such that $\E[X_i|X_{i-1},\ldots,X_1]= \mu$ for all $i$.
+Denote $S_n = X_1+\ldots+X_n$. Then, for any $\epsilon > 0$ we have
+\[
+\P[|S_n - n\mu| \ge n\epsilon] \le 2\exp\left( - n\epsilon^2/2\right) ~.
+\]
+\end{lemma}
+\begin{proof}
+For all $i$ let $Y_i = X_1+\ldots+X_i - i\mu$. Then,
+\[
+\E[Y_i | Y_{i-1},\ldots,Y_1] = Y_{i-1} + \E[X_i|X_{i-1},\ldots,X_i] -
+\mu = Y_{i-1} ~.
+\]
+Also, $|Y_i - Y_{i-1}| = |X_i - \mu| \le 1$.
+Applying \ref{thm:azuma} on the sequence $Y_1,\ldots,Y_n$ the proof
+follows.
+\end{proof}
+
+The following theorem provides a regret bound for UCB1.
+\begin{theorem}
+The regret of UCB1 is at most
+\[
+8 \ln(n) \sum_{j \neq j^\star} \frac{1}{\Delta_j} + 2 \sum_{j \neq
+  j^\star} \Delta_j ~.
+\]
+\end{theorem}
+\begin{proof}
+For any arm $i \neq j^\star$ denote $\Delta_i = \mu^\star -
+\mu_i$. The expected regret of the algorithm can be rewritten as
+\begin{equation} \label{eqn:regbyETj}
+\sum_{j \neq j^\star} \Delta_j \, \E[T_j] ~.
+\end{equation}
+In the following we will upper bound $\E[T_j]$.
+
+Suppose we are on round $n$. We have
+\begin{eqnarray}
+&1.&~\P\left[ \tfrac{R_j}{T_j} - \sqrt{\tfrac{2
+         \ln(n)}{T_j}}  \ge \mu_j \right] \le
+\exp( - \ln(n)) = 1/n\\
+&2.&~\P\left[ \tfrac{R_{j^\star}}{T_{j^\star}}  + \sqrt{\tfrac{2
+        \ln(n)}{T_{j^\star}}}  \le \mu^\star  \right] \le
+\exp( -  \ln(n)) = 1/n
+\end{eqnarray}
+Consider 1.
+\begin{eqnarray*}
+\P\left[ \tfrac{R_j}{T_j} - \sqrt{\tfrac{2 \ln(n)}{T_j}}  \ge \mu_j \right] & = & \P\left[ R_j - \textcolor{red}{T_j} \mu_j \geq T_j \sqrt{\tfrac{2 \ln(n)}{T_j}}  \right]
+\end{eqnarray*}
+and using Lemma~\ref{lem:azuma2} with $\epsilon = \sqrt{\tfrac{2 \ln(n)}{T_j}}$ and $n = T_j$, we get
+\begin{eqnarray*}
+\P\left[ \tfrac{R_j}{T_j} - \sqrt{\tfrac{2 \ln(n)}{T_j}}  \ge \mu_j \right] & \leq & \exp (- T_j \frac{2 \ln(n)}{T_j} / 2) = \exp(-\ln(n)) = \frac{1}{n}
+\end{eqnarray*}
+
+Therefore, with probability of at least $1-2/n$ we have that
+\[
+\tfrac{R_j}{T_j} - \sqrt{\tfrac{2
+         \ln(n)}{T_j}}  < \mu_j = \mu^\star - \Delta_j  <
+\tfrac{R_{j^\star}}{T_{j^\star}}  + \sqrt{\tfrac{2
+        \ln(n)}{T_{j^\star}}} - \Delta_j~,
+\]
+which yields
+\[
+\tfrac{R_j}{T_j} + \sqrt{\tfrac{2
+         \ln(n)}{T_j}} + \left(\Delta_j - 2\sqrt{\tfrac{2
+         \ln(n)}{T_j}} \right) < \tfrac{R_{j^\star}}{T_{j^\star}}  + \sqrt{\tfrac{2
+        \ln(n)}{T_{j^\star}}}  ~.
+\]
+If $T_j \ge 8\ln(n)/\Delta_j^2$ the above implies that
+\[
+\tfrac{R_j}{T_j} + \sqrt{\tfrac{2
+         \ln(n)}{T_j}} <
+\tfrac{R_{j^\star}}{T_{j^\star}} + \sqrt{\tfrac{2
+         \ln(n)}{T_{j^\star}}}
+\]
+and therefore we will not pull arm $j$ on this round with probability of at least
+$1-2/n$.
+
+The above means that
+\[
+\E[T_j] \le 8\ln(n)/\Delta_j^2 + \sum_{t=1}^{n} \frac{2}{n}
+= 8\ln(n)/\Delta_j^2 + 2 ~.
+\]
+(where note that the quantity inside the summation does not depend on $t$.)
+Combining with \eqref{eqn:regbyETj} we conclude our proof.
+\end{proof}
+
+
+
+\section{*Lower bounds}
+
+There are two types of lower bounds. In the first type, the value of the arms is known, but the identity of the
+best arm is not known. The goal is to find an algorithm that would work well for every permutation of the arms identity.
+A second type of lower bounds concerns the case where the identity of the arms is unknown and an algorithm has to work for {\em every} tuple of arms.
+
+Lower bounds are useful because they hold for every algorithm and tell us what are the limits of knowledge. They tell us how many samples are needed to find the approximately best arm with a given probability.
+We start with the exploratory MAB problem in Section \ref{sec:explorelowerbounds}  and then consider regret in Section \ref{sec:regretlowerbounds}.
+
+\subsection{Lower bounds on the exploratory MAB problem}
+
+\label{sec:explorelowerbounds}
+
+Recall the MAB exploration problem.
+ We are given $n$ arms. Each arm $\ell$
+is associated with a sequence of identically distributed Bernoulli
+(i.e., taking values in $\{0,1\}$) random variables $X^\ell_k$,
+$k=1,2,\ldots$, with unknown mean $p_\ell$. Here, $X^\ell_k$ corresponds to the
+reward obtained the $k$th time that arm $\ell$ is tried. We assume
+that the random variables $X^\ell_k$, for $\ell=1,\ldots, n$,
+$k=1,2,\ldots$, are independent, and we define
+$p=(p_1,\ldots,p_n)$. Given that we restrict to the Bernoulli
+case, we will use in the sequel the term ``coin'' instead of
+``arm.''
+
+A {\it policy} is a mapping that given a history, chooses
+a particular coin to be tried next, or selects a particular coin
+and stops. We allow a policy to use randomization when choosing the
+next
+coin to be tried or when making a final selection. However, we only
+consider policies that are guaranteed to stop with probability 1,
+for every possible vector $p$. (Otherwise, the expected number of
+steps would be infinite.) Given a particular policy, we let
+$\P_{p}$ be the corresponding  probability measure (on the
+natural probability space for this model). This probability space
+captures both the randomness in the coins (according to the vector
+$p$), as well as any additional randomization carried out by the
+policy. We introduce the following random variables, which are
+well defined, except possibly on the set of measure zero where the
+policy does not stop. We let $T_\ell$ be the total number of times
+that coin $\ell$ is tried, and let $T=T_1+\cdots+T_n$ be the total
+number of trials. We also let $I$ be the coin which is selected
+when the policy decides to stop.
+
+We say that a policy is ($\epsilon$,$\delta$)-{\it
+correct} if
+$$\P_p\Big(p_I> \max_\ell p_\ell-\epsilon\Big)\geq 1-\delta,$$
+for {\it every} $p\in[0,1]^n$. We showed above that
+there exist constants $c_1$ and $c_2$ such that for every $n$,
+$\epsilon>0$, and $\delta>0$, there exists an ($\epsilon$,$\delta$)-correct policy
+under which
+$$\E_p[T]\leq c_1\frac{n}{\epsilon^2}\log \frac{c_2}{\delta},
+\qquad \forall\ p\in [0,1]^n.$$
+We aim at
+deriving bounds that capture the dependence of the
+sample-complexity on $\delta$, as $\delta$ becomes small.
+
+
+
+We start with our central result, which can be viewed as an extension
+of Lemma 5.1 from \cite{anthony_bartlett99}.
+For this section,  $\log$ will stand for the natural
+logarithm.
+\begin{theorem} \label{th:main}
+There exist positive constants $c_1$, $c_2$, $\epsilon_0$, and
+$\delta_0$, such that for every $n\geq 2$,
+$\epsilon\in(0,\epsilon_0)$, and $\delta\in(0,\delta_0)$, and for
+every ($\epsilon$,$\delta$)-correct policy, there exists
+some $p\in[0,1]^n$ such that
+$$\E_p[T]\geq c_1\frac{n}{\epsilon^2}\log \frac{c_2}{\delta}.$$
+In particular, $\epsilon_0$ and $\delta_0$ can be taken equal to
+1/8  and $e^{-4}/4$, respectively.
+\end{theorem}
+\proof Let us consider a multi-armed bandit problem with $n+1$
+coins, which we number from 0 to $n$. We consider a finite set of
+$n+1$ possible parameter vectors $p$, which we will refer to as
+``hypotheses.'' Under any one of the hypotheses, coin 0 has a
+known bias $p_0=(1+\epsilon)/2$. Under one hypothesis, denoted by
+$H_0$, all the coins other than zero have a bias of 1/2,
+$$
+H_0:\ p_0=\frac{1}{2}+\frac{\epsilon}{2},\qquad p_i=\frac{1}{2}, \
+{\rm for}\ i\neq 0\,,$$ which makes coin 0 the best coin.
+Furthermore, for $\ell=1,\ldots,n$, there is a hypothesis
+$$
+H_\ell:\ p_0=\frac{1}{2}+\frac{\epsilon}{2},\qquad
+p_\ell=\frac{1}{2}+\epsilon, \qquad p_i=\frac{1}{2},\ {\rm for}\
+i\neq 0,\ell\,,$$ which makes coin $\ell$ the best coin.
+
+
+We define $\epsilon_0=1/8$ and $\delta_0=e^{-4}/4$.
+From now on, we fix
+some $\epsilon\in(0,\epsilon_0)$ and $\delta\in(0,\delta_0)$, and a policy,
+which we assume to be
+($\epsilon/2$,$\delta$)-correct . If $H_0$ is true, the policy must
+have probability at least $1-\delta$ of eventually stopping and
+selecting coin 0. If $H_\ell$ is true, for some $\ell\neq 0$, the policy
+must have probability at least $1-\delta$ of eventually stopping
+and selecting coin $\ell$. We denote by $\E_\ell$ and $\P_\ell$ the
+expectation and probability, respectively, under hypothesis $H_\ell$.
+
+We define $t^*$ by
+\begin{equation}
+\label{eq:tstardef}
+t^* = \frac{1}{c\epsilon^2}\log\frac{1}{4\delta}
+= \frac{1}{c\epsilon^2}\log\frac{1}{\theta}  ,
+\end{equation}
+where $\theta= 4\delta$, and
+where $c$ is an absolute constant whose value will be specified
+later\footnote{In this and subsequent proofs, and in order to avoid
+repeated use of truncation symbols, we treat $t^*$ as if it were
+integer.}. Note that $\theta<e^{-4}$ and $\epsilon<1/4$.
+
+Recall that $T_\ell$ stands for the number of times that coin
+$\ell$ is tried. We assume  that for some coin $\ell\neq 0$, we have
+$\E_0[T_\ell] \leq t^*$. We will eventually show that under this assumption,
+the probability of selecting $H_0$
+under $H_\ell$ exceeds $\delta$, and violates
+($\epsilon/2$,$\delta$)-correctness. It will then follow
+that we must have $\E_0[T_\ell] > t^*$ for all $\ell\neq 0$.
+Without loss of generality, we can and will
+assume that the above condition holds for $\ell=1$, so that $\E_0[T_1] \leq t^*$.
+
+We will now introduce some special events $A$ and $C$ under which various random variables
+of interest do not deviate significantly from their expected values.
+We define
+$$A = \{ T_1 \le 4 t^*\},$$
+and obtain
+$$t^*\geq \E_0[T_1]
+\geq 4t^* \P_0(T_1> 4t^*)= 4t^*\big(1-\P _0(T_1\leq 4t^*)\big),$$
+from which it follows that
+$$\P_0 (A) \geq 3/4.$$
+
+
+We define $K_t=X^1_1+\cdots+X^1_t$, which is the number of unit
+rewards (``heads'') if the first coin is tried  a total of $t$ (not necessarily consecutive) times.
+We let
+$C$ be the event defined by
+$$C = \Big\{  \displaystyle{ \max_{1\le t \le
+4t^*} \Big|K_t - \frac{1}{2} t\Big| < \sqrt{t^*
+\log{(1/\theta)}}\Big\}.}$$
+
+We now establish two lemmas that will be used in the sequel.
+\begin{lemma}\label{le:kolmogorov}
+We have $\P_0(C) > 3/4$.
+\end{lemma}
+\proof
+We will prove a more general result: we assume that coin $i$ has bias $p_i$ under hypothesis $H_\ell$,  define $K^i_t$ as the number of unit
+rewards (``heads'') if coin $i$ is tested for $t$ (not necessarily consecutive) times,
+and let
+$$C_i = \Big\{  \displaystyle{ \max_{1\le t \le
+4t^*} \Big|K^i_t - p_i t\Big| < \sqrt{t^*
+\log{(1/\theta)}}\Big\}.}$$
+First, note that $K^i_t - p_i t$ is a $\P_{\ell}$-martingale (in the context of Theorem \ref{th:main}, $p_i=1/2$ is the bias
+of coin $i=1$ under hypothesis $H_0$).
+Using Kolmogorov's inequality \cite[Corollary 7.66, in p.\ 244 of][]{Ross},
+the probability of the complement of
+$C_i$ can be bounded as follows:
+$$
+\P_{\ell} \left(\max_{1\le t \le 4t^*} \Big| K^i_t -p_i t\Big|
+\ge \sqrt{t^*
+\log{(1/\theta)}}\right )
+\le  \frac {\E_{\ell} \big[(K^i_{4t^*} -4p_i  t^*)^2\big]}{t^*
+\log{(1/\theta)}}.
+$$
+Since $\E_{\ell} \big[\big(K^i_{4t^*} - 4 p_i t^*)^2\big]
+=   4p_i(1-p_i)t^*$, we
+obtain
+\begin{equation} \label{eq:C_ibound}
+\P_{\ell}(C_i) \geq  1- \frac{4 p_i(1-p_i)}{ \log{(1/\theta)}}>
+\frac{3}{4},
+\end{equation}
+where
+the last inequality follows because $\theta< e^{-4}$ and
+$4p_i (1-p_i)\le1$.
+\qed
+
+\begin{lemma}
+\label{le:aux}
+If $0\leq x\leq 1/\sqrt{2} $ and
+$y\ge 0$, then
+$$
+(1-x)^y \ge e^{-dxy},
+$$
+where $d=1.78$.
+\end{lemma}
+\proof A straightforward calculation shows that $\log (1-x) + dx
+\ge 0 $ for $0\le x \le 1/\sqrt{2}$. Therefore, $y (\log (1-x) + dx) \ge
+0$ for every $y\ge 0$. Rearranging and exponentiating, leads to
+$(1-x)^y \ge e^{-dxy}$. \qed
+
+
+We now let $B$ be the event that $I=0$, i.e., that the policy
+eventually selects coin 0. Since the policy is
+($\epsilon/2$,$\delta$)-correct for $\delta<e^{-4}/4< 1/4$, we have
+$\P_0(B)> 3/4$. We have already shown that  $\P_0(A)\ge 3/4$ and
+$\P_0(C)> 3/4$. Let $S$ be the event
+that $A$, $B$, and $C$ occur, that is $S=A\cap B \cap C$. We then
+have $\P_0 (S)> 1/4$.
+
+\begin{lemma} If $\E_0[ T_1] \leq t^*$ and $c\ge 100$, then
+$\P_1(B) > \delta$. \label{le:pspec}
+\end{lemma}
+\proof We let $W$ be the history of the process (the sequence of
+coins chosen at each time, and the sequence of observed
+coin rewards) until the policy terminates.
+We define the likelihood function $L_\ell$ by letting
+$$L_\ell(w)=\P_\ell(W=w),$$
+for every possible history $w$. Note that this function can be
+used to define a random variable $L_\ell(W)$.  We also let $K$ be a
+shorthand notation for $K_{T_1}$, the total number of  unit
+rewards (``heads'') obtained from coin 1.
+Given the history up to time $t-1$, the coin choice at time $t$ has the same probability distribution
+under either hypothesis $H_0$ and $H_1$; similarly, the coin reward at time $t$
+has the same probability
+distribution, under either hypothesis, unless the chosen coin was coin 1.
+For this reason, the likelihood ratio $L_1(W)/L_0(W)$ is given by
+\begin{eqnarray}
+\frac{L_1(W)}{L_0(W)} & = &
+\frac{(\half+\epsilon)^{K}(\half-\epsilon)^{T_1 - K}}{(\half) ^ {T_1}}
+\nonumber\\ &= &(1+2 \epsilon)^{K} (1-2 \epsilon)^{K} (1-2 \epsilon)^{T_1 - 2K}
+\nonumber\\ & = & (1 - 4 \epsilon ^2)^{K} (1-2 \epsilon)^{T_1 - 2K}.
+\label{eq:dp1dp0}
+\end{eqnarray}
+We will now proceed to lower  bound the terms in the right-hand
+side of Eq.~(\ref{eq:dp1dp0}) when event $S$ occurs.
+
+If event $S$ has occurred, then $A$ has occurred, and we have $K
+\le T_1 \le 4t^*$, so that
+\begin{eqnarray*}
+(1-4\epsilon^2)^K \ge (1-4 \epsilon ^2)^{4t^*} & = &
+(1-4 \epsilon ^2)^{({4}/({c \epsilon ^2}))
+\log(1/\theta)} \\
+& \ge & e^{-({16d}/{c}) \log(1/\theta)} \\ & = &\theta ^{16d/c}.
+\end{eqnarray*}
+We have used here Lemma \ref{le:aux}, which applies because
+$4\epsilon^2<4/4^2<1/\sqrt{2}$.
+
+Similarly, if event $S$ has occurred, then $A\cap C$ has occurred,
+which implies,
+$$T_1 -2 K\le 2 \sqrt{t^* \log(1/\theta)}=\big(2/\epsilon\sqrt{c}\big) \log(1/\theta),$$
+where the equality above made use of the definition of $t^*$. Therefore,
+\begin{eqnarray*}
+(1-2 \epsilon)^{T_1-2K} & \ge & (1-2 \epsilon)^{\big(2/\epsilon\sqrt{c}\big) \log(1/\theta)}
+\\ &\ge& \ e^{-(4d/\sqrt{c})\log(1/\theta)} \\
+&=&\theta^{4d/\sqrt{c}}.
+\end{eqnarray*}
+Substituting the above in Eq.~(\ref{eq:dp1dp0}), we obtain
+$$
+\frac{L_1(W)}{L_0(W)} \ge \theta ^{({16d}/{c}) + ({4d}/{\sqrt{c}})}.
+$$
+By picking $c$ large enough ($c=100$ suffices), we obtain that $L_1(W)/{L_0(W)}$ is larger than
+$\theta=4\delta$ whenever the event $S$ occurs. More precisely, we have
+$$\frac{L_1(W)}{L_0(W)} 1_S \geq 4\delta 1_S,$$
+where $1_S$ is the indicator function of the event $S$. Then,
+$$
+\P_1(B) \ge \P_1 (S) = \E_1[  1_{S}] = \E_0\left[
+\frac{L_1(W)}{L_0(W)} 1_{S} \right]\geq \E_0 [4\delta 1_{S}] =
+4\delta \P_0(S) > \delta,
+$$
+where we used the fact that $\P_0(S)>1/4$.
+\qed
+
+To summarize, we have shown that when $c\geq 100$,
+if
+$\E_0[T_1]\leq(1/c\epsilon^2)\log(1/(4\delta))$, then
+$\P_1(B)>\delta$. Therefore, if we have an
+$(\epsilon/2,\delta)$-correct policy, we must have
+$\E_0[T_\ell]> (1/c\epsilon^2)\log(1/(4\delta))$, for every $\ell>0$.
+Equivalently, if we have an $(\epsilon,\delta)$-correct policy, we
+must have $\E_0[T]>(n/(4c\epsilon^2))\log(1/(4\delta))$, which is of
+the desired form. \qed
+
+It is not too difficult to prove a more general lower bound. The reader is referred to Mannor and Tsitsiklis 2006.
+
+\subsection{Regret lower bounds}
+\label{sec:regretlowerbounds}
+
+ Lower bounds for different variants
+of the multi-armed bandit have been studied by several authors.
+For the expected regret model, where the regret is defined as the
+difference between the ideal reward (if the best arm were known)
+and the reward  under an online policy, the seminal work of \cite{LR85}
+provides asymptotically tight bounds in terms of the
+Kullback-Leibler divergence between the distributions of the
+rewards of the different arms. These bounds grow logarithmically
+with the number of steps.
+The adversarial multi-armed bandit
+problem (i.e., without any probabilistic assumptions) was
+considered in \cite{A95,ACFS02}, where it was shown that the
+expected regret grows proportionally to the square root of the
+number of steps. Of related interest is the work of \cite{KulkarniLugosi00}
+which shows that for any specific time $t$, one can choose the reward distributions so
+that the expected regret is linear in~$t$.
+
+
+
+In this section we consider lower bounds on the regret of {\em any} policy, and show that one can derive
+the $\Theta(\log t)$ regret bound of
+\cite{LR85} using the techniques in this paper.
+The results of \cite{LR85} are asymptotic as $t\to \infty$, whereas ours deal with
+finite times $t$.
+Our lower bound has similar dependence in $t$ as the upper bounds given by \cite{AuerCesaBianchiFischer02}
+for some natural sampling algorithms.
+As in \cite{LR85} and \cite{AuerCesaBianchiFischer02}, we also show that when $t$ is large, the regret depends
+linearly on the number of coins.
+
+Given a policy, let $S_t$ be the total number of unit rewards (``heads'')  obtained in the first $t$ time steps.
+The regret by time $t$ is denoted by $R_t$, and is defined by
+$$
+R_t = t \max_i p_i - S_t \,.
+$$
+Note that the regret is a random variable that depends on the results of
+the coin tosses as well as of the randomization carried out by the policy.
+
+\begin{theorem}
+\label{th:regbndspecial}
+There exist positive constants $c_1,c_2,c_3,c_4$, and a constant $c_5$,
+such that for every
+$n\geq 2$, and for every policy, there exists some $p\in[0,1]^n$ such that for all
+$t\ge 1$,
+\begin{equation}
+\label{eq:Expectedregret}
+\E_p [R_t] \geq \min \big\{c_1 t,\  c_2 n  +c_3t , \ c_4 n  (\log t - \log n + c_5   )\big\}.
+\end{equation}
+\end{theorem}
+
+The inequality (\ref{eq:Expectedregret}) suggests that there are essentially two regimes
+for the expected regret. When $n$ is large compared to $t$, the
+expected regret is linear in $t$. When $t$ is large compared to $n$,
+the regret behaves like $\log t$, but
+depends linearly on $n$.
+\\
+\proof
+We will prove a stronger result, by considering the regret in a Bayesian setting.
+By proving that the expectation with respect to the prior is lower bounded by the right-hand side
+in Eq.~(\ref{eq:Expectedregret}), it will follow that the bound also holds for at least one of
+the hypotheses.
+Consider the same scenario as in Theorem \ref{th:main}, where we have $n+1$ coins
+and $n+1$ hypotheses $H_0, H_1,\ldots, H_n$.
+The prior assigns a probability of $1/2$ to $H_0$, and a probability of $1/2n$ to each of
+the hypotheses $H_1,H_2,\ldots,H_n$.
+Similar to Theorem \ref{th:main}, we will use the notation $\E_\ell$ and $\P_\ell$ to denote
+expectation and probability when the $\ell$th hypothesis is true, and $\E$ to denote expectation with respect to the prior.
+
+Let us fix $t$ for the rest of the proof.
+We define $T_\ell$ as the number of times coin $\ell$ is tried in the first $t$ time steps.
+The expected regret when $H_0$ is true is
+$$
+\E_0 [R_t] = \frac{\epsilon}{2}\sum_{ \ell=1 }^n  \E_0 [T_\ell],
+$$
+and the expected regret when $H_\ell$ ($\ell=1,\ldots,n$) is true is
+$$
+\E_\ell [R_t] = \frac{\epsilon}{2} \E_\ell [T_0] + \epsilon \sum_{ i\neq 0,\ell}  \E_\ell [T_i],
+$$
+so that the expected (Bayesian) regret is
+\begin{equation}
+\label{eq:Eregret}
+\E [R_t]  =   \half\cdot \frac{\epsilon}{2} \sum_{\ell=1}^n \E_0 [T_\ell] +
+\frac{\epsilon}{2}\cdot \frac{1}{2n} \sum_{\ell=1}^n \E_\ell [T_0] +
+\frac{\epsilon}{2n} \sum_{\ell=1}^n \sum_{i\neq 0,\ell}  \E_{\ell} [T_i].
+\end{equation}
+
+Let $D$ be the event that coin 0 is tried at least $t/2$ times, i.e.,
+$$
+D = \{ T_0 \ge t/2\}\,.
+$$
+We consider separately the two cases $\P_0 (D) < 3/4 $ and $\P_0 (D) \geq 3/4 $.
+Suppose first that $\P_0 (D) < 3/4 $.
+In that case, $\E_0[T_0] < {7}t/{8}$, so that
+$\sum_{\ell=1}^n \E_0 [T_\ell] \ge t/8$.
+Substituting in Eq.~(\ref{eq:Eregret}), we obtain
+$\E[R_t] \geq \epsilon t / 32$. This gives the first term in the right-hand side of
+Eq.~(\ref{eq:Expectedregret}), with
+$c_1= \epsilon/32$.
+
+We assume from now on that $\P_0 (D) \geq 3/4 $.
+Rearranging Eq.~(\ref{eq:Eregret}), and omitting the third term, we have
+$$
+\E [R_t] \ge \frac{\epsilon}{4} \sum_{\ell=1}^n \left(
+\E_0 [T_\ell] + \frac{1}{n}\E_\ell [T_0] \right).
+$$
+Since $\E_\ell [T_0] \ge (t/2) \P_\ell(D)$, we have
+\begin{equation}\label{eq:rr}
+\E [R_t] \ge \frac{\epsilon}{4} \sum_{\ell=1}^n \left(
+\E_0 [T_\ell] + \frac{t}{2n}\P_\ell(D) \right).
+\end{equation}
+
+
+For every $\ell\neq 0$, let us define $\delta_{\ell}$ by
+$$\E_0 [T_\ell] = \frac{1}{c \epsilon ^2} \log\frac{1}{4\delta_\ell}.$$
+(Such a $\delta_\ell$ exists because of the monotonicity of the mapping $x\mapsto \log(1/x)$.)
+Let $\delta_0=e^{-4}/4$. If $\delta_\ell< \delta_0$, we argue exactly as in Lemma \ref{le:pspec}, except that the event $B$ in that lemma is
+replaced by event $D$. Since $\P_0(D)\ge 3/4$, the same proof applies and shows that  $\P_\ell (D) \geq\delta_\ell$, so that
+$$\E_0 [T_\ell] + \frac{t}{2n}\P_\ell(D)\geq
+\frac{1}{c \epsilon ^2} \log\frac{1}{4 \delta_\ell} + \frac{t}{2n} \delta_{\ell}.$$
+If on the other hand, $\delta_{\ell}\geq \delta_0$,
+then
+$\E_0 [T_\ell] \leq  (1/c \epsilon ^2) \log(1/4\delta_0)$, which implies (by the earlier analogy with Lemma \ref{le:pspec}) that
+$\P_\ell(D)\geq \delta_0$, and
+$$\E_0 [T_\ell] + \frac{t}{2n}\P_\ell(D)\geq
+\frac{1}{c \epsilon ^2} \log\frac{1}{4 \delta_\ell} + \frac{t}{2n} \delta_{0}.$$
+
+Using the above bounds in Eq.~(\ref{eq:rr}), we obtain
+\begin{equation}
+\E [R_t] \ge \frac{\epsilon}{4} \sum_{\ell=1}^n
+\left(
+\frac{1}{c \epsilon ^2} \log\frac{1}{4 \delta_\ell} + h(\delta_\ell)\frac{t}{2n} \right),
+\label{eq:regbndbeforeopt}
+\end{equation}
+where $h(\delta)=\delta$ if $\delta<\delta_0$, and $h(\delta)=\delta_0$ otherwise.
+We can now view the $\delta_\ell$ as free parameters, and conclude that $\E[R_t]$ is
+lower bounded by the minimum of the right-hand side of Eq.~(\ref{eq:regbndbeforeopt}),
+over all $\delta_{\ell}$.
+When optimizing, all the $\delta_\ell$ will be set to the same value. The minimizing value
+can be  $\delta_0$, in which case we have
+$$
+\E [R_t] \ge  \frac{n}{4c \epsilon} \log\frac{1}{4\delta_0} + \delta_0 \frac{\epsilon}{8} t .
+$$
+Otherwise, the minimizing value is
+$\delta_\ell = n/2c t \epsilon ^2$, in which case we have
+$$
+\E [R_t] \ge \left( \frac{1}{16 c \epsilon} + \frac{1}{4c \epsilon} \log(c \epsilon ^2/2)\right) n + \frac{1}{4c \epsilon} n \log(1/n) + \frac{n}{4c \epsilon}\log t.
+$$
+Thus,
+the theorem holds with $c_2 = (1/4c \epsilon) \log (1/4\delta_0)$, $c_3 = \delta_0 \epsilon /8$,
+$c_4 = 1/4c \epsilon $,  and $c_5 = (1/4) +\log(c \epsilon ^2/2)$.
+\qed
+
+
+%\section{Structured models*}
+%
+%UCT
+%
+%X-armed bandits
+%
+%\section{Some empirical results}
+%
+%The 2006 exploration-exploitation challenge.
+%
+%http://pascallin.ecs.soton.ac.uk/Challenges/EEC/Datasets/
+%
+%Some empirical graphs
+%
+%Assignment: Code? (As an online appendix)
+%(SB: As online yes. It might help the isolated RL students in various places to get started).
+%(SB: We might want to start a, say matlab, repository of various basic algorithms perhaps)
+%
+\section{Perspective}
+
+\subsection{The Non-stochastic K-armed Bandit Problem}
+
+A third popular variant of the KAB problem is the non-stochastic one. In this problem it is assumed that the sequence of rewards each arm produces is deterministic (possibly adversarial). The decision maker, as in the stochastic KAB problem, wants to minimize her regret, where the regret is measured with respect to the best fixed arm (this best arm might change with time). Letting the reward of arm m at time t be $r_m(t)$ we redefine the regret as:
+,
+where expectation is now with respect to the randomization in the arm selection. The basic question here is if the regret can be made to grow sub-linearly. The case where the reward of each arm is observed was addressed in the 50�s (see [6] for a discussion) where it was shown that there are algorithms that guarantee that the regret grows like �t. For the more difficult case, where only the reward of the selected arm is observed and that the rewards of the other arms may not be observed it was shown in [7] that the same conclusion still holds.
+It should be noticed that the optimal policy of the decision maker is generally randomized. That is, the decision maker has to select an action at random by following some distribution. The reason for that is that if the action the decision maker takes is deterministic and can be predicted by Nature, then Nature can consistently �give� the decision maker a low reward for the selected arm while �giving� a high reward to all other arms, leading to a linear regret.
+There are some interesting relationships between the non-stochastic KAB problem and prediction with expert advice, universal prediction, and learning in games. We refer the reader to [6] for a more detailed discussion.
+
+%\subsection{Contextual Bandits}
+
+\section{Appendix (Useful Stuff)}
+\begin{theorem} (Hoeffding's Inequality) Let $Z_1,Z_2,\ldots,Z_n$ be independent random variables, such that for all $i$, $\P(Z_i \in [a_i,b_i]) = 1$. Let $S = Z_1 + Z_2 + \cdots + Z_n$. Then,
+\[
+\P \Big(S > \E[S] + \epsilon \Big)  \leq e^{-\frac{2 \epsilon^2}{\sum_i (b_i - a_i)^2} }
+\]
+and
+\[
+\P \Big(S < \E[S] - \epsilon \Big)  \leq e^{-\frac{2 \epsilon^2}{\sum_i (b_i - a_i)^2} }
+\]
+and putting the above two together
+\[
+\P(|S -\E[S]| > \epsilon) \leq 2 e^{-\frac{2 \epsilon^2}{\sum_i (b_i - a_i)^2} }
+\]
+Often we are interested in $S = \frac{1}{n} [Z_1 + Z_2 + \cdots + Z_n]$ and then one can translate the above results into
+\[
+Pr \Big(S > \E[S] + \epsilon \Big)  \leq e^{-\frac{2 \epsilon^2 n^2}{\sum_i (b_i - a_i)^2} }
+\]
+and
+\[
+Pr \Big(S < \E[S] - \epsilon \Big)  \leq e^{-\frac{2 \epsilon^2 n^2}{\sum_i (b_i - a_i)^2} }
+\]
+and putting the above two together
+\[
+Pr(|S - \E[S]| > \epsilon) \leq 2 e^{-\frac{2 \epsilon^2 n^2}{\sum_i (b_i - a_i)^2} }
+\]
+If in addition to being independent the $Z_i$ are identically distributed with $a_i = 0$ and $b_i = 1$ and mean $\mu$, then for $S = \frac{1}{n} [Z_1 + Z_2 + \cdots + Z_n]$, we get
+\[
+Pr(|S - \mu| > \epsilon) \leq 2 e^{-2 \epsilon^2 n}.
+\]
+\end{theorem}
+
+
+\begin{theorem} (NS) Let random variable $Z_1 \in [0,1]$ have mean $ \mu_1$ and random variable $Z_2 \in [0,1]$ have mean $\mu_2$. W.l.o.g. assume that $\mu_1 > \mu_2$. If $\hat{\mu}_1 = \sum_{j = 1}^n z^j_1$ and $\hat{\mu}_2 = \sum_{j = 1}^n z^j_2$, i.e., we estimate their means by the sample average of $n$ samples, then \\ if $n \geq \frac{2}{(\mu_1 - \mu_2)^2} \ln(\frac{2}{\delta})$, $\P(\hat{\mu}_1 > \hat{\mu}_2) \geq 1 - \delta$.  (In words if $n$ is large enough then the probability of picking the wrong random variable as having the higher mean is low).
+\end{theorem}
+
+\begin{proof}
+Let $\Delta \leq \mu_1 - \mu_2$ (i.e., let the difference between the two means be at least $\Delta$). To get failure to pick the right random variable as having the higher mean, we can pick an arbitrary boundary in between $\mu_1$ and $\mu_2$ and require at least one of the two empirical means to cross the boundary, and picking the half-way point we get
+\begin{eqnarray*}
+\P(\hat{\mu}_1 < \hat{\mu}_2) & \leq & \P(\hat{\mu}_1 < \mu_1 - \frac{\Delta}{2}) + \P(\hat{\mu}_2 > \mu_2 + \frac{\Delta}{2}) \\
+& \leq & \exp(-2 \frac{\Delta^2}{4} n) + \exp(-2 \frac{\Delta^2}{4} n)
+\end{eqnarray*}
+We obtain the result by then requiring
+\begin{eqnarray*}
+2\exp(-2 \frac{\Delta^2}{4} n) & \leq & \delta \\
+\implies - \frac{\Delta^2}{2} n & \leq & \ln(\frac{\delta}{2}) \\
+\implies \frac{\Delta^2}{2} n & \geq & \ln(\frac{2}{\delta}) \\
+\implies n & \geq & \frac{2}{\Delta^2} \ln(\frac{2}{\delta})
+\end{eqnarray*}
+Note that if we pick $\Delta < \mu_1 - \mu_2$ we will simply end up being more conservative and use more samples than strictly necessary to achieve the guarantee.
+\end{proof}
+
+
+
+\begin{theorem} (Union Bound). Let $A$ be an event of interest ($\bar{A}$ is therefore the complement event). If $\bar{A}$ implies that at least one of $B_1, B_2, \ldots, B_n$ must occur, then
+\[
+Pr(\bar{A}) \leq Pr\Big(\bigcup_i B_i\Big) \leq \sum_i Pr(B_i)
+\]
+and thus
+\[
+Pr(A) \geq 1 - \sum_i Pr(B_i)
+\]
+(Often $A$, the event of interest, is treated as ``success'' in which case $\bar{A}$ is ``failure'' and the $B_i$ are bad events (perhaps symptoms or causes of failure)).
+\end{theorem}
+
+
+%\end{document}

@@ -1,0 +1,14 @@
+\section{Exercises}
+
+\begin{exercise}[\textbf{Stochastic Approximation}]
+Let $\left\{ {{X_n}} \right\}_{n = 0}^\infty $ be an i.i.d. sequence of bounded random variables with mean $\mu $ and variance ${\sigma ^2}$. Consider the following iterative method for estimating $\mu ,{\sigma ^2}$:
+\begin{equation*}
+    \begin{split}
+       {\hat \mu _0} &= {\hat s_0} = 0 ,\\
+        {\hat \mu _{n + 1}} &= {\hat \mu _n} + {\alpha _n}\left( {{X_{n + 1}} - {{\hat \mu }_n}} \right) ,\\
+        {\hat s_{n + 1}} &= {\hat s_n} + {\alpha _n}\left( {{{\left( {{X_{n + 1}} - {{\hat \mu }_n}} \right)}^2} - {{\hat s}_n}} \right).
+     \end{split}
+\end{equation*}
+Use the ODE method and show that $\left( {{{\hat \mu }_n},{{\hat s}_n}} \right) \to \left( {\mu ,{\sigma ^2}} \right)$ with probability one.
+\end{exercise}
+

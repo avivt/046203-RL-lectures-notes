@@ -1,0 +1,24 @@
+\section{Exercises}
+
+\begin{exercise}[\textbf{Gittins index - bandit reduction}]
+Recall that a fundamental ingredient in the index algorithm is the bandit reduction procedure. In this question you will explicitly perform this procedure in a simple case.
+
+We assume that at some point of running the algorithm, the bandit ${i^*}$ corresponds to a 3-state MDP with the following reward rates and transition probabilities:
+\[r = \left( {\begin{array}{*{20}{c}}
+1\\
+2\\
+3
+\end{array}} \right),\quad P = \left( {\begin{array}{*{20}{c}}
+{1/4}&{1/2}&{1/4}\\
+{1/3}&{1/3}&{1/3}\\
+{1/6}&{1/3}&{1/2}
+\end{array}} \right),\]
+and the durations of all states in ${i^*}$ are deterministic and equal to 1, i.e., $T(s) = 1.$
+
+Assume that ${s^*} = 3,$ and reduce bandit  ${i^*}$ by removing ${s^*}$.
+\begin{enumerate}
+  \item What are the resulting transitions in the reduced bandit?
+  \item What are the distributions of the durations $\hat T(s)$ in the reduced bandit?
+  \item What are the reward rates $\hat r(s)$ in the reduced bandit?
+\end{enumerate}
+\end{exercise}

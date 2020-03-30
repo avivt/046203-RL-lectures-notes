@@ -1,0 +1,202 @@
+\documentclass[11pt]{report}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ...
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{algorithm2e}
+\usepackage{url}
+\usepackage{comment}
+\usepackage{color}
+\usepackage{bibentry}
+
+\newcommand{\mdp}{\mathcal{M}}
+\newcommand{\Mdp}{\mathcal{M}}
+\newcommand{\Agent}{\mathcal{G}}
+\newcommand{\env}{\mdp}
+\newcommand{\Env}{\mdp}
+\newcommand{\Actions}{\mathcal{A}}
+\newcommand{\action}{a}
+\newcommand{\actionp}{a^{\prime}}
+\newcommand{\actionpp}{a^{\prime\prime}}
+\newcommand{\States}{\mathcal{S}}
+\newcommand{\state}{s}
+\newcommand{\statep}{\state^{\prime}}
+\newcommand{\statepp}{\state^{\prime\prime}}
+\newcommand{\eststate}{x}
+
+\newcommand{\la}{\lambda}
+\newcommand{\om}{\omega}
+\newcommand{\ga}{\gamma}
+\newcommand{\al}{\alpha}
+\newcommand{\eps}{\epsilon}
+\newcommand{\dfn}{\triangleq}
+\newcommand{\cF}{\mathcal F}
+\newcommand{\negspace}{\!}
+\newcommand{\obs}{o}
+\newcommand{\Obs}{\mathcal{O}}
+\newcommand{\reward}{r}
+\newcommand{\terminalreward}{r^T}
+\newcommand{\rew}{\reward}
+\newcommand{\Rewards}{\mathcal{R}}
+\newcommand{\history}{h}
+\newcommand{\histories}{\mathcal{H}}
+\newcommand{\Histories}{\mathcal{H}}
+\newcommand{\Trans}{T}
+\newcommand{\Horizon}{t_f}
+\newcommand{\TUtility}{U_T}
+\newcommand{\Utility}{U_{\gamma}}
+\newcommand{\AUtility}{U_A}
+\newcommand{\TValue}{J}
+\newcommand{\TAValue}{K}
+\newcommand{\Value}{V}
+\newcommand{\hatValue}{{\widehat{V}}}
+\newcommand{\AValue}{Q}
+\newcommand{\hatAValue}{{\widehat{Q}}}
+\newcommand{\AvgRValue}{\rho}
+\newcommand{\hatAvgRValue}{{\widehat{\rho}}}
+\newcommand{\RelValue}{W}
+\newcommand{\hatRelValue}{{\widehat{W}}}
+
+\newcommand{\stateestfunction}{f_{su}}
+\newcommand{\stateobsfunction}{f_{so}}
+\newcommand{\statetransfunction}{f_{ss}}
+\newcommand{\rewfunction}{f_r}
+\newcommand{\field}[1]{\mathbb{#1}}
+\newcommand{\Reals}{\field{R}}
+%\newcommand{\eqref}[1]{(\ref{#1})}
+\newcommand{\policy}{\pi}
+\newcommand{\hatpolicy}{{\widehat{\pi}}}
+\newcommand{\Policies}{\Pi}
+\newcommand{\nspolicy}{\mu}
+
+\newcommand{\union}{\ensuremath{\bigcup}}
+\newcommand{\comps}{\ensuremath{\mathbb{C}}}
+\newcommand{\reals}{\ensuremath{\mathbb{R}}}
+\newcommand{\Var}{\ensuremath{\mathrm{Var}}}
+\newcommand{\var}{\ensuremath{\mathrm{Var}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\renewcommand{\P}{\ensuremath{\mathbb{P}}}
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+
+\newcommand{\mixtime}{\tau}
+\newcommand{\epshorizon}{\tau}
+
+\def\argmax{\operatornamewithlimits{arg\,max}}
+\def\argmin{\operatornamewithlimits{arg\,min}}
+
+\newcommand{\bydef}{\stackrel{\bigtriangleup}{=}}
+\newcommand\defeq{\stackrel{\mathrm{def}}{=}}
+\newcommand{\half}{\frac{1}{2}}
+
+\newcommand{\coderemark}[1]{\textcolor{blue}{\% #1}}
+\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\newcommand{\tab}[1]{\hspace{1em}\rlap{#1}}
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\newtheorem*{theorem*}{Theorem}
+\newtheorem{proposition}{Proposition}
+\numberwithin{proposition}{chapter}
+\newtheorem{corollary}{Corollary}
+\numberwithin{corollary}{chapter}
+\newtheorem{assumption}{Assumption}
+\numberwithin{assumption}{chapter}
+\newtheorem{lemma}{Lemma}
+\numberwithin{lemma}{chapter}
+\newtheorem{definition}{Definition}
+\numberwithin{definition}{chapter}
+\newtheorem{theorem}{Theorem}
+\numberwithin{theorem}{chapter}
+\newtheorem{example}{Example}
+\numberwithin{example}{chapter}
+
+\newtheorem{exercise}{Exercise}
+\numberwithin{exercise}{chapter}
+% no italics in exercise
+\usepackage{xparse}
+\let\oldexercise\exercise
+\RenewDocumentCommand{\exercise}{o}{%
+  \IfNoValueTF{#1}
+    {\oldexercise}
+    {\oldexercise[#1]}%
+  \normalfont
+}
+\newtheorem{remark}{Remark}
+\numberwithin{remark}{chapter}
+\newtheorem{algorithm_}{Algorithm}
+\numberwithin{algorithm_}{chapter}
+
+\begin{document}
+% \maketitle
+\begin{titlepage}
+\begin{center}
+\Huge{046203 - Planning and Reinforcement Learning}\\[1cm]
+\Large{Edited by Aviv Tamar and based on notes by Shie Mannor and Nahum Shimkin}\\[5cm]
+\large{Viterbi Faculty of Electrical Engineering, Technion\\{\today}}
+\end{center}
+\vfill
+Copyright \copyright~2020 S. Mannor, N. Shimkin, A. Tamar. All Rights Reserved.
+\end{titlepage}
+\stepcounter{page}
+
+\tableofcontents
+
+\chapter{Introduction and Overview}
+\input{Lecture1}
+
+\chapter{Deterministic Decision Processes}
+\input{Lecture2}
+
+\chapter{Other Deterministic Dynamic Programming Algorithms}
+\input{Lecture3}
+\input{exercises1}
+
+\chapter{Markov Decision Processes}
+\input{Lecture4}
+\input{exercise2}
+
+\chapter{MDPs with Discounted Return}
+\input{Lecture5}
+\input{exercises3}
+
+% \chapter{Planning in Bandits Problems}
+% \input{Lecture6}
+% \input{exercises4}
+
+% \chapter{Learning in Simple Bandits Problems}
+% \input{Lecture7}
+% \input{exercises5}
+
+\chapter{Reinforcement Learning -- Basic Algorithms}
+\input{Lecture8}
+\input{exercises6}
+
+\chapter{The Stochastic Approximation Algorithm}
+\input{Lecture9}
+\input{exercises7}
+
+\chapter{Basic Convergence Results for RL Algorithms}
+\input{Lecture10}
+
+\chapter{Approximate Dynamic Programming}
+\input{Lecture11}
+\input{exercises8}
+
+\chapter{Policy Gradient Methods}
+\input{Lecture12}
+
+
+
+\bibliography{references}
+\bibliographystyle{ieeetr}
+
+\end{document}
+

@@ -1,0 +1,251 @@
+%\documentclass[11pt]{article}
+%\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ...
+%%\geometry{landscape}                % Activate for for rotated page geometry
+%%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+%\usepackage{graphicx}
+%\usepackage{amssymb}
+%\usepackage{epstopdf}
+%\usepackage{amsfonts}
+%\usepackage{amsthm}
+%\usepackage{amsmath}
+%\usepackage{tikz}
+%\usepackage{algorithm2e}
+%\usepackage{url}
+%\usepackage{comment}
+
+%\newcommand{\mdp}{\mathcal{M}}
+%\newcommand{\Mdp}{\mathcal{M}}
+%\newcommand{\Agent}{\mathcal{G}}
+%\newcommand{\env}{\mdp}
+%\newcommand{\Env}{\mdp}
+%\newcommand{\Actions}{\mathcal{A}}
+%\newcommand{\action}{a}
+%\newcommand{\actionp}{a^{\prime}}
+%\newcommand{\actionpp}{a^{\prime\prime}}
+%\newcommand{\States}{\mathcal{S}}
+%\newcommand{\state}{s}
+%\newcommand{\statep}{\state^{\prime}}
+%\newcommand{\statepp}{\state^{\prime\prime}}
+%\newcommand{\eststate}{x}
+
+%\newcommand{\obs}{o}
+%\newcommand{\Obs}{\mathcal{O}}
+%\newcommand{\reward}{r}
+%\newcommand{\terminalreward}{r^T}
+%\newcommand{\rew}{\reward}
+%\newcommand{\Rewards}{\mathcal{R}}
+%\newcommand{\history}{h}
+%\newcommand{\histories}{\mathcal{H}}
+%\newcommand{\Histories}{\mathcal{H}}
+%\newcommand{\Trans}{T}
+%\newcommand{\Horizon}{t_f}
+%\newcommand{\TUtility}{U_T}
+%\newcommand{\Utility}{U_{\gamma}}
+%\newcommand{\AUtility}{U_A}
+%\newcommand{\TValue}{J}
+%\newcommand{\TAValue}{K}
+%\newcommand{\Value}{V}
+%\newcommand{\hatValue}{{\widehat{V}}}
+%\newcommand{\AValue}{Q}
+%\newcommand{\hatAValue}{{\widehat{Q}}}
+%\newcommand{\AvgRValue}{\rho}
+%\newcommand{\hatAvgRValue}{{\widehat{\rho}}}
+%\newcommand{\RelValue}{W}
+%\newcommand{\hatRelValue}{{\widehat{W}}}
+
+%\newcommand{\stateestfunction}{f_{su}}
+%\newcommand{\stateobsfunction}{f_{so}}
+%\newcommand{\statetransfunction}{f_{ss}}
+%\newcommand{\rewfunction}{f_r}
+%\newcommand{\field}[1]{\mathbb{#1}}
+%\newcommand{\Reals}{\field{R}}
+%%\newcommand{\eqref}[1]{(\ref{#1})}
+%\newcommand{\policy}{\pi}
+%\newcommand{\hatpolicy}{{\widehat{\pi}}}
+%\newcommand{\Policies}{\Pi}
+%\newcommand{\nspolicy}{\mu}
+
+%\newcommand{\union}{\ensuremath{\bigcup}}
+%\newcommand{\comps}{\ensuremath{\mathbb{C}}}
+%\newcommand{\reals}{\ensuremath{\mathbb{R}}}
+%\newcommand{\Var}{\ensuremath{\mathrm{Var}}}
+%\newcommand{\var}{\ensuremath{\mathrm{Var}}}
+%\newcommand{\E}{\ensuremath{\mathbb{E}}}
+%\renewcommand{\P}{\ensuremath{\mathbb{P}}}
+%\newcommand{\R}{\ensuremath{\mathbb{R}}}
+%\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+
+%\newcommand{\mixtime}{\tau}
+%\newcommand{\epshorizon}{\tau}
+
+%\def\argmax{\operatornamewithlimits{arg\,max}}
+%\def\argmin{\operatornamewithlimits{arg\,min}}
+
+%\newcommand{\bydef}{\stackrel{\bigtriangleup}{=}}
+%\newcommand\defeq{\stackrel{\mathrm{def}}{=}}
+%\newcommand{\half}{\frac{1}{2}}
+
+%\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+%
+%\newtheorem{proposition}{Proposition}
+%\newtheorem{corollary}{Corollary}
+%\newtheorem{assumption}{Assumption}
+%\newtheorem{lemma}{Lemma}
+%\newtheorem{definition}{Definition}
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{example}{Example}
+%\newtheorem{remark}{Remark}
+%
+%\title{Planning in Bandits Problems}
+%\author{Shie Mannor}
+%%\date{}                                           % Activate to display a given date or no date
+%
+%\begin{document}
+%\maketitle
+%
+
+We now turn to a planning setup where no learning is involved and the model parameters are fully known. In this setting there are again $K$ arms, but now each arm represents a dynamical system. Pulling or activating an arm leads to a change in the system used, while all other arms remain ``frozen." The problem is which arm to choose and when?
+
+The term multi-armed bandits is confusingly used for both the problem where learning is needed to figure out the expected reward and for the problem we study in this chapter. We will call the planning problem the ``planning bandit problem."
+
+\section{Model and Objectives}
+
+%The model - arms, rewards, etc.
+We begin by introducing the definition of a \emph{semi-Markov} decision process.
+\begin{definition}[\textbf{Semi-Markov decision process}]
+A semi-Markov decision process is a tuple $(S,R,T,P)$ where:
+\begin{enumerate}
+\item $S$ is the state space.
+\item $R$ is the reward random variable. It is assumed that the statistics of the reward depend only on the current state.
+\item $T$ is the duration random variable. It is assumed that the statistics of the duration depend only on the current state.
+\item $P$ is the transition probability. It assumed that the next state depends only on the current state.
+\end{enumerate}
+Semi-Markov processes, behave similarly to Markov processes only that the duration of every period varies.
+\end{definition}
+
+We now describe our model.
+There are $K$ bandit processes, each of them is a semi-Markov decision process, with a state space $S_i$.
+We let $S_{All} = S_1 \times S_2 \times \ldots  S_K$ denote the overall state space.
+If a bandit $i$ is at state $s\in S_i$ and is selected, then a random reward of $R(s)$ is given after a random length of $T(s)$. After $T(s)$ time units, the play is done and bandit $i$ transitions to a state $Y(s)$ which is a random variable.
+At this point, the decision maker is free to switch to any other bandit or stay with $i$.
+
+We assume that all the statistics of all the bandits are known. The statistical properties do not change with time and are independent of history, state of other bandits, etc.
+
+A policy is a mapping from all possible states of the bandits to the arms. That is $\pi: S_{all} \to [1:K]$ which at time zero and any subsequent decision time prescribes which bandit to choose as a function of the current states of the $K$ bandits. Note that to describe a policy in general we need an exponential memory.
+
+Given a policy, the time $t_i$ at which the $i$th play starts, and the reward $R_i$ received during the $i$th period, we are interested in maximizing the discounted reward. For some $\beta>0$ we try to maximize:
+$$
+\E \left[ \sum_{i=1}^\infty R_i e^{-\beta t_i} \right]
+$$
+for every initial state. We ignore some technical details and assume that $R_i$ and $T_i$ are well behaved ($R_i$ can be assumed to have finite expectation and $T_i$ bounded from below.)
+
+Given the exponential dependence of the state space size $S_{all}$ in $K$, there does not seem to be much hope for the problem to be tractable. We will show that, surprisingly, there exists an optimal policy that decomposes to the different bandits in a certain way.
+A policy is optimal if it maximizes the average discounted reward from every state.
+
+
+
+\section{Index Policies}
+
+We say that a policy is an {\em priority policy } if there exists an ordering of $S = S_1 \cup S_2 \cdots S_K$ such that at each decision point the bandit whose state is ordered the highest is chosen.
+
+The basic notion of priority policies implies that instead of finding an optimal policy (a mapping from an exponential state space selection of bandits), it is enough to find an ordering. It is not clear why such policies should exist? And if they do, how to compute them?
+
+\paragraph{Equivalent problem:} Before we proceed to prove the existence of such policies, we first demonstrate how the current problem at hand can be transformed to another problem with a modified reward function.
+
+Since we only care about the expected reward rather than the entire the probability distribution of $R(s)$ and $T(s)$, we will be able to convert it to a different problem. We assume that the policy is fixed. Let $s_i$ be the state of the bandit at is played at the $i$th decision. We let $\mathcal{F}_i$ denote all the random realizations of the first $i-1$ choices. In particular, $t_i$ and $s_i$ are determined by the outcomes and the first $i-1$ plays. Conditioned on $\mathcal{F}_i$ the expected discounted reward resulting from the $i$th play is:
+$$
+e^{-\beta t_i} \E\left[ R(s_i) | s_i \right].
+$$
+We now consider an alternative reward: when a bandit at state $s$ is played, the rewards are received throughout the duration of that play at a constant rate $r(s)$ where
+$$
+r(s) = \frac{\E [R(s)]}{\E \left[ \int_0^{T(s)} e^{-\beta t} d t \right]}.
+$$
+Under the new reward structure, the expected reward resulting from the $i$th play, conditioned on $\mathcal{F}_i$ is given by:
+$$
+\E \left[ \int_{t_i}^{t_i + T(s_i)} e^{-\beta t}r(s_i)  d  t \Big| \mathcal{F}_i \right] = e^{-\beta t_i} r(s_i)
+\E \left[ \int_{0}^{T(s_i)} e^{-\beta t}  d  t \Big| s_i \right] = e^{-\beta t_i} \E[R(s_i)|s_i],
+$$
+where the last equality is due to the definition of $r(s)$. We conclude that under either reward structure, the infinite-horizon expected reward of any policy is the same.
+
+Under the assumption that all state spaces for the bandits are finite, it turns out that there exists a prioirty policy that is optimal. Note that this does not mean the reverse: not every optimal policy is necessarily a priority policy.
+
+\begin{theorem}\label{th:2.1inTsitsiklis}
+If every $S_i$ is finite there exists a priority policy that is optimal.
+\end{theorem}
+\proof
+The proof proceeds by induction on the size of $S=S_1 \cup S_2 \cdots S_K$. Let us denote the size of $S$ by $N$.
+For $N=1$ there is a single bandit and the results holds trivially.
+Suppose the result holds for {\em all} bandit problems of size $N=L$ for some $L$. We consider a multi-armed problem whose size is $L+1$. We will show that we can derive a prioirty policy for the new problem as well, completing the induction.
+
+Let us pick some $s^*\in S$ such that $r(s^*) = \max_{s \in S} r(s)$. Let $i^*$ be such that $s^* \in S_{i^*}$. The following lemma shows that state $s^*$ can be chosen as the best state.
+\begin{lemma}\label{le:Lemma2.1inTsitsiklis}
+There exists an optimal policy such that whenever bandit $i^*$ is at state $s^*$, then bandit $i^*$ is played.
+\end{lemma}
+\proof
+The proof is based on an interchange argument. Consider an optimal policy $\pi$ and suppose that at time 0 bandit $i^*$ is at state $s^*$. If policy $\pi$ chooses to play $i^*$, there is nothing to prove. Suppose that $\pi$ prefers to play another bandit. Let $\tau$ be the first time in which $i^*$ is played ($\tau$ is a random variable which may equal $\infty$ if $i^*$ is never played).
+We define a new policy, call it $\pi'$, which plays $i^*$ once and then mimics $\pi$. However, when $\pi$ chooses $i^*$ for the first time, policy $\pi'$ skips this play. Let $\overline{r}(t)$ be the reward rate, as a function of time, of policy $\pi$. We have from the definition of $s^*$ that $\overline{r}(t) \le r(s^*)$ for all $t$.
+The expected discounted reward, $J(\pi)$ under policy $\pi$ is given by:
+$$
+J(\pi) = \E \left[ \int_0^\tau \overline{r}(t) e^{-\beta t}  d  t +
+e^{-\beta \tau}\int_0^{T(s^*)} r(s^*) e^{-\beta t}  d  t +
+\int_{\tau+T(s^*)}^\infty \overline{r}(t) e^{-\beta t}  d  t \right].
+$$
+Similarly, the expected discounted return under $\pi'$, can be written as:
+$$
+J(\pi') = \E \left[
+\int_0^{T(s^*)} r(s^*) e^{-\beta t}  d  t +
+e^{-\beta T(s^*)} \int_0^\tau \overline{r}(t) e^{-\beta t}  d  t +
+\int_{\tau+T(s^*)}^\infty \overline{r}(t) e^{-\beta t}  d  t \right].
+$$
+Subtracting the two we obtain that $J(\pi') \ge J(\pi)$ if:
+$$
+\E \left[(1- e^{-\beta \tau}) \int_0^{T(s^*)} r(s^*) e^{-\beta t}  d  t \right]\ge
+\E \left[(1- e^{-\beta T(s^*)}) \int_0^\tau \overline{r}(t) e^{-\beta t}  d  t \right].
+$$
+A straightforward calculation shows that if $\overline{r}(t) = r(s^*)$ (for all $t$) the two sides of the above equations would be equal. Since $\overline{r}(t) \le  r(s^*)$ we obtain that the above equation holds and therefore $J(\pi') \ge J(\pi)$.
+Since $\pi$ is assumed optimal, so is $\pi'$. But since it is optimal to give priority to $s^*$ at time 0, it much be optimal to give priority to $s^*$ at every decision time by the same argument.
+\qed
+
+We now return to the proof of the theorem. We know from Lemma \ref{le:Lemma2.1inTsitsiklis} that there exists an optimal policy in the set of policies that give priority to $s^*$ (i.e., policies that always select $i^*$ when bandit $i^*$ is in state $s^*$. Let's denote this set of policies by $\Pi(s^*)$. We now want to find the optimal policy in $\Pi(s^*)$.
+
+If $s^*$ is the only state in bandit $i^*$, then the policy that always picks $i^*$ is optimal and it is certainly a prioirty policy.
+So we can assume that $S_{i^*}$ is not a singleton. Suppose that there exists a state $s\ne s^*$ in bandit $i^*$ and that
+this bandit is played. If this play leads to a transition to $s^*$, bandit $i^*$ will be played (at least) until a transition to a state other than $s^*$ occurs since we restrict attention to policies in $\Pi(s^*)$. We view this continuous play of $i^*$ and a transition to a new state as a single (longer) activation of $i^*$. More precisely, we define an equivalent new bandit problem where all the bandits except for $i^*$ remain exactly the same. For $i^*$ we eliminate state $s^*$, and rather whenever a state $s\ne s^*$ is the state of bandit $i^*$ the random duration $\hat{T}(s)$ is now the total time that elapses in the original model until transitioning to a state different than $s^*$.
+Recall that $\overline{r}(t)$ is defined as the reward rate at time $t$, i.e., $\overline{r}(t)=r(s(t))$ where $s(t)$ is the state at time $t$.
+By the discussion before the theorem, the reward of every policy remains the same if the discounted reward
+$\int_0^{\hat{T}(s)} e^{-\beta t} \overline{r}(t)dt$
+received during this new action (representing a composite move) is replaced by a constant reward rate of
+\begin{equation}\label{eq:2.3inTsitsiklis}
+\hat{r}(s) = \frac{\E [\int_0^{\hat{T}(s)} e^{-\beta t } \overline{r}(t) dt]}{\E [\int_0^{\hat{T}(s)} e^{-\beta t }  dt]}
+\end{equation}
+that is received throughout the duration of play. We therefore obtained a new bandit problem by removing state $s^*$ from bandit $i^*$ and modifying the rewards and transition durations. We call this procedure ``reducing bandit $i^*$ by removing $s^*$".
+
+We can now use the induction. For the new bandit problem we have that the cardinality is $L$ and therefore a prioirty policy exists, denote it by $\hat{\pi}$. It follows that there exists an index policy for the original problem as well. When bandit $i^*$ is in $s^*$, choose $i^*$. In all other cases, follow $\hat{\pi}$.
+\qed
+
+Algorithmically, the theorem proposes the following procedure. We let the index of a state $s$ be denoted by $\gamma(s)$. We are looking for an index that will lead to a priority policy: the higher the index of a state, the better the higher its priority.
+
+An Index Algorithms: Repeat until $S$ is empty:
+\begin{enumerate}
+\item Pick a state $s^*$ such that $r(s^*) = \max_{s\in S} r(s)$ and let $\gamma(s^*) = r(s^*)$. Let $i^*$ be the bandit such that $s^* \in S_{i^*}$.
+\item If $S_{i^*}$ is a singleton, remove bandit $i^*$. If it is not, reduce bandit $i^*$ by removing $s^*$.
+\end{enumerate}
+%\end{document}
+
+Our previous proof and the analysis lead to the following result, which is the celebrated Gittins index theorem:
+\begin{theorem}
+Let the index of each state be determined according to the index algorithm. Then any priority policy in which the state with higher index have higher priority is optimal.
+\end{theorem}
+\proof
+The proof of Theorem \ref{th:2.1inTsitsiklis} shows that any priority policy that orders the states in the same order as they are picked by the index algorithm is optimal. It only remains to show that $s$ can be picked before $s'$ by the index algorithm if and only if $\gamma(s)\ge \gamma(s')$. In light of the recursive nature of the algorithm, it is enough to show that if $s^*$ is the first one picked by the index algorithm and $q^*$ is the second then $\gamma(s^*)\ge \gamma(q^*)$. Let $i^*$ be such that $s^*\in S_{i^*}$. If $q^*\in S_{i^*}$ then from Equation (\ref{eq:2.3inTsitsiklis}) we have
+$$
+\gamma(q^*) = \hat{r}(q^*) \le \max_{s\in S} = r(s^*) = \gamma(s^*).
+$$
+If $q^*\not \in S_{i^*}$, then $\gamma(q^*) = r(q^*) \le r(s^*) = \gamma(s^*)$. \qed
+
+\medskip
+
+It is important to note that the index algorithm essentially works on each bandit separately. This means that there is a decomposability property that allows the computation to be done for each bandit separately.
+%
+%\end{document}

@@ -1,0 +1,22 @@
+\section{Exercises}
+
+\begin{exercise}[\textbf{Hoeffding}]
+Suppose a bag contains an unknown number of red balls (assume there is at least one red ball) and you are only allowed to sample (with replacement) uniformly at random from the bag. Design an algorithm that, given $\epsilon>0, \delta<1$ , with failure probability at most $\delta $ , returns an estimate of the fraction of red balls with additive error of at most $\delta$, i.e., if the real fraction is $p$, the algorithm returns a number $\hat p$ such that $|p - \hat{p}|<\epsilon$.
+What is the sample complexity of your algorithm?
+\end{exercise}
+
+\begin{exercise}[\textbf{Bandit simulation}]
+Simulate $n=100$ bandits, where arm ${a_i}$ returns reward $R\left( {{a_i}} \right)\sim Bernoulli\left( {\frac{i}{{101}}} \right)$. Plot the following graphs on the same figure. for each simulation average over 20 experiments of length 20,000.
+\begin{enumerate}
+  \item Apply the algorithm which draws a random arm each time step and plot its regret.
+  \item Apply the algorithm which draws each arm 100 times and then draws greedily the best arm until the end. Plot its regret.
+  \item Apply the UCB1 algorithm and plot its regret, and the upper bound on its regret.
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}[\textbf{Bandits with Gaussian arms}]
+Consider the exploratory KAB problem where the reward of each arm ${a_i}$ is distributed according to $R\left( {{a_i}} \right)\sim {\rm N}\left( {{p_i},{\sigma ^2}} \right)$ with \textbf{known} ${\sigma ^2}$. As usual, ${p_1} > ... > {p_n}$, but we no longer assume $0 \le {p_i} \le 1$.
+
+Use the inequality: $1 - \Phi \left( z \right) \le \exp \left( { - \frac{{{z^2}}}{2}} \right)/\sqrt {2\pi } z$, where $\Phi \left( z \right)$ is the standard normal cumulative distribution function, to derive an $\left( {\varepsilon ,\delta } \right)$-PAC algorithm for finding the best arm with sample complexity $O\left( {n{\sigma ^2}\log \left( {\sigma n/\delta \varepsilon } \right)/{\varepsilon ^2}} \right)$, and prove its correctness.
+\end{exercise}
+
