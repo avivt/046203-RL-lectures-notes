@@ -147,7 +147,7 @@ Our emphasis here will be on \emph{finite state and action} models. A finite sta
 
 \paragraph{Notation for finite models:}  When the state and action spaces are finite, it is common to denote the state by ${s_k}$ (instead of ${x_k}$) and the actions by ${a_k}$ (instead of ${u_k}$). That is, the system equations are written as:
 ${s_{k + 1}} = {f_k}({s_k},{a_k}),\quad k = 0,1,2, \ldots ,N - 1$
-with ${s_k} \in {S_k}$, ${a_k} \in {A_k}({x_k}) \subset {A_k}$.  \textbf{We will adhere to that notation in the following}.
+with ${s_k} \in {S_k}$, ${a_k} \in {A_k}({s_k}) \subset {A_k}$.  \textbf{We will adhere to that notation in the following}.
 
 
 \paragraph{Graphical description:} Finite models (over finite time horizons) can be represented by a corresponding decision graph:
@@ -158,13 +158,13 @@ with ${s_k} \in {S_k}$, ${a_k} \in {A_k}({x_k}) \subset {A_k}$.  \textbf{We will
 
 Here:
 \begin{itemize}
-  \item $N = 2$, ${S_0} = \{ 1,2\} ,\;{S_1} = \{ b,c.d\} ,\;{S_2} = \{ 2,3\} $,
+  \item $N = 2$, ${S_0} = \{ 1,2\} ,\;{S_1} = \{ b,c,d\} ,\;{S_2} = \{ 2,3\} $,
   \item ${A_0}(1) = \{ 1,2\} $, ${A_0}(2) = \{ 1,3\} $, ${A_1}(b) = \{ \alpha \} $, ${A_1}(c) = \{ 1,4\} $, ${A_1}(d) = \{ \beta \} $
   \item ${f_0}(1,1) = b,\;{f_0}(1,2) = d,\;{f_0}(2,1) = b,\;{f_0}(2,3) = c$, ${f_1}(b,\alpha ) = 2$, etc.
 \end{itemize}
 
 \begin{definition}{\textbf{Feasible Path}} \\
-A feasible path for the specified system is a sequence $({s_0},{a_0}, \ldots ,{s_{N - 1}},{a_{N - 1}},{s_N})$ of states and actions, such that ${s_k} \in {A_k}({s_k})$ and ${s_{k + 1}} = {f_k}({s_k},{a_k})$.
+A feasible path for the specified system is a sequence $({s_0},{a_0}, \ldots ,{s_{N - 1}},{a_{N - 1}},{s_N})$ of states and actions, such that ${a_k} \in {A_k}({s_k})$ and ${s_{k + 1}} = {f_k}({s_k},{a_k})$.
 
 \vspace{10pt}
 \begin{centering}
