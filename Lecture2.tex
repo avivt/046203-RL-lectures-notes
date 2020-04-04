@@ -178,7 +178,7 @@ We proceed to define our first and simplest planning problem. For that we need t
 
 \subsection{Costs and Rewards}
 
-\paragraph{The cumulative cost:}  Let ${h_N} = ({s_0},{a_0}, \ldots ,{s_{N - 1}},{a_{N - 1}},{s_N})$ denote an $N$-stage path for the system..  To each feasible path ${h_N}$ we wish to assign some cost ${C_N} = {C_N}({h_N})$.
+\paragraph{The cumulative cost:}  Let ${h_N} = ({s_0},{a_0}, \ldots ,{s_{N - 1}},{a_{N - 1}},{s_N})$ denote an $N$-stage path for the system. To each feasible path ${h_N}$ we wish to assign some cost ${C_N} = {C_N}({h_N})$.
 
 The standard definition of the cost ${C_N}$ is through the following \emph{cumulative cost functional}:
 \[{C_N}({h_N}) = \sum\limits_{k = 0}^{N - 1} {{c_k}({s_k},{a_k}) + {c_N}({s_N})} \]
@@ -199,7 +199,7 @@ Our objective is to \emph{minimize} the cumulative cost ${C_N}$, by a proper cho
 
 \paragraph{Cost versus reward formulation: }It is often more natural to consider \emph{maximizing} reward rather than minimizing cost.  In that case, we define the cumulative $N$-stage return function:
 $${R_N}({h_N}) = \sum\limits_{k = 0}^{N - 1} {{r_k}({s_k},{a_k}) + {r_N}({s_N})} $$
-Here and ${r_k}$ is the running reward, and  ${r_N}$ is the terminal reward.
+Here ${r_k}$ is the running reward, and ${r_N}$ is the terminal reward.
 Clearly, minimizing ${C_N}$ is equivalent to maximizing ${R_N}$, if we set:
 $${r_k}(s,a) =  - {c_k}(s,a) \text{ and }{r_N}(s) =  - {c_N}(s).$$
 
@@ -321,7 +321,7 @@ The following holds for finite-horizon dynamic programming:
 
 We will provide a proof of this result in a later lecture, for the more general stochastic MDP model. For the time being, let us make the following observations:
 \begin{enumerate}
-  \item The algorithm involves visits each state exactly once, proceeding backward in time. For each time instant (or stage) $k$, the value function ${V_k}(s)$ is computed for all states $s \in {S_k}$ before proceeding to stage $k - 1$.
+  \item The algorithm involves visiting each state exactly once, proceeding backward in time. For each time instant (or stage) $k$, the value function ${V_k}(s)$ is computed for all states $s \in {S_k}$ before proceeding to stage $k - 1$.
   \item The recursive equation in part 2 of the algorithm, along with similar equations in the theory of DP, is called \textbf{Bellman's equation}.
   \item Computational complexity: There is a total of $nN$ states (excluding the final one), and in each we need $m$ computations. Hence, the number of required calculations is $mnN$.
 For the example above with $m = n = N = 10$, we need $O({10^3})$ calculations.
