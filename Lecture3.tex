@@ -38,9 +38,12 @@ E.g, for the sequence $(3,1,5,3,4)$, the solution is $(1,3,4)$.
 Observe that the number of subsequences is ${2^n}$, therefore an exhaustive search is inefficient.
 
 \paragraph{DP solution:}
-Define  ${L_j} = $ {longest strictly increasing subsequence ending at position $j$}.
+Define  ${L_j} = $ {length of the longest strictly increasing subsequence ending at position $j$}.
 Then $${L_1} = 1,$$
-$${L_j} = \max \{ {L_i}\,\;:\;\;i < j,\;\,{a_i} < {a_j}\}  + 1,\quad   j > 1$$
+$$L_{j} = \left\{\begin{array}{lr}
+  max \left\{{L_{i} : i<j, a_{i}<a_{j}}\right\}+1, & j>1 \\ 
+  1 & else\\
+  \end{array}$$
 and the size of the longest subsequence is $L^* = {\max _{1 \le j \le n}}({L_j}).$
 \\
 Computing ${L_j}$ recursively for $j = 1:n$ gives the result with a running time\footnote{We note that this can be further improved to $O(n\log n)$. See Chapter 15 of
