@@ -43,7 +43,7 @@ Then $${L_1} = 1,$$
 $$L_{j} = \left\{\begin{array}{lr}
   max \left\{{L_{i} : i<j, a_{i}<a_{j}}\right\}+1, & j>1 \\ 
   1 & else\\
-  \end{array}$$
+  \end{array}\right.$$
 and the size of the longest subsequence is $L^* = {\max _{1 \le j \le n}}({L_j}).$
 \\
 Computing ${L_j}$ recursively for $j = 1:n$ gives the result with a running time\footnote{We note that this can be further improved to $O(n\log n)$. See Chapter 15 of
