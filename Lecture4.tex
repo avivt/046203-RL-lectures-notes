@@ -19,7 +19,7 @@ The ${p_{ij}}$'s  are the transition probabilities, which satisfy
 ${p_{ij}} \ge 0,\;\;\;\sum\nolimits_{j \in X} {{p_{ij}} = 1\;\;\forall i} $.
 The matrix $P = ({p_{ij}})$ is the transition matrix.
 
-Given the initial distribution ${p_0}$ of ${X_0}$, namely $p({X_0} = i_0) = {p_0}(i_0)$, we obtain the finite-dimensional distributions:
+Given the initial distribution ${p_0}$ of ${X_0}$, namely $p({X_0} = i) = {p_0}(i)$, we obtain the finite-dimensional distributions:
 \[{\cal P}({X_0} = {i_0}, \ldots ,{X_t} = {i_t}) = {p_0}(i_0){p_{{i_0}{i_1}}} \cdot  \ldots  \cdot {p_{{i_{t - 1}}{i_t}}}.\]
 
 Define $p_{ij}^{(m)} = {\cal P}({X_m} = j|{X_0} = i),$ the m-step transition probabilities.  It is easy to verify that $p_{ij}^{(m)} = {[{P^m}]_{ij}}$  (here ${P^m}$ is the m-th power of the matrix $P$).
@@ -30,7 +30,7 @@ Define $p_{ij}^{(m)} = {\cal P}({X_m} = j|{X_0} = i),$ the m-step transition pro
 \item $i$ and $j$ are communicating states (or communicate) if $i \to j$ and $j \to i$.
 \item A communicating class (or just class) is a maximal collection of states that communicate.
 \item The Markov chain is irreducible if all states belong to a single class (i.e., all states communicate with each other).
-\item State $i$ is periodic with period $d \ge 2$ if  $p_{ii}^{(m)} = 0$ for $m \ne \ell d$ and  $p_{ii}^{(m)} > 0$ for $m = \ell d$, $\ell = \{ 1,2, \ldots \}$. Periodicity is a class property: all states in the same class have the same period.
+\item State $i$ is periodic with period $d \ge 2$ if  $p_{ii}^{(m)} = 0$ for $m \ne \ell d$ and  $p_{ii}^{(m)} > 0$ for $m = \ell d$, $\ell \in \{ 1,2, \ldots \}$. Periodicity is a class property: all states in the same class have the same period.
 \end{itemize}
 
 \paragraph{Recurrence:}
@@ -242,7 +242,7 @@ For $\lambda  > 0$, the exponent gives higher weight to high rewards, and the op
 \end{enumerate}
 
 \subsection{Infinite Horizon Problems}
-We next consider planning problems that extend to an unlimited time horizon, $t = \{0,1,2, \ldots \}$. Such planning problems arise when the system in question is expected to operate for a long time, or a large number of steps, possibly with no specific "closing" time.
+We next consider planning problems that extend to an unlimited time horizon, $t = 0,1,2, \ldots $. Such planning problems arise when the system in question is expected to operate for a long time, or a large number of steps, possibly with no specific "closing" time.
 Infinite horizon problems are most often defined for stationary problems. In that case, they enjoy the important advantage that optimal policies can be found among the class of stationary policies.  We will restrict attention here to stationary models.
 As before, we have the running reward function $r(s,a)$, which extends to all $t \ge 0$. The reward obtained at stage $t$ is  ${R_t} = r({s_t},{a_t})$.
 
@@ -307,7 +307,7 @@ Observe that $V_0^\pi ({s_0}) = {J^\pi }({s_0})$.
 
 \begin{lemma}[\textbf{Value Iteration}]\label{lem:finite_horizon_VI} $V_k^\pi (s)$ may be computed by the backward recursion:
 \[V_k^\pi (s) = {\left\{ {{r_k}(s,a) + \sum\nolimits_{s' \in {S_{k + 1}}} {{p_k}(s'|s,a)} \;V_{k + 1}^\pi (s')} \right\}_{a = {\pi _k}(s)}}\;,\quad s \in {S_k}\]
-for $k = \{ T - 1, \ldots ,0 \}$,  starting with  $V_T^\pi (s) = {r_T}(s)$.
+for $k =  T - 1, \ldots ,0 $,  starting with  $V_T^\pi (s) = {r_T}(s)$.
 \end{lemma}
 \begin{proof}
 Observe that:
