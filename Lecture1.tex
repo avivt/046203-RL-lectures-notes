@@ -200,11 +200,11 @@ where $\tau$ is a stopping time. The objective is to find a stopping rule for $\
 The \emph{cumulative return} is the sum of daily returns over a given period, say $1$ to $K$.
 
 \paragraph{The planning problem:} For each $k = 1, \ldots ,K$, we observe the current inventory $x_k$, and need to determine the amount $a_k$ to order next. The goal is to maximize the \emph{expected value} of the cumulative return over the given period:
-\[E(\sum\nolimits_{k = 1}^K {{R_k}} )\; \to \;\min \]
+\[E(\sum\nolimits_{k = 1}^K {{R_k}} )\; \to \;\max \]
 
 \begin{remark}: A common policy in inventory management is the $(s,S)$ replenishment policy: whenever the inventory $x$ drops below $s$, order $S-x$ items. This policy can be shown to be optimal under appropriate assumptions on the cost.
 \end{remark}
-\begin{exercise} For the single-stage problem $(K=1)$  with $R=0$, $J\equiv0$, $C(y)=y^2$, show that a $(s,S)$ policy is optimal (with $s=S$).
+\begin{exercise} For the single-stage problem $(K=1)$  with $P=0$, $J\equiv0$, $C(y)=y^2$, show that a $(s,S)$ policy is optimal (with $s=S$).
 \end{exercise}
 
 \subsection{Admission control to a queueing system}
