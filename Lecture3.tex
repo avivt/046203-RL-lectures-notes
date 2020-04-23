@@ -41,8 +41,9 @@ Observe that the number of subsequences is ${2^n}$, therefore an exhaustive sear
 Define  ${L_j} = $ {length of the longest strictly increasing subsequence ending at position $j$}.
 Then $${L_1} = 1,$$
 $$L_{j} = \left\{\begin{array}{lr}
-  max \left\{{L_{i} : i<j, a_{i}<a_{j}}\right\}+1, & j>1 \\ 
-  1 & else\\
+  1 & if\quad  \{i<j: a_{i}<a_{j}\}=\O\\
+  max \left\{{L_{i} : i<j, a_{i}<a_{j}}\right\}+1,& else\\ 
+  
   \end{array}\right.$$
 and the size of the longest subsequence is $L^* = {\max _{1 \le j \le n}}({L_j}).$
 \\
