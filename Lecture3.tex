@@ -159,7 +159,7 @@ This algorithm solves the single destination (or the equivalent single source) s
 
       \tab{\tab{$\pi [v]$=NULL}}
 
-\item return $\{ d[v],\pi [v]\} $
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
@@ -202,7 +202,7 @@ The algorithm maintains a set $S$ of vertices whose minimal distance to the dest
 \tab{\tab{if $d[v] > w(v,u) + d[u]$,}}
 
 \tab{\tab{\tab{	set  $d[v] = w(v,u) + d[u]$,  $\pi [v] = u$ }}}
-\item return $\{ d[v],\pi [v]\} $
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
@@ -240,7 +240,7 @@ For the single pair problem, Dijkstra's algorithm can be written in the Single S
 \tab{\tab{if $d[v] > d[u] + w(u,v)$,}}
 
 \tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [u] = v$ }}}
-\item return $\{ d[t],\pi [s]\} $
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
@@ -273,7 +273,7 @@ The A$^*$ algorithm implements this idea through the use of a heuristic function
 \tab{\tab{if $d[v] > d[u] + w(u,v)$,}}
 
 \tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [v] = u$ }}}
-\item return $\{ d[v],\pi [v]\} $
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
