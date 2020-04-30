@@ -159,7 +159,7 @@ This algorithm solves the single destination (or the equivalent single source) s
 
       \tab{\tab{$\pi [v]$=NULL}}
 
-\item return $\{ d[v],\pi [v]\} $
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
@@ -202,13 +202,13 @@ The algorithm maintains a set $S$ of vertices whose minimal distance to the dest
 \tab{\tab{if $d[v] > w(v,u) + d[u]$,}}
 
 \tab{\tab{\tab{	set  $d[v] = w(v,u) + d[u]$,  $\pi [v] = u$ }}}
-\item return $\{ d[v],\pi [v]\} $
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
 \paragraph{Remarks:}
 \begin{enumerate}
-  \item The Bellman-Form algorithm visits and updates each vertex of the graph up to $|V|$ times, leading to a running time of $O(|V|\, \cdot \,|E|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|E|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $S$.
+  \item The Bellman-Form algorithm visits each edge of the graph up to $|V|-1$ times, leading to a running time of $O(|V|\, \cdot \,|E|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|E|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $S$.
   \item	The vertices in $V\backslash S$ need to be extracted in increasing order of $d[v]$.  This is handled by a min-priority queue $Q$, and the complexity of the algorithm depends on the implementation of this queue.
   \item	With a naive implementation of the queue that simply keeps the vertices in some fixed order, each extract-min operation takes  $O(|V|)$ time, leading to overall running time of $O(|V{|^2} + |E|)$ for the algorithm. Using a basic (mean-heap) priority queue brings the running time to $O((|V| + |E|)\log |V|)$, and a more sophisticated one (Fibonacci heap) can bring it down to  $O(|V|\log |V| + |E|)$.
 \end{enumerate}
@@ -239,8 +239,8 @@ For the single pair problem, Dijkstra's algorithm can be written in the Single S
 
 \tab{\tab{if $d[v] > d[u] + w(u,v)$,}}
 
-\tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [v] = u$ }}}
-\item return $\{ d[v],\pi [v]\} $
+\tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [u] = v$ }}}
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
@@ -273,7 +273,7 @@ The A$^*$ algorithm implements this idea through the use of a heuristic function
 \tab{\tab{if $d[v] > d[u] + w(u,v)$,}}
 
 \tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [v] = u$ }}}
-\item return $\{ d[v],\pi [v]\} $
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
