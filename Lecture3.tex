@@ -239,8 +239,8 @@ For the single pair problem, Dijkstra's algorithm can be written in the Single S
 
 \tab{\tab{if $d[v] > d[u] + w(u,v)$,}}
 
-\tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [v] = u$ }}}
-\item return $\{ d[v],\pi [v]\} $
+\tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [u] = v$ }}}
+\item return $\{ d[t],\pi [s]\} $
 \end{enumerate}
 \end{algorithm_}
 
