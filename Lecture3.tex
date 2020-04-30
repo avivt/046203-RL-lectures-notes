@@ -208,7 +208,7 @@ The algorithm maintains a set $S$ of vertices whose minimal distance to the dest
 
 \paragraph{Remarks:}
 \begin{enumerate}
-  \item The Bellman-Form algorithm visits and updates each vertex of the graph up to $|V|$ times, leading to a running time of $O(|V|\, \cdot \,|E|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|E|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $S$.
+  \item The Bellman-Form algorithm visits each edge of the graph up to $|V|-1$ times, leading to a running time of $O(|V|\, \cdot \,|E|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|E|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $S$.
   \item	The vertices in $V\backslash S$ need to be extracted in increasing order of $d[v]$.  This is handled by a min-priority queue $Q$, and the complexity of the algorithm depends on the implementation of this queue.
   \item	With a naive implementation of the queue that simply keeps the vertices in some fixed order, each extract-min operation takes  $O(|V|)$ time, leading to overall running time of $O(|V{|^2} + |E|)$ for the algorithm. Using a basic (mean-heap) priority queue brings the running time to $O((|V| + |E|)\log |V|)$, and a more sophisticated one (Fibonacci heap) can bring it down to  $O(|V|\log |V| + |E|)$.
 \end{enumerate}
