@@ -250,7 +250,7 @@ As before, we have the running reward function $r(s,a)$, which extends to all $t
 \[J_\alpha ^\pi (s) = {E^\pi }\left(\sum\limits_{t = 0}^\infty  {{\alpha ^t}r({s_t},{a_t})} |{s_0} = s\right) \equiv {E^{\pi ,s}}\left(\sum\limits_{t = 0}^\infty  {{\alpha ^t}r({s_t},{a_t})} \right)\]
 Here $0 < \alpha  < 1$ is the discount factor. Mathematically, the discount factor ensures convergence of the sum (whenever the reward sequence is bounded). This make the problem "well behaved", and relatively easy to analyze.
 \paragraph{Average return:}  Here we are interested in maximizing the long-term average return. The most common definition of the long-term average return is
-\[J_{av}^\pi (s) = \mathop {\lim \sup }\limits_{T \to \infty } {E^{\pi ,s}}\left(\frac{1}{T}\sum\limits_{t = 0}^{T - 1} {r({s_t},{a_t})} \right)\]
+\[J_{av}^\pi (s) = \mathop {\lim }\limits_{T \to \infty } {E^{\pi ,s}}\left(\frac{1}{T}\sum\limits_{t = 0}^{T - 1} {r({s_t},{a_t})} \right)\]
 The theory of average-return planning problems is more involved, and relies to a larger extent on the theory of Markov chains.
 
 
