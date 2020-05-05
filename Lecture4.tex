@@ -312,10 +312,11 @@ for $k =  T - 1, \ldots ,0 $,  starting with  $V_T^\pi (s) = {r_T}(s)$.
 \begin{proof}
 Observe that:
 \begin{align*}
-V_k^\pi (s) &= {E^\pi }\left( {{R_k} + \sum\nolimits_{t = k + 1}^N {{R_t}|} \;{s_k} = s,{a_k} = {\pi _k}(s)} \right)\\
- &= {E^\pi }\left( {{E^\pi }\left( {{R_k} + \sum\nolimits_{t = k + 1}^N {{R_t}} |\;{s_k} = s,{a_k} = {\pi _k}(s),{s_{k + 1}}} \right)|{s_k} = s,{a_k} = {\pi _k}(s)} \right)\\
- &= {E^\pi }\left( {r({s_k},{a_k}) + V_{k + 1}^\pi ({s_{k + 1}})|{s_k} = s,{a_k} = {\pi _k}(s)} \right)\\
- &= {r_k}(s,{\pi _k}(s)) + \sum\nolimits_{s' \in {S_{k + 1}}} {{p_k}(s'|s,{\pi _k}(s))} \;V_{k + 1}^\pi (s')
+V_k^\pi (s) &= {E^\pi }\left( {{R_k} + \sum\nolimits_{t = k + 1}^T {{R_t}|} \;{s_k} = s,{a_k} = {\pi _k}(s)} \right)\\
+&= {r_k}({s},{\pi _k}(s)) + {E^\pi }\left( { \sum\nolimits_{t = k + 1}^T {{R_t}|} \;{s_k} = s,{a_k} = {\pi _k}(s)} \right)\\
+ &= {r_k}({s},{\pi _k}(s)) + {E^\pi }\left( {{E^\pi }\left( {\sum\nolimits_{t = k + 1}^T {{R_t}} |\;{s_k} = s,{a_k} = {\pi _k}(s),{s_{k + 1}}} \right)|{s_k} = s,{a_k} = {\pi _k}(s)} \right)\\
+ &= {r_k}({s},{\pi _k}(s)) + {E^\pi }\left( { V_{k + 1}^\pi ({s_{k + 1}})|{s_k} = s,{a_k} = {\pi _k}(s)} \right)\\
+ &= {r_k}(s,{\pi _k}(s)) + \sum\nolimits_{s' \in {S_{k + 1}}} {{p_k}(s'|{s_k} = s,{a_k} = {\pi _k}(s))} \;V_{k + 1}^\pi (s')
 \end{align*}
 \end{proof}
 \paragraph{Remarks:}
