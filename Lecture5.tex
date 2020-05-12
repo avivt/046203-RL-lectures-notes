@@ -341,7 +341,7 @@ As $\gamma  < 1$, this implies that ${V_n}$ converges to $V_\gamma ^*$  exponent
 
 
 \subsection{Error bounds and stopping rules:}
-It is important to have an on-line criterion for the accuracy of the n-the step solution ${V_n}$. The exponential bound in the last theorem is usually too crude and can be improved. Since our goal is to find an optimal policy, we need to know how errors in ${V^*}$ affect the sub-optimality of the derived policy. We quote some useful bounds without proof.  More refined error bounds can be found in the texts on Dynamic Programming.
+It is important to have an on-line criterion for the accuracy of the n-th step solution ${V_n}$. The exponential bound in the last theorem is usually too crude and can be improved. Since our goal is to find an optimal policy, we need to know how errors in ${V^*}$ affect the sub-optimality of the derived policy. We quote some useful bounds without proof.  More refined error bounds can be found in the texts on Dynamic Programming.
 
 \begin{enumerate}
   \item The distance of ${V_n}$ from the optimal solution is upper bounded as follows:
@@ -349,7 +349,7 @@ It is important to have an on-line criterion for the accuracy of the n-the step 
 Note that the right-hand side depends only on the computed values on the last two rounds, and hence is easy to apply. As the bound also decays exponentially (with rate $\gamma $), it allows to compute the value function to within any required accuracy. In particular, to ensure $||{V_n} - V_{}^*|{|_\infty } \le \varepsilon $, we can use the stopping rule  $||{V_n} - {V_{n - 1}}|{|_\infty } \le {\textstyle{{1 - \gamma } \over \gamma }}\varepsilon $.
 
 \item If $||V - V_{}^*|{|_\infty } \le \varepsilon $, then any stationary policy $\pi $ that is greedy with respect to $V$, i.e., satisfies
-\[\pi (s) \in \arg {\max _{a \in A}}\left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a){V_n}(s')} } \right\},\]
+\[\pi (s) \in \arg {\max _{a \in A}}\left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a){V}(s')} } \right\},\]
 is $2\varepsilon $-optimal, namely $||V_{}^\pi  - V_{}^*|{|_\infty } \le 2\varepsilon $.
 This allows obtain a $2\varepsilon $-optimal policy from an $\varepsilon $-approximation of  $V_{}^*$.
 \end{enumerate}
