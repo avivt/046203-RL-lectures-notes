@@ -250,7 +250,7 @@ For a fixed stationary policy $\pi :S \to A$, define the fixed policy DP operato
 \[(T_{}^\pi (V))(s) = r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\pi (s))V(s')} ,\quad s \in S\]
 In our column-vector notation, this is equivalent to  $T_{}^\pi (V) = {r^\pi } + \gamma {P^\pi }V$.
 
-Similarly, define the discounted-return \textbf{Dynamic Programming Operator}  $T^*:\mathbb R^{|S|} \to \mathbb R^{|S|}$ as follows: For any $V=(V(s))\in R^{|S|}$,
+Similarly, define the discounted-return \textbf{Dynamic Programming Operator}  $T^*:\mathbb R^{|S|} \to \mathbb R^{|S|}$ as follows: For any $V=(V(s))\in \mathbb R^{|S|}$,
 \[(T_{}^*(V))(s) = \mathop {\max }\limits_{a \in A} \left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)V(s')} } \right\},\quad s \in S\]
 
 We note that $T_{}^\pi $ is a linear operator, while $T_{}^*$ is generally non-linear due to the maximum operation.
@@ -278,7 +278,7 @@ Since this holds for every $s \in S$ the required inequality follows.
 
 (a) $T_{}^*({V_1})(s) - T_{}^*({V_2})(s) \le \gamma {\left\| {{V_1} - {V_2}} \right\|_\infty }$:   Let $\bar a$ denote an action that attains the maximum in $T_{}^*({V_1})(s)$, namely $\bar a \in \mathop {\arg \max }\limits_{a \in A} \left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a){V_1}(s')} } \right\}$. Then
 \[T_{}^*({V_1})(s) = r(s,\bar a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\bar a){V_1}(s')} \]
-\[T_{}^*({V_2})(s) \ge r(s,\bar a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\bar a)V(s')} \]
+\[T_{}^*({V_2})(s) \ge r(s,\bar a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\bar a){V_2}(s')} \]
 Since the same action $\bar a$ appears in both expressions, we can now continue to show the inequality (a) similarly to 1.
 
 (b) $T_{}^*({V_2})(s) - T_{}^*({V_1})(s) \le \gamma {\left\| {{V_1} - {V_2}} \right\|_\infty }$:   Follows symmetrically to (a).
@@ -460,8 +460,8 @@ v(s) \ge r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)v(s')} ,\quad \foral
 \end{equation}
 \end{proposition}
 \begin{proof}
-Suppose $v = (v(s))$ satisfies \eqref{eq:LP_prop}. That is, $v \ge T_{}^\pi v$ for every stationary policy. Then by the monotonicity of $T_{}^\pi $,
-\[v \ge T_{}^\pi (v)\;\; \Rightarrow \;\;T_{}^\pi (v)\; \ge {(T_{}^\pi )^2}(v)\;\; \Rightarrow \;\; \ldots \; \Rightarrow \;\;{(T_{}^\pi )^k}(v)\; \ge {(T_{}^\pi )^{k + 1}}v,\]
+Suppose $v = (v(s))$ satisfies \eqref{eq:LP_prop}. That is, $v \ge T_{}^\pi (v)$ for every stationary policy. Then by the monotonicity of $T_{}^\pi $,
+\[v \ge T_{}^\pi (v)\;\; \Rightarrow \;\;T_{}^\pi (v)\; \ge {(T_{}^\pi )^2}(v)\;\; \Rightarrow \;\; \ldots \; \Rightarrow \;\;{(T_{}^\pi )^k}(v)\; \ge {(T_{}^\pi )^{k + 1}}(v),\]
 so that
 \[v \ge T_{}^\pi (v) \ge {(T_{}^\pi )^2}(v) \ge  \ldots  \ge \mathop {\lim }\limits_{n \to \infty } {(T_{}^\pi )^n}(v) = {V^\pi }.\]
 Now, if we take $\pi$  as the optimal policy we obtain $v \ge {V^*}$ (component-wise).
