@@ -272,7 +272,7 @@ Using this observation, the next claim implies that it is enough to consider the
 
 \begin{proposition}\label{prop:sufficient} Let  $\pi  \in {\Pi _{GR}}$ be a general (history-dependent, randomized) control policy.  Let
 \[p_t^{\pi ,{s_0}}(s,a) = {P^{\pi ,{s_0}}}({s_t} = s,{a_t} = a),\quad \;\;(s,a) \in {S_t} \times {A_t}\]
-Denote the marginal distributions induced by $({s_t},{a_t})$ on the state-action pairs $({s_t},{a_t})$, for all $t \ge 0$.
+denote the marginal distributions induced by $\pi$ on the state-action pairs $({s_t},{a_t})$, for all $t \ge 0$.
 Then there exists a randomized Markov policy $\tilde \pi $ that induces the same marginal probabilities (for all initial states ${s_0}$).
 \end{proposition}
 \begin{exercise}[\textbf{Challenge Problem 1}] Prove Proposition \ref{prop:sufficient}.
@@ -286,7 +286,7 @@ Note: If you consult a reference or a friend, mention that in your solution.
 Recall that we consider the expected total reward criterion, which we denote as
 \[{J^\pi }({s_0}) = {E^{\pi ,{s_0}}}\left( {\sum\nolimits_{t = 0}^{T - 1} {{r_t}({s_t},{a_t}) + {r_T}({s_T})} } \right)\]
 Here $\pi $ is the control policy used, and ${s_0}$ is a given initial state. We wish to maximize ${J^\pi }({s_0})$ over all control policies, and find an optimal policy ${\pi ^*}$ that achieves the maximal reward ${J^*}({s_0})$ for all initial states ${s_0}$.  Thus,
-\[{J^*}({s_0}) \buildrel \Delta \over = {J^{\pi *}}({s_0}) = \mathop {\max }\limits_{\pi  \in {\Pi _{GR}}} {J^\pi }({s_0})\]
+\[{J^*}({s_0}) \buildrel \Delta \over = {J^{\pi ^*}}({s_0}) = \mathop {\max }\limits_{\pi  \in {\Pi _{GR}}} {J^\pi }({s_0})\]
 
 
 \subsection{The Principle of Optimality}
