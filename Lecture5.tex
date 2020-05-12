@@ -197,9 +197,9 @@ An additional solution method for DP planning relies on a Linear Programming for
 The basic proof methods of the DP results mentioned above rely on the concept of a \emph{contraction operator}. We provide here the relevant mathematical background, and illustrate the contraction properties of some basic Dynamic Programming operators.
 
 \subsection{The contraction property}
-Recall that a norm $|| \cdot ||$ over $\mathbb R^n$  is a real-valued function $\|\cdot\| : \mathbb R^n \to \mathbb R$ such that, for any pair of vectors $x,y \in \mathbb R^n$  and scalar $a$,
+Recall that a norm $|| \cdot ||$ over $\mathbb R^n$  is a real-valued function $\|\cdot\| : \mathbb R^n \to \mathbb R^+$ such that, for any pair of vectors $x,y \in \mathbb R^n$  and scalar $a$,
 \begin{enumerate}
-  \item $||ax|| = |a| \cdot ||ax||$,
+  \item $||ax|| = |a| \cdot ||x||$,
   \item $||x + y|| \le ||x|| + ||y||$,
   \item $||x|| = 0$ only if $x = 0$.
 \end{enumerate}
