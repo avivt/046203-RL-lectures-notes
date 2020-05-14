@@ -38,9 +38,13 @@ E.g, for the sequence $(3,1,5,3,4)$, the solution is $(1,3,4)$.
 Observe that the number of subsequences is ${2^n}$, therefore an exhaustive search is inefficient.
 
 \paragraph{DP solution:}
-Define  ${L_j} = $ {longest strictly increasing subsequence ending at position $j$}.
+Define  ${L_j} = $ {length of the longest strictly increasing subsequence ending at position $j$}.
 Then $${L_1} = 1,$$
-$${L_j} = \max \{ {L_i}\,\;:\;\;i < j,\;\,{a_i} < {a_j}\}  + 1,\quad   j > 1$$
+$$L_{j} = \left\{\begin{array}{lr}
+  1 & if\quad  \{i<j: a_{i}<a_{j}\}=\O\\
+  max \left\{{L_{i} : i<j, a_{i}<a_{j}}\right\}+1,& else\\ 
+  
+  \end{array}\right.$$
 and the size of the longest subsequence is $L^* = {\max _{1 \le j \le n}}({L_j}).$
 \\
 Computing ${L_j}$ recursively for $j = 1:n$ gives the result with a running time\footnote{We note that this can be further improved to $O(n\log n)$. See Chapter 15 of
@@ -155,7 +159,7 @@ This algorithm solves the single destination (or the equivalent single source) s
 
       \tab{\tab{$\pi [v]$=NULL}}
 
-\item return $\{ d[v],\pi [v]\} $
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
@@ -198,13 +202,13 @@ The algorithm maintains a set $S$ of vertices whose minimal distance to the dest
 \tab{\tab{if $d[v] > w(v,u) + d[u]$,}}
 
 \tab{\tab{\tab{	set  $d[v] = w(v,u) + d[u]$,  $\pi [v] = u$ }}}
-\item return $\{ d[v],\pi [v]\} $
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
 \paragraph{Remarks:}
 \begin{enumerate}
-  \item The Bellman-Form algorithm visits and updates each vertex of the graph up to $|V|$ times, leading to a running time of $O(|V|\, \cdot \,|E|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|E|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $S$.
+  \item The Bellman-Form algorithm visits each edge of the graph up to $|V|-1$ times, leading to a running time of $O(|V|\, \cdot \,|E|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|E|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $S$.
   \item	The vertices in $V\backslash S$ need to be extracted in increasing order of $d[v]$.  This is handled by a min-priority queue $Q$, and the complexity of the algorithm depends on the implementation of this queue.
   \item	With a naive implementation of the queue that simply keeps the vertices in some fixed order, each extract-min operation takes  $O(|V|)$ time, leading to overall running time of $O(|V{|^2} + |E|)$ for the algorithm. Using a basic (mean-heap) priority queue brings the running time to $O((|V| + |E|)\log |V|)$, and a more sophisticated one (Fibonacci heap) can bring it down to  $O(|V|\log |V| + |E|)$.
 \end{enumerate}
@@ -235,12 +239,12 @@ For the single pair problem, Dijkstra's algorithm can be written in the Single S
 
 \tab{\tab{if $d[v] > d[u] + w(u,v)$,}}
 
-\tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [v] = u$ }}}
-\item return $\{ d[v],\pi [v]\} $
+\tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [u] = v$ }}}
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
-\subsection{From Dijkstra's Algorithm to A$*$}
+\subsection{From Dijkstra's Algorithm to A$^*$}
 
 Dijkstra's algorithm expands vertices in the order of their distance from the source. When the destination is known (as in the single pair problem), it seems reasonable to bias the search order towards vertices that are closer to the goal. 
 
@@ -268,8 +272,8 @@ The A$^*$ algorithm implements this idea through the use of a heuristic function
 
 \tab{\tab{if $d[v] > d[u] + w(u,v)$,}}
 
-\tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [v] = u$ }}}
-\item return $\{ d[v],\pi [v]\} $
+\tab{\tab{\tab{	set  $d[v] = d[u] + w(u,v)$,  $\pi [u] = v$ }}}
+\item return $\{ d[v],\pi [v] \ |\ $v \in V\} $
 \end{enumerate}
 \end{algorithm_}
 
