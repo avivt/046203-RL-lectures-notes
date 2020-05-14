@@ -52,8 +52,8 @@ Clearly, if ${X_t} \sim \pi $ then ${X_{t + 1}} \sim \pi $. If ${X_0} \sim \pi $
 \begin{enumerate}
 \item All states are \textbf{positive recurrent}
 \item There exists a \textbf{unique stationary distribution} ${\pi ^*}$
-\item \textbf{Convergence} to the stationary distribution: ${\lim _{t \to \infty }}p_{ij}^{(t)} = {\pi _j}\quad (\forall j)$
-\item \textbf{Ergodicity}: For any finite $f$: ${\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{t - 1} {f({X_s}) = \sum\nolimits_i {\pi_i f(i) \buildrel \Delta \over = } } \,\pi  \cdot f.$
+\item \textbf{Convergence} to the stationary distribution: ${\lim _{t \to \infty }}p_{ij}^{(t)} = {\pi^*_j}\quad (\forall j,i)$
+\item \textbf{Ergodicity}: For any finite $f$: ${\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{t - 1} {f({X_s}) = \sum\nolimits_i {\pi^*_i f(i) \buildrel \Delta \over = } } \,\pi^*  \cdot f.$
 \end{enumerate}
 \end{theorem}
 
@@ -193,7 +193,7 @@ The state equation notation is especially useful for problems with continuous st
 \paragraph{The Induced Stochastic Process}
  	Let  ${p_0} = \{ {p_0}(s),s \in {S_0}\} $ be a probability distribution for the initial state ${s_0}$.
  	A control policy $\pi  \in {\Pi _{GR}}$, together with the transition law $P = \{ {p_t}(s'|s,a)\} $ and the initial state distribution ${p_0} = ({p_0}(s),\;s \in {S_0})$, induce a probability distribution over any finite state-action sequence  ${h_T} = ({s_0},{a_0}, \ldots ,{s_{T - 1}},{a_{T - 1}},{s_T})$, given by
-\[P({h_T}) = {p_0}({s_0})\prod\limits_{t = 0}^{T - 1} {p({s_{t + 1}}|{s_t},{a_t}){\pi _t}({a_t}|{h_t})} .\]
+\[P({h_T}) = {p_0}({s_0})\prod\limits_{t = 0}^{T - 1} {p_t({s_{t + 1}}|{s_t},{a_t}){\pi _t}({a_t}|{h_t})} .\]
 To see this, observe the recursive relation:
                       \[\begin{array}{c}
 P({h_{t + 1}}) = P({h_t},{a_t},{s_{t + 1}}) = P({s_{t + 1}}|{h_t},{a_t})P({a_t}|{h_t})P({h_t})\\
