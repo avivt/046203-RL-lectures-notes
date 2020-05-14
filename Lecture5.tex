@@ -28,7 +28,7 @@ Here,
   \item $\gamma  \in (0,1)$ is the discount factor.
 \end{itemize}
 
-We observe that $\gamma  < 1$  ensures convergence of the infinite sum (since that the rewards $r({s_t},{a_t})$ are uniformly bounded). With $\gamma  = 1$ we obtain the total return criterion, which is harder to handle due to possible divergence of the sum.
+We observe that $\gamma  < 1$  ensures convergence of the infinite sum (since the rewards $r({s_t},{a_t})$ are uniformly bounded). With $\gamma  = 1$ we obtain the total return criterion, which is harder to handle due to possible divergence of the sum.
 
 Let $J_\gamma ^*(s)$ denote the maximal value of the discounted return, over all (possibly history dependent and randomized) control policies, i.e.,
 \[J_\gamma ^*(s) = \mathop {\sup }\limits_{\pi  \in {\Pi _{GR}}} J_\gamma ^\pi (s).\]
@@ -122,8 +122,8 @@ which converges to 0 since $\gamma  < 1$.                                       
 \begin{itemize}
   \item The proof provides an explicit bound on $|{V^\pi }(s) - {V_n}{\kern 1pt} (s)|$. It may be seen that the convergence is exponential, with rate $O({\gamma ^n})$.
   \item Using vector notation, it may be seen that
-          \[{V_n}{\kern 1pt}  = {r^\pi } + {P^\pi }{r^\pi } +  \ldots  + {({P^\pi })^{n - 1}}{r^\pi } + {({P^\pi })^n}{V_0} = \sum\limits_{t = 0}^{n - 1} {{{({P^\pi })}^t}{r^\pi }}  + {({P^\pi })^n}{V_0}.\]
-Similarly,    ${V^\pi } = \sum\limits_{t = 0}^\infty  {{{({P^\pi })}^t}{r^\pi }}$.
+          \[{V_n}{\kern 1pt}  = {r^\pi } + {\gamma}{P^\pi }{r^\pi } +  \ldots  + {({\gamma}{P^\pi })^{n - 1}}{r^\pi } + {({\gamma}{P^\pi })^n}{V_0} = \sum\limits_{t = 0}^{n - 1} {{{({\gamma}{P^\pi })}^t}{r^\pi }}  + {({\gamma}{P^\pi })^n}{V_0}.\]
+Similarly,    ${V^\pi } = \sum\limits_{t = 0}^\infty  {{{({\gamma}{P^\pi })}^t}{r^\pi }}$.
 \end{itemize}
 
 \paragraph{In summary:}
@@ -206,7 +206,7 @@ Recall that a norm $|| \cdot ||$ over $\mathbb R^n$  is a real-valued function $
 
 Common examples are the p-norm $||x|{|_p} = (\sum\nolimits_{i = 1}^n {{{|{x_i}|}^p}{)^{1/p}}} $ for $p \ge 1$, and in particular the Euclidean norm ($p = 2$). Here we will mostly use the max-norm: \[||x|{|_\infty } = {\max _{1 \le i \le n}}|{x_i}|.\]
 
-Let $T:\mathbb R^d \to \mathbb R^d$  be a vector-valued function over $\mathbb R^d$   ($d \ge 1$). We equip $\mathbb R^d$  with some  norm $|| \cdot ||$, and refer to $T$ as an \emph{operator } over $\mathbb R^d$.  Thus, $T(v) \in \mathbb R^d$ for any $v \in \mathbb R^d$.
+Let $T:\mathbb R^d \to \mathbb R^d$  be a vector-valued function over $\mathbb R^d$   ($d \ge 1$). We equip $\mathbb R^d$  with some  norm $|| \cdot ||$, and refer to $T$ as an \emph{operator} over $\mathbb R^d$.  Thus, $T(v) \in \mathbb R^d$ for any $v \in \mathbb R^d$.
 We also denote ${T^n}(v) = T({T^{n - 1}}(v))$ for  $n \ge 2$. For example, ${T^2}(v) = T(T(v))$.
 
 \begin{definition} The operator $T$ is called a contraction operator if there exists $\beta  \in (0,1)$ (the contraction coefficient) such that
@@ -324,7 +324,7 @@ The Value Iteration algorithm (Algorithm \ref{alg:VI}) can be stated as follows:
   \item Start with any initial value function ${V_0} = ({V_0}(s))$.
   \item Compute recursively, for $n = 0,1,2, \ldots $,
           \[{V_{n + 1}}(s) = \mathop {\max }\limits_{a \in A} \sum\nolimits_{s' \in S} {p(s'|s,a)[r(s,a,s') + \gamma {V_n}(s')]} ,       \quad \forall s \in S.\]
-  \item Apply a stopping rule obtain a required accuracy (see below).
+  \item Apply a stopping rule: obtain a required accuracy (see below).
 \end{enumerate}
 In terms of the DP operator $T_{}^*$, value iteration is simply stated as:
 \[{V_{n + 1}} = T_{}^*({V_n}), \quad n \ge 0.\]
