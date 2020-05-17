@@ -369,7 +369,7 @@ ${V^{\bar \pi }} \ge {V^\pi }$ (component-wise), and equality holds if and only 
 \[{V^\pi } = T_{}^\pi ({V^\pi }) \le T_{}^*({V^\pi }) = T_{}^{\bar \pi }({V^\pi })\]
 The first equality follows since ${V^\pi }$ is the value function for the policy $\pi $, the inequality follows because of the maximization in the definition of  $T_{}^*$, and the last equality by definition of the improving policy $\bar \pi $.
 
-It is easily seen that $T_{}^\pi $ is a monotone operator (for any policy $\pi $), namely ${V_1} \le {V_2}$ implies $T_{}^\pi {V_1} \le T_{}^\pi {V_2}$. Applying $T_\gamma ^{\bar \pi }$  repeatedly to both sides of the above inequality ${V^\pi } \le T_{}^{\bar \pi }{V^\pi }$ therefore gives
+It is easily seen that $T_{}^\pi $ is a monotone operator (for any policy $\pi $), namely ${V_1} \le {V_2}$ implies $T_{}^\pi {V_1} \le T_{}^\pi {V_2}$. Applying $T_{}^{\bar \pi }$  repeatedly to both sides of the above inequality ${V^\pi } \le T_{}^{\bar \pi }{V^\pi }$ therefore gives
 \[{V^\pi } \le T_{}^{\bar \pi }({V^\pi }) \le {(T_{}^{\bar \pi })^2}({V^\pi }) \le  \cdots  \le \mathop {\lim }\limits_{n \to \infty } {(T_{}^{\bar \pi })^n}({V^\pi }) = {V^{\bar \pi }},\]
 where the last equality follows by value iteration. This establishes the first claim.
 The equality claim is left as an \textbf{exercise}.
@@ -407,7 +407,7 @@ The procedure starts with some initial value vector ${V_0}$, and iterates as fol
 Compute ${\pi _k} \in \arg {\max _\pi }T_{}^\pi ({V_k})$, a greedy policy with respect to ${V_k}$.
   \item Partial value iteration:
 
-Perform ${m_k}$ steps of value iteration, ${V_{k + 1}} = {(T_\gamma ^{{\pi _k}})^{{m_k}}}({V_k})$.
+Perform ${m_k}$ steps of value iteration, ${V_{k + 1}} = {(T_{}^{{\pi _k}})^{{m_k}}}({V_k})$.
 \end{itemize}
 
 This algorithm guarantees convergence of ${V_k}$ to ${V^*}$.
@@ -450,7 +450,7 @@ the dual is
 %maximize \[{c^T}y\],   subject to \[{A^T}y = b\],  \[y \ge 0\]
 
 \subsection{The Primal LP}
-Recall that ${V^*}$satisfies the optimality equations:
+Recall that ${V^*}$ satisfies the optimality equations:
 \[V(s) = \mathop {\max }\limits_{a \in A} \left\{ {r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,a)V(s')} } \right\},     \quad s \in S.\]
 \begin{proposition}\label{prop:LP_prop}
 ${V^*}$ is the smallest function (component-wise) that satisfies the following set of
