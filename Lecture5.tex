@@ -434,7 +434,7 @@ The two dual LPs have the same optimal value, and the solution of one can be obt
 
 \begin{align*}
 \mathop {\min }\limits_{x \ge 0,Ax \ge c} {b^T}x &= \mathop {\min }\limits_{x \ge 0} \mathop {\max }\limits_{y \ge 0} \left\{ {{b^T}x + {y^T}(c - Ax)} \right\}\\
- &= \mathop {\max }\limits_{y \ge 0} \mathop {\min }\limits_{x \ge 0} \left\{ {{c^T}y + {x^T}(b - Ay)} \right\} = \mathop {\max }\limits_{y \ge 0,Ay \le b} {c^T}x.
+ &= \mathop {\max }\limits_{y \ge 0} \mathop {\min }\limits_{x \ge 0} \left\{ {{c^T}y + {x^T}(b - {A^T}y)} \right\} = \mathop {\max }\limits_{y \ge 0,{A^T}y \le b} {c^T}y.
 \end{align*}
 where the second equality follows by the min-max theorem.
 
