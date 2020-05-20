@@ -136,7 +136,7 @@ Similarly,    ${V^\pi } = \sum\limits_{t = 0}^\infty  {{{({P^\pi })}^t}{r^\pi }}
 
 We now return to the optimal planning problem defined in Section \ref{sec:inf_horizon_prob}. Recall that  $J_\gamma ^*(s) = {\sup _{\pi  \in \Pi }}_{_{GR}}J_\gamma ^\pi (s)$ is the optimal discounted return. We further denote
 \[{V^*}(s) \buildrel \Delta \over = J_\gamma ^*(s),    \quad s \in S,\]
-and refer to ${V^*}$ as the optimal value function. Depending on the context, we consider ${V^*}$ either as a function $V^* : S \to \mathbb R$, or as a column vector ${V^*} = {[V(s)]_{s \in S}}$.
+and refer to ${V^*}$ as the optimal value function. Depending on the context, we consider ${V^*}$ either as a function $V^* : S \to \mathbb R$, or as a column vector ${V^*} = {[V^*(s)]_{s \in S}}$.
 
 The following optimality equation provides an explicit characterization of the value function, and shows that an optimal stationary policy can easily be computed if the value function is known.
 
@@ -246,7 +246,7 @@ Existence (outline):  (i) show that ${V_n} \buildrel \Delta \over = {T^n}({V_0})
 \subsection{The Dynamic Programming Operators}\label{ss:DP_op}
 We next define the basic Dynamic Programming operators, and show that they are in fact contraction operators.
 
-For a fixed stationary policy $\pi :S \to A$, define the fixed policy DP operator $T^\pi:\mathbb R^{|S|} \to \mathbb R^{|S|}$  as follows: For any $V=(V(s))\in R^{|S|}$,
+For a fixed stationary policy $\pi :S \to A$, define the fixed policy DP operator $T^\pi:\mathbb R^{|S|} \to \mathbb R^{|S|}$  as follows: For any $V=(V(s))\in \mathbb R^{|S|}$,
 \[(T_{}^\pi (V))(s) = r(s,a) + \gamma \sum\nolimits_{s' \in S} {p(s'|s,\pi (s))V(s')} ,\quad s \in S\]
 In our column-vector notation, this is equivalent to  $T_{}^\pi (V) = {r^\pi } + \gamma {P^\pi }V$.
 
@@ -311,8 +311,8 @@ We prove each part.
 \begin{enumerate}
   \item As $T_{}^*$ is a contraction operator, existence and uniqueness of the solution to $V = T_{}^*(V)$ follows from the Banach fixed point theorem. Let $\hat V$ denote that solution. It also follows by that theorem that ${(T_{}^*)^n}({V_0}) \to \hat V$ for any ${V_0}$. But in Theorem \ref{thm:_VI} we show that ${(T_{}^*)^n}({V_0}) \to V_{}^*$, hence $\hat V = V_{}^*$,  so that $V_{}^*$ is indeed the unique solution of  $V = T_{}^*(V)$.
   \item By definition of  ${\pi ^*}$ we have
-\[T_{}^{\pi *}(V_{}^*) = T_{}^*(V_{}^*) = V_{}^*,\]
-where the last equality follows from part 1. Thus the optimal value function satisfied the equation $T_{}^{\pi *}V_{}^* = V_{}^*$. But we already know (from Prop. \ref{prop:FP_VI}) that $V_{}^{\pi *}$ is the unique solution of that equation, hence $V_{}^{\pi *} = V_{}^*$. This implies that ${\pi ^*}$ achieves the optimal value (for any initial state), and is therefore an optimal policy as stated.
+\[T_{}^{\pi ^*}(V_{}^*) = T_{}^*(V_{}^*) = V_{}^*,\]
+where the last equality follows from part 1. Thus the optimal value function satisfied the equation $T_{}^{\pi ^*}(V_{}^*) = V_{}^*$. But we already know (from Prop. \ref{prop:FP_VI}) that $V_{}^{\pi ^*}$ is the unique solution of that equation, hence $V_{}^{\pi ^*} = V_{}^*$. This implies that ${\pi ^*}$ achieves the optimal value (for any initial state), and is therefore an optimal policy as stated.
 \end{enumerate}
 \end{proof}
 
