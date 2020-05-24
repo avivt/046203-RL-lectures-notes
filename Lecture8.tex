@@ -78,8 +78,8 @@ To start with, the agent needs to use some parametric {\em model} of the environ
 We shall use the model of a stationary MDP, with given state space and actions space.
 However, the state transition matrix $P=(p(s'|s,a))$ and the immediate reward function
 $r=(r(s,a,s'))$ may not be given.
-We shall further assume the the observed signal is indeed the state of the
-dynamic proceed (fully observed MDP), and that the reward signal is the immediate
+We shall further assume that the observed signal is indeed the state of the
+dynamic process (fully observed MDP), and that the reward signal is the immediate
 reward $r_t$, with mean $r(s_t,a_t)$.
 % (for simplicity we shall use the simplified reward function $r(s,a)$ from here on).
 
@@ -180,7 +180,7 @@ $\hat{Q}(s_n,a_n) := r_n+\ga \max_{a'} \hat{Q}(s_{n+1},a')$
 We note that this algorithm does not tell us how to choose the actions $a_n$.
 The following result is from [Mitchell, Theorem 3.1].
 
-\begin{theorem}[Convergence of $Q$-learning for deterministic MDPS]\ \\
+\begin{theorem}[Convergence of $Q$-learning for deterministic MDPs]\ \\
 Assume a deterministic MDP model. Let $\hat{Q}_n(s,a)$ denote the estimated
 $Q$-function before the $n$-th update.
 If each state-action pair is visited \underline{infinitely-often}, then
@@ -209,15 +209,15 @@ $\Delta_n \to 0$.
 
 \paragraph{Remarks:}
 \begin{enumerate}
-  \item The algorithm allows the use of an arbitrary policy to be used during learning.
-Such as algorithm is called {\em Off Policy}. In contrast, {\em On-Policy}
+  \item The algorithm allows the use of an arbitrary policy during learning.
+Such an algorithm is called {\em Off-Policy}. In contrast, {\em On-Policy}
 algorithms learn the properties of the policy that is actually being applied.
   \item We further note that the ``next-state" $s'=s_{n+1}$ of stage $n$ need not
 coincide with the current state $s_{n+1}$ of stage $n+1$. Thus, we may skip
-some sample, or even choose $s_n$ at will at each stage. This is a common
+some samples, or even choose $s_n$ at will at each stage. This is a common
 feature of off-policy schemes.
   \item A basic requirement in this algorithm is that all state-action pairs will
-be samples "often enough". To ensure that we often use a specific
+be sampled "often enough", to ensure that we often use a specific
 {\em exploration} algorithm or method. In fact, the speed of convergence
 may depend critically on the efficiency of exploration. We shall discuss this
 topic in detail further on.
@@ -464,7 +464,7 @@ different TD algorithms:
   \item TD(0):
 \begin{align*}
 \hat V(s_n) & := (1-\al) \hat V(s_n) + \al [ r_n +
-\ga\hat V (s_{n+1}] \\
+\ga\hat V (s_{n+1})] \\
 & = \hat V (s_n) + \al \cdot d_n,
 \end{align*}
 with $d_n \dfn r_n + \ga V (s_{n+1}) - V(s_n)$.
