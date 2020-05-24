@@ -485,7 +485,7 @@ where ${p_0} = ({p_0}(s'))$ is any probability vector (usually taken as a 0/1 ve
   \item The variables ${f_{s,a}}$ correspond to the "state action frequencies" (for a given policy):
                             \[{f_{s,a}} \sim E(\sum\limits_{t = 0}^\infty  {{\gamma ^t}{I_{\{ {s_t} = s,{a_t} = a\} }})}  = \sum\limits_{t = 0}^\infty  {{\gamma ^t}P({s_t} = s,{a_t} = a)}, \]
 and ${p_0}(s') \sim p({s_0} = s')$ is the initial state distribution.
-  \item It is easy to see that the discounted return can be written in terms of ${f_{s,a}}$ as $\sum\limits_s {{f_{s,a}}r(s,a)} $, which is to be maximized.
+  \item It is easy to see that the discounted return can be written in terms of ${f_{s,a}}$ as $\sum\limits_{s,a} {{f_{s,a}}r(s,a)} $, which is to be maximized.
   \item The above constraints easily follow from the definition of ${f_{s,a}}$.
 \end{enumerate}
 \paragraph{Further comments:}
