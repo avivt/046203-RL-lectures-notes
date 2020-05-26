@@ -521,7 +521,7 @@ d_n & = r_n +  \ga Q(s_{n+1}, a_{n+1}) - Q(s_n, a_n), \mbox{where } a_{n+1}=\pi(
 Similarly, the SARSA($\la$) algorithm uses
 \begin{align*}
 Q(s, a) & := Q(s,a) + \al_n(s,a) \cdot d_n e_n(s,a) \\
-\quad e_n(s,a)& := \ga \la e_{n-1}(s,a)+1\{s_n=1,a_n=a\} \,.
+\quad e_n(s,a)& := \ga \la e_{n-1}(s,a)+1\{s_n=s,a_n=a\} \,.
 \end{align*}
 
 Note that:\\
