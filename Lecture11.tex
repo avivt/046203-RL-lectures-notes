@@ -358,7 +358,7 @@ would converge to $\Pi_\epsilon V^\mu$ as $N\to \infty$. However, such an algori
 \subsection{Solving the PBE}
 We now move to solving the projected Bellman equation.\\
 We would like to find $J = \Phi \theta^*$ where $\theta^*$ solves
-$$\theta^* = \underset{{\theta \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\Phi \theta - (R^\mu+\gamma P^\mu\Phi \theta^*)||_\epsilon^2$$
+$$\theta^* = \underset{{\theta \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\Phi \theta - (R^\mu+\gamma P^\mu\Phi \theta)||_\epsilon^2$$
 Setting the gradient of the to $0$, we get
 $$\Phi^T \Xi (\Phi \theta^* - (R^\mu+\gamma P^\mu \Phi \theta^*)) = 0$$
 where $\Xi = \textrm{diag} \ (\epsilon_1,...,\epsilon_n)$.\\
