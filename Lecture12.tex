@@ -17,7 +17,7 @@ Policy Gradient algorithms belong to a larger class of Policy Search algorithms.
 We consider the standard MDP model in discrete time, with states  ${x_t} \in X$, actions ${u_t} \in U$, transition kernel $\{ p(x'|x,u)\} $ , rewards  ${R_t} = {r_t}({x_t},{u_t})$, and policies $\pi  \in \Pi $.
 
 For concreteness, we consider an episodic (finite horizon) problem with the total return criterion, which is to be maximized:
-\[{J^\pi } = {\mathbb E^{\pi ,{x_0}}}(\;\sum\limits_{t = 0}^T {{R_t}} \,).\]
+\[{J^\pi } = {\mathbb E^{\pi ,{x_0}}}\left(\sum\limits_{t = 0}^T {{R_t}} \right).\]
 Here ${x_0}$ is a given initial state. We may allow the final time $T$ to depend on the state (as in the Stochastic Shortest Path problem), as long as it is bounded.
 
 We next assume that we are given parameterized set of policies: $\{ {\pi _\theta },\,\theta  \in \Theta \} $, where $\theta $ is an $I$-dimensional parameter vector. We also refer to this set as a policy representation. The representation is often application-specific and should take into account prior knowledge on the problem.
@@ -188,14 +188,14 @@ Using the policy gradient formula, we calculate:
 \begin{equation*}
     \begin{split}
         \nabla_\theta \log \pi_\theta(u) &= \frac{u - \theta}{\sigma^2}, \\
-        \nabla_\theta J(\theta) &= \mathbb{E} [\frac{u(u - \theta)}{\sigma^2}] \\
+        \nabla_\theta J(\theta) &= \mathbb{E} \left[\frac{u(u - \theta)}{\sigma^2}\right] \\
         &= \frac{1}{\sigma^2} (\mathbb{E} [u^2] - (\mathbb{E} [u])^2) = 1.
     \end{split}
 \end{equation*}
 Note the intuitive interpretation of the policy gradient here: we average the change to the mean action $u-\theta$ and the reward it produces $r(u)=u$. In this case, actions above the mean lead to higher reward, thereby `pushing' the mean action $\theta$ to increase. Also note the relation to the reward-weighted regression expression above.
 
 \subsection{Variance Reduction}
-We now provide a generalization of the policy gradient. We will consider an episodic MDP setting, and assume that for every policy parameter $\theta$, an absorbing state is reached w.p.~1. We can therefore replace the finite horizon return with an infinite sum ${J^\pi } = {\mathbb E^{\pi ,{x_0}}}(\;\sum\limits_{t = 0}^\infty {{R_t}} \,)$. We also recall the value and action value functions $V^\pi(x)$ and $Q^\pi(x,u)$. 
+We now provide a generalization of the policy gradient. We will consider an episodic MDP setting, and assume that for every policy parameter $\theta$, an absorbing state is reached w.p.~1. We can therefore replace the finite horizon return with an infinite sum ${J^\pi } = {\mathbb E^{\pi ,{x_0}}} \left(\sum\limits_{t = 0}^\infty {{R_t}} \right)$. We also recall the value and action value functions $V^\pi(x)$ and $Q^\pi(x,u)$. 
 \begin{proposition}\label{prop:pg_control_variates}
 The policy gradient can be written as:
 \begin{equation*}
@@ -221,7 +221,7 @@ Find a fixed baseline $b$ that minimizes the variance of the policy gradient est
 
 The policy gradient formula in this case is:
 \begin{equation*}
-        \nabla_\theta J(\theta) = \mathbb{E} [\frac{(u-b)(u - \theta)}{\sigma^2}] = 1, 
+        \nabla_\theta J(\theta) = \mathbb{E} \left[\frac{(u-b)(u - \theta)}{\sigma^2}\right] = 1, 
 \end{equation*}
 and we can calculate the variance
 \begin{equation*}
