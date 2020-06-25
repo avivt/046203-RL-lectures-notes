@@ -300,18 +300,18 @@ and $J-\Pi_\epsilon J$ and $\Pi_\epsilon J-\bar{J}$ are orthogonal under $\langl
 \\
 \\
 This implies that $\Pi_\epsilon$ is non-expansive:
-$$||\Pi_\epsilon J - \Pi_\epsilon \bar{J}||_\epsilon \le ||J-\bar{J}||_\epsilon$$
+$$\forall {J}_1,{J}_2\in \mathbb{R}^{|S|}, ||\Pi_\epsilon {J}_1 - \Pi_\epsilon {J}_2||_\epsilon \le ||{J}_1-{J}_2||_\epsilon$$
 Proof:
-$$||\Pi_\epsilon J - \Pi_\epsilon \bar{J}||_\epsilon^2 = ||\Pi_\epsilon(J-\bar{J})||_\epsilon^2 \le ||\Pi_\epsilon(J-\bar{J})||_\epsilon^2 + ||(I-\Pi_\epsilon)(J-\bar{J})||_\epsilon^2 = ||J-\bar{J}||_\epsilon^2,$$
-where the first inequality is by linearity of $\Pi_\epsilon$, and the last is by the Pythagorian theorem (with vectors $J-\bar{J}$ and $0$).
+$$||\Pi_\epsilon {J}_1 - \Pi_\epsilon {J}_2||_\epsilon^2 = ||\Pi_\epsilon({J}_1-{J}_2)||_\epsilon^2 \le ||\Pi_\epsilon({J}_1-{J}_2)||_\epsilon^2 + ||(I-\Pi_\epsilon)({J}_1-{J}_2)||_\epsilon^2 = ||{J}_1-{J}_2||_\epsilon^2,$$
+where the first inequality is by linearity of $\Pi_\epsilon$, and the last equality is by the Pythagorean theorem (with vectors ${J}_1-{J}_2$ and $0$).
 \\
 \\
 \\
-In order to prove the contraction:
+In order to prove the contraction $\forall {J}_1,{J}_2\in \mathbb{R}^{|S|}$:
 \begin{equation*}
 \begin{split}
-||\Pi_\epsilon T^\mu J - \Pi_\epsilon T^\mu \bar{J}||_\epsilon &\overset{\Pi_\epsilon \textrm{ non-expansive}}{\le} ||T^\mu J - T^\mu \bar{J}||_\epsilon\\
-&\overset{\textrm{definition of } T^\mu}{=} \gamma||P^\mu(J-\bar{J})||_\epsilon \overset{\textrm{Lemma \ref{lem:P_non_expansion}}}{\le} \gamma||J-\bar{J}||_\epsilon ,
+||\Pi_\epsilon T^\mu {J}_1 - \Pi_\epsilon T^\mu {J}_2||_\epsilon &\overset{\Pi_\epsilon \textrm{ non-expansive}}{\le} ||T^\mu {J}_1 - T^\mu {J}_2||_\epsilon\\
+&\overset{\textrm{definition of } T^\mu}{=} \gamma||P^\mu({J}_1-{J}_2)||_\epsilon \overset{\textrm{Lemma \ref{lem:P_non_expansion}}}{\le} \gamma||{J}_1-{J}_2||_\epsilon ,
 \end{split}
 \end{equation*}
 and therefore $\Pi_\epsilon T^\mu$ is a contraction operator.
