@@ -78,7 +78,7 @@ We can write the linear equations in \eqref{eq:FP_Bellman} in vector form as fol
 
 \begin{lemma}\label{lem:FP_Bellman_sol} The set of linear equations \eqref{eq:FP_Bellman} or \eqref{eq:PF_Bellman_vector}, with ${V^\pi }$ as variables, has a unique solution ${V^\pi }$, which is given by \[{V^\pi } = {(I - \gamma {P^\pi })^{ - 1}}{r^\pi }.\]
 \end{lemma}
-\begin{proof} We only need to show that the square matrix $I - \gamma {P^\pi }$ is non-singular.  Let $({\lambda _i})$ denote the eigenvalues of the matrix ${P^\pi }$. Since ${P^\pi }$ is a stochastic matrix (row sums are 1), then $|{\lambda _i}| \le 1$. Now, the eignevalues of $I - \gamma {P^\pi }$ are $(1 - \gamma {\lambda _i})$, and satisfy $|1 - \gamma {\lambda _i}| \ge 1 - \gamma  > 0$.                                                                                                            \end{proof}
+\begin{proof} We only need to show that the square matrix $I - \gamma {P^\pi }$ is non-singular.  Let $({\lambda _i})$ denote the eigenvalues of the matrix ${P^\pi }$. Since ${P^\pi }$ is a stochastic matrix (row sums are 1), then $|{\lambda _i}| \le 1$. Now, the eignevalues of $I - \gamma {P^\pi }$ are $(1 - \gamma {\lambda _i})$, and satisfy $|1 - \gamma {\lambda _i}| \ge |1| - \gamma |{\lambda _i}| \ge 1 - \gamma  > 0$.                                                                                                            \end{proof}
 
 Combining Lemma \ref{lem:FP_Bellman} and Lemma \ref{eq:PF_Bellman_vector}, we obtain
 
@@ -485,7 +485,7 @@ where ${p_0} = ({p_0}(s'))$ is any probability vector (usually taken as a 0/1 ve
   \item The variables ${f_{s,a}}$ correspond to the "state action frequencies" (for a given policy):
                             \[{f_{s,a}} \sim E(\sum\limits_{t = 0}^\infty  {{\gamma ^t}{I_{\{ {s_t} = s,{a_t} = a\} }})}  = \sum\limits_{t = 0}^\infty  {{\gamma ^t}P({s_t} = s,{a_t} = a)}, \]
 and ${p_0}(s') \sim p({s_0} = s')$ is the initial state distribution.
-  \item It is easy to see that the discounted return can be written in terms of ${f_{s,a}}$ as $\sum\limits_s {{f_{s,a}}r(s,a)} $, which is to be maximized.
+  \item It is easy to see that the discounted return can be written in terms of ${f_{s,a}}$ as $\sum\limits_{s,a} {{f_{s,a}}r(s,a)} $, which is to be maximized.
   \item The above constraints easily follow from the definition of ${f_{s,a}}$.
 \end{enumerate}
 \paragraph{Further comments:}

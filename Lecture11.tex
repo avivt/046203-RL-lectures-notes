@@ -294,7 +294,7 @@ Since $\Pi_\epsilon$ is a projection with respect to a weighted Euclidean norm, 
 %First, let's observe that the Pythagorian theorem holds for $||\cdot||_\epsilon$, and therefore
 $$\forall J\in \mathbb{R}^{|S|}, \bar{J}\in \mathcal{S}: \ \ ||J-\bar{J}||_\epsilon^2 = ||J-\Pi_\epsilon J||_\epsilon^2 + ||\Pi_\epsilon J - \bar{J}||_\epsilon^2.$$
 Proof:
-$$||J-\bar{J}||_\epsilon^2 = ||J-\Pi_\epsilon J + \Pi_\epsilon J - \bar{J}||_\epsilon^2 = ||J-\Pi_\epsilon J||_\epsilon^2 + ||\Pi_\epsilon J - \bar{J}||_\epsilon^2 + \langle J-\Pi_\epsilon J, \Pi_\epsilon J - \bar{J}\rangle_\epsilon,$$
+$$||J-\bar{J}||_\epsilon^2 = ||J-\Pi_\epsilon J + \Pi_\epsilon J - \bar{J}||_\epsilon^2 = ||J-\Pi_\epsilon J||_\epsilon^2 + ||\Pi_\epsilon J - \bar{J}||_\epsilon^2 + 2 \cdot \langle J-\Pi_\epsilon J, \Pi_\epsilon J - \bar{J}\rangle_\epsilon,$$
 and $J-\Pi_\epsilon J$ and $\Pi_\epsilon J-\bar{J}$ are orthogonal under $\langle\cdot,\cdot\rangle_\epsilon$ (error orthogonality for weighted Euclidean-norm projections).
 \\
 \\
@@ -358,7 +358,7 @@ would converge to $\Pi_\epsilon V^\mu$ as $N\to \infty$. However, such an algori
 \subsection{Solving the PBE}
 We now move to solving the projected Bellman equation.\\
 We would like to find $J = \Phi \theta^*$ where $\theta^*$ solves
-$$\theta^* = \underset{{\theta \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\Phi \theta - (R^\mu+\gamma P^\mu\Phi \theta^*)||_\epsilon^2$$
+$$\theta^* = \underset{{\theta \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\Phi \theta - (R^\mu+\gamma P^\mu\Phi \theta)||_\epsilon^2$$
 Setting the gradient of the to $0$, we get
 $$\Phi^T \Xi (\Phi \theta^* - (R^\mu+\gamma P^\mu \Phi \theta^*)) = 0$$
 where $\Xi = \textrm{diag} \ (\epsilon_1,...,\epsilon_n)$.\\
