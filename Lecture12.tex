@@ -27,7 +27,7 @@ We assume the following:
   \item The actions set $U$ is continuous - typically a subset of $\mathbb R^l$.
 If the original action set is finite, we extend it to a continuous set by considering  random (mixed) actions.
   \item The parameter set $\Theta $ is a continuous subset of $\mathbb R^I$.
-  \item The policy set $\{ {\pi _\theta },\,\theta  \in \Theta \} $ is smooth in $\theta $. In particular, assuming each ${\pi _\theta }$ is a stationary policy,  ${\pi _\theta }(s)$ is a continuous function of $\theta $ for each state $s$.
+  \item The policy set $\{ {\pi _\theta },\,\theta  \in \Theta \} $ is smooth in $\theta $. In particular, assuming each ${\pi _\theta }$ is a stationary policy,  ${\pi _\theta }(x)$ is a continuous function of $\theta $ for each state $x$.
 \end{itemize}
 
 \paragraph{Policy representation:} Some common generic representations include:
@@ -42,7 +42,7 @@ where ${D_i}$ is typically a diagonal matrix. The vector $\theta $ of tunable pa
   $$
     {\pi _\theta }(x) = \psi(b_2 + w_2^T \psi(b_1 + {w_1^T}\phi (x))),
   $$
-  where $\psi$ is a non-linear activation function (e.g., $\tanh$ or sigmoid) and the vector $\theta$ includes the weight and the bias terms ($w_1,w_2,b_1,b_2$) in the neural network. This can be seen as a generalization of the linear policy to include non-linearities.
+  where $\psi$ is a non-linear activation function (e.g., $\tanh$ or sigmoid) and the vector $\theta$ includes the weight and the bias terms ($w_1,w_2,b_1,b_2$) of the neural network. This can be seen as a generalization of the linear policy to include non-linearities.
   \item Logistic (a.k.a. softmax) functions: For a discrete (finite) action space, one can use the Boltzman-like probabilities
                            $${\pi _\theta }(u|x) = \exp (w_u^T\phi (x))/\sum\nolimits_{u'} {\exp (w_{u'}^T\phi (x)} ),$$
 where  $\theta  = {({w_u})_{u \in U}}$. It is convenient to designate one of the actions as 'anchor', with ${w_u} = 0$.
@@ -64,7 +64,7 @@ We wish to find a parameter $\theta $ that maximizes $J(\theta )$, at least loca
 In this approach, the problem is viewed as a black-box optimization of the function $J(\theta )$.
 Black-box optimization (a.k.a. derivative free optimization) refers to optimization of an objective function through a black-box interface: the algorithm may only query the function $J(\theta )$ for a point $\theta$; gradient information or the explicit form of $J(\theta)$ are not known. 
 
-In our setting, for each given value of the parameter vector $\theta $, we can simulate or operate the system with control policy ${\pi _\theta }$ and measure the return  $\hat J(\theta ) = \sum\nolimits_{t = 0}^T {{R_t}} $, which gives a estimate of the expected return $J(\theta )$. We note that for stochastic systems or policies, this estimate will be noisy.
+In our setting, for each given value of the parameter vector $\theta $, we can simulate or operate the system with control policy ${\pi _\theta }$ and measure the return  $\hat J(\theta ) = \sum\nolimits_{t = 0}^T {{R_t}} $, which gives an estimate of the expected return $J(\theta )$. We note that for stochastic systems or policies, this estimate will be noisy.
 
 Note: The search in parameter space approach ignores the structure of our problem, namely, that trajectories are the result of rolling out a policy in an MDP. Only the mapping between $\theta$ and the resulting cumulative reward is considered.
 
@@ -88,7 +88,7 @@ Note: Whenever required, we assume without further mention that $J(\theta )$ is 
 \subsubsection*{Finite Difference Methods}
 Finite difference methods are among the most common and straightforward methods for estimating the gradient in a variety of applications.
 
-Suppose that, for each given value of the parameter vector $\theta $, we can simulate or operate the system with control policy ${\pi _\theta }$ and measure the return  $\hat J(\theta ) = \sum\nolimits_{t = 0}^T {{R_t}} $, which gives a estimate of the expected return $J(\theta )$. We note that this estimate will be noisy when either the policy or the system contain random moves.
+Suppose that, for each given value of the parameter vector $\theta $, we can simulate or operate the system with control policy ${\pi _\theta }$ and measure the return  $\hat J(\theta ) = \sum\nolimits_{t = 0}^T {{R_t}} $, which gives an estimate of the expected return $J(\theta )$. We note that this estimate will be noisy when either the policy or the system contain random moves.
 
 \paragraph{Component-wise gradient estimates:} We can now obtain a noisy estimate of each component of the gradient vector using a finite difference of the form:
 \[\frac{{\partial J(\theta )}}{{\partial {\theta _i}}} \approx \frac{{\hat J(\theta  + \delta {e_i}) - \hat J(\theta )}}{\delta },\]
@@ -211,7 +211,7 @@ where $\Psi_t$ can be either one of the following terms:
 \end{enumerate}
 \end{proposition}
 
-All the above formulations are unbiased estimates of the policy gradient. However, they differ in their variance, and variance reduction plays an important role in practical applications\footnote{In the simulation literature, the technique of changing the variance of the estimate by adding terms that do not change its bias is known as \textit{control variates}.}. Let illustrate this in the previous bandit example.
+All the above formulations are unbiased estimates of the policy gradient. However, they differ in their variance, and variance reduction plays an important role in practical applications\footnote{In the simulation literature, the technique of changing the variance of the estimate by adding terms that do not change its bias is known as \textit{control variates}.}. Let's illustrate this in the previous bandit example.
 
 \subsubsection{Illustrative Example (cont'd)}
 Consider the previous bandit setting, where we recall that
@@ -249,7 +249,7 @@ Nevertheless, these baselines often lead to significant performance gains in pra
 We will start by establishing a useful property. 
 Let $p_\theta(z)$ be some parametrized distribution. Differentiating $\sum\nolimits_{z } {{p_\theta }(z)}  = 1$  yields
 \begin{equation}\label{eq:helper}
-\sum\nolimits_{z} {(\nabla \log {p_\theta }({z})} ){p_\theta }({z}) = {\mathbb E^\theta }(\nabla \log {p_\theta }({z})) = 0.
+\sum\nolimits_{z} {(\nabla_\theta \log {p_\theta }({z})} ){p_\theta }({z}) = {\mathbb E^\theta }(\nabla_\theta  \log {p_\theta }({z})) = 0.
 \end{equation}
 
 We can now observe that adding a state-dependent baseline to the policy gradient does not add bias:
