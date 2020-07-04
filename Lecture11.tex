@@ -246,9 +246,9 @@ Includes:
 We now discuss the indirect approach to policy evaluation.
 \\
 Define the weighted Euclidean inner product:
-$$\langle V_1,V_2\rangle_\epsilon = \sqrt{\sum_{i=1}^n \epsilon_i V_1(i)V_2(i)}, \ \ \epsilon_i\ge0,$$
+$$\langle V_1,V_2\rangle_\epsilon = {\sum_{i=1}^n \epsilon_i V_1(i)V_2(i)}, \ \ \epsilon_i\ge0,$$
 and the induced weighted Euclidean norm:
-$$||V||_\epsilon = \sqrt{\sum_{i=1}^n \epsilon_i V(i)^2}, \ \ \epsilon_i\ge0,$$
+$$||V||_\epsilon = \sqrt{\langle V,V\rangle_\epsilon} = \sqrt{\sum_{i=1}^n \epsilon_i V(i)^2}, \ \ \epsilon_i\ge0,$$
 and let $\Pi_\epsilon$ be the operator of projection onto $\mathcal{S}$ w.r.t. this norm:
 \begin{align*}\Pi_\epsilon V &=\underset{V' \in \mathcal{S}}{\operatorname{argmin}} \ ||V'-V||_\epsilon =\\
 &= \Phi \theta \ \ \ \mathrm{s.t.} \ \ \theta = \underset{\theta' \in \mathbb{R}^k}{\operatorname{argmin}} \ ||\Phi \theta' - V||_\epsilon.\end{align*}
