@@ -412,9 +412,9 @@ where the temporal difference term is the approximation (w.r.t. the weights at t
 \\
 This algorithm can be written as a stochastic approximation:
 \begin{equation*}
-    \theta_{n+1} = \theta_n + \alpha_n ( C \theta_n - d + m_n ),
+    \theta_{n+1} = \theta_n + \alpha_n ( d -  C \theta_n + m_n ),
 \end{equation*}
-where $m_t$ is a noise term, and the corresponding ODE is $\dot{\theta} = C \theta - d$, with a unique stable fixed point at $\theta^* = C^{-1}d$. More details will be given in the tutorial.
+where $m_t$ is a noise term, and the corresponding ODE is $\dot{\theta} = d -  C \theta_n$, with a unique stable fixed point at $\theta^* = C^{-1}d$. More details will be given in the tutorial.
 \end{enumerate}
 
 \begin{remark}
