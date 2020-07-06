@@ -204,7 +204,7 @@ The policy gradient can be written as:
 where $\Psi_t$ can be either one of the following terms:
 \begin{enumerate}
     \item Total reward, $\sum_{t=0}^\infty r(x_t,u_t) - b(x_t)$, where $b$ is a state-dependent baseline
-    \item Future reward following action $u_t$, $\sum_{t'=t}^\infty r(x_t,u_t) - b(x_t)$
+    \item Future reward following action $u_{t'}$, $\sum_{t'=t}^\infty r(x_{t'},u_{t'}) - b(x_{t'})$
     \item State-action value function, $Q^\pi(x_t,u_t)$
     \item Advantage function, $Q^\pi(x_t,u_t) - V^\pi(x_t)$
     \item Temporal difference, $r(x_t,u_t) + V^\pi(x_{t+1})- V^\pi(x_t)$
