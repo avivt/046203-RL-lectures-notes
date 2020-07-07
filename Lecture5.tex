@@ -217,7 +217,7 @@ We also denote ${T^n}(v) = T({T^{n - 1}}(v))$ for  $n \ge 2$. For example, ${T^2
 \subsection{The Banach Fixed Point Theorem}
 The following celebrated result applies to contraction operators. While we quote the result for $\mathbb R^d$, we note that it applies in much greater generality to any Banach space (a complete normed space), or even to any complete metric space, with essentially the same proof.
 
-\begin{theorem}[\textbf{Banach's fixed point theorem}]
+\begin{theorem}[\textbf{Banach's fixed point theorem}]\label{thm:_BANACH}
 Let $T:\mathbb R^d \to \mathbb R^d$  be a contraction operator. Then
 \begin{enumerate}
   \item The equation $T(v) = v$ has a unique solution  $V^*\in \mathbb R^d$.
@@ -257,7 +257,7 @@ We note that $T_{}^\pi $ is a linear operator, while $T_{}^*$ is generally non-l
 
 Let $||V|{|_\infty } \buildrel \Delta \over = {\max _{s \in S}}|V(s)|$ denote the max-norm of $V$.  Recall that $0 < \gamma  < 1$.
 
-\begin{theorem}[\textbf{Contraction property}] The following statements hold:
+\begin{theorem}[\textbf{Contraction property}]\label{thm:_CONTRACT} The following statements hold:
 \begin{enumerate}
   \item $T_{}^\pi $ is a $\gamma$-contraction operator with respect to the max-norm,  namely
                       $||T_{}^\pi ({V_1}) - T_{}^\pi ({V_2})|{|_\infty } \le \gamma ||{V_1} - {V_2}|{|_\infty }$ for all $V_1,V_2\in R^{|S|}$.
@@ -312,7 +312,7 @@ We prove each part.
   \item As $T_{}^*$ is a contraction operator, existence and uniqueness of the solution to $V = T_{}^*(V)$ follows from the Banach fixed point theorem. Let $\hat V$ denote that solution. It also follows by that theorem that ${(T_{}^*)^n}({V_0}) \to \hat V$ for any ${V_0}$. But in Theorem \ref{thm:_VI} we show that ${(T_{}^*)^n}({V_0}) \to V_{}^*$, hence $\hat V = V_{}^*$,  so that $V_{}^*$ is indeed the unique solution of  $V = T_{}^*(V)$.
   \item By definition of  ${\pi ^*}$ we have
 \[T_{}^{\pi ^*}(V_{}^*) = T_{}^*(V_{}^*) = V_{}^*,\]
-where the last equality follows from part 1. Thus the optimal value function satisfied the equation $T_{}^{\pi ^*}(V_{}^*) = V_{}^*$. But we already know (from Prop. \ref{prop:FP_VI}) that $V_{}^{\pi ^*}$ is the unique solution of that equation, hence $V_{}^{\pi ^*} = V_{}^*$. This implies that ${\pi ^*}$ achieves the optimal value (for any initial state), and is therefore an optimal policy as stated.
+where the last equality follows from part 1. Thus the optimal value function satisfied the equation $T_{}^{\pi ^*}(V_{}^*) = V_{}^*$. But we already know (from Theorems \ref{thm:_BANACH} and \ref{thm:_CONTRACT}) that $V_{}^{\pi ^*}$ is the unique solution of that equation, hence $V_{}^{\pi ^*} = V_{}^*$. This implies that ${\pi ^*}$ achieves the optimal value (for any initial state), and is therefore an optimal policy as stated.
 \end{enumerate}
 \end{proof}
 

@@ -162,7 +162,7 @@ where $C$ is some constant. Intuitively, $UCT$ prefers actions that are either p
 In many practical problems, UCT has been shown to be much more efficient than tree-building methods. MCTS based on UCT is also the most prominent method for solving games with high branching factors such as Go. 
 
 \section{Approximation methods in value space}
-\begin{enumerate}\negspace
+\begin{enumerate}
 \item Approximate policy iteration: approximate $V^\mu$; improve $\mu$; repeat.
 \item Approximate value iteration / Q-learning: $\hat{Q}(s,a)\approx {\phi}(s,a)^\top {\theta}$
 % \item Bellman error minimization:
@@ -264,7 +264,7 @@ We are interested in the following questions:
 \begin{enumerate}
 \item Does the PBE \eqref{eq:PBE} have a solution?
 \item When is $\Pi_\epsilon T^\mu$ a contraction, and what is its fixed point?
-\item If $\Pi_\epsilon T^\mu$ has a fixed point $\theta^*$, how far is it from $\Pi_\epsilon V^\mu$?
+\item If $\Pi_\epsilon T^\mu$ has a fixed point $\Phi\theta^*$, how far is it from $\Pi_\epsilon V^\mu$?
 \end{enumerate}
 Let us assume the following:
 \begin{assumption}\label{ass:recurrent}The Markov chain corresponding to $\mu$ has a single recurrent class and no transient states. We further let
@@ -412,9 +412,9 @@ where the temporal difference term is the approximation (w.r.t. the weights at t
 \\
 This algorithm can be written as a stochastic approximation:
 \begin{equation*}
-    \theta_{n+1} = \theta_n + \alpha_n ( C \theta_n - d + m_n ),
+    \theta_{n+1} = \theta_n + \alpha_n ( d -  C \theta_n + m_n ),
 \end{equation*}
-where $m_t$ is a noise term, and the corresponding ODE is $\dot{\theta} = C \theta - d$, with a unique stable fixed point at $\theta^* = C^{-1}d$. More details will be given in the tutorial.
+where $m_t$ is a noise term, and the corresponding ODE is $\dot{\theta} = d -  C \theta_n$, with a unique stable fixed point at $\theta^* = C^{-1}d$. More details will be given in the tutorial.
 \end{enumerate}
 
 \begin{remark}

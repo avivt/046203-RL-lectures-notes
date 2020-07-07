@@ -164,7 +164,7 @@ This algorithm solves the single destination (or the equivalent single source) s
 \end{algorithm_}
 
 The output of the algorithm is $d[v] = d(v,t)$, the weight of the shortest path from $v$ to $t$, and the routing list $\pi $. A shortest path from vertex $v$ is obtained from $\pi $ by following he sequence: ${v_1} = \pi [v]$, ${v_2} = \pi [{v_1}]$, $ \ldots ,$$t = \pi [{v_{k - 1}}]$.
-To understand the algorithm, we observe that after round $i$, $d[v]$ holds the length of the shortest path from $v$ \textbf{in $i$ steps or less}. (This can easily be verified by the results of the previous lecture.) Since the shortest path takes as most $|V| - 1$ steps, the above claim of optimality follows.
+To understand the algorithm, we observe that after round $i$, $d[v]$ holds the length of the shortest path from $v$ \textbf{in $i$ steps or less}. (This can easily be verified by the results of the previous lecture.) Since the shortest path takes at most $|V| - 1$ steps, the above claim on optimality follows.
 
 \paragraph{Remarks:}
 \begin{enumerate}
