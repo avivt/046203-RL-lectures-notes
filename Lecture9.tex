@@ -432,7 +432,7 @@ step $n$. Note that $\om_n$ is measurable on $\cF_n$ by definition of the latter
 \begin{itemize}
 \item[(a)]
 The noise sequence $\{\om_n\}$ is a martingale difference sequence relative to the
-filtration $\{F_n\}$, namely
+filtration $\{\cF_n\}$, namely
 $$
 E(\om_n | \cF_{n-1}) = 0 \qquad \text{(a.s.)}.
 $$
@@ -444,8 +444,8 @@ $$E(\| \om_n\|^2 | \cF_{n-1}) \le A + B \| \theta_n\|^2 \quad \text{(a.s.)},
 \paragraph{Example:} Let $\om_n \sim N(0,\sigma_n)$, where $\sigma_n$
 may depend on $\theta_n$, namely $\sigma_n = f(\theta_n)$.  Formally,
 \begin{align*}
-E(\om_n| F_n) & = 0\\
-E(\om_n^2| F_n) & = f(\theta_n)^2,
+E(\om_n| \cF_{n-1}) & = 0\\
+E(\om_n^2| \cF_{n-1}) & = f(\theta_n)^2,
 \end{align*}
 and we require that $f(\theta)^2 \le A+B\theta^2$.
 

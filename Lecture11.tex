@@ -32,6 +32,14 @@
 %% {\large
 %
 %
+
+\newcommand{\weights}{\texttt{w}}
+\newcommand{\ftrs}{\phi}
+\newcommand{\FtrMtx}{\Phi}
+\newcommand{\state}{\texttt{s}}
+\newcommand{\policy}{\pi}
+
+
 %\section{Approximate Dynamic Programming}
 Recall Bellman's dynamic programming equation
 $$V(s) = \max_{a \in A} \left\{R(s,a) + \gamma \sum_{s' \in S} p(s'|s,a)V(s')\right\},$$
@@ -54,10 +62,10 @@ There are 4 approaches to handle the curses of dimensionality:
 
 \item \textbf{Lookahead policies}: Rolling horizon/model-predictive control.\\
 Simulate a horizon of $T$ steps, and use
-$$a^\pi(s_t|\theta) = \underset{\pi' \in \Pi}{\operatorname{argmax}}\  \mathbb{E} \left[\sum_{t'=t}^{t+T} R(s_{t'},y^{\pi'}(s_{t'}))\right]$$
+$$a^\pi(s_t) = \underset{\pi' \in \Pi}{\operatorname{argmax}}\  \mathbb{E}^{\pi'} \left[\left.\sum_{t'=t}^{t+T} R(s_{t'},\pi'(s_{t'}))\right|s_t\right]$$
 
 \item \textbf{Policy function approximation}\\
-Assume policy is of some parametric function form $\pi = \pi(\theta), \ \ \theta \in \Theta$, and optimize over function parameters.\\
+Assume policy is of some parametric function form $\pi = \pi(\weights), \ \ \weights \in \weights$, and optimize over function parameters.\\
 \begin{example}[Inventory management]
 Consider an inventory management problem, in which the state is the inventory level $s_t$, the demand is $d_t$ and the action is the replenishment level $a_t$. The dynamics are given by:
 $$s_{t+1} = [s_t + a_t-d_t]^+.$$
@@ -66,16 +74,16 @@ $$R_t = R \min\{d_t,s_t+a_t\} - c_a a_t -C[s_t + a_t-d_t]^+,$$
 where $R$ is the profit in satisfying the demand, $c_a$ is the ordering cost, and $C$ is the cost of not satisfying a demand.
 
 One possible replenishment policy is:
-$$a^\pi(s_t|\theta) = \begin{cases} 0 & s_t > q\\Q-s_t & s_t \le q \end{cases}, \ \ \ \theta=(q,Q).$$
+$$a^\pi(s_t|\weights) = \begin{cases} 0 & s_t > q\\Q-s_t & s_t \le q \end{cases}, \ \ \ \weights=(q,Q).$$
 A different possibility is the \emph{softmax} policy, given by
-$$p(s,a) = \frac{e^{-\theta\alpha(s,a)}}{\sum_{a'} e^{-\theta\alpha(s,a')}}, \ \ \mathrm{where}\ \ \alpha=R(s,a)\ \ \mathrm{or} \ \ \alpha=Q(s,a).$$
+$$p(s,a) = \frac{e^{-\weights\alpha(s,a)}}{\sum_{a'} e^{-\weights\alpha(s,a')}}, \ \ \mathrm{where}\ \ \alpha=R(s,a)\ \ \mathrm{or} \ \ \alpha=Q(s,a).$$
 \end{example}
 
 \item \textbf{Value function approximation}\\
-Assume $V(s)\approx f(s,\theta)$ where $f$ is some approximation function, and optimize over the parameters $\theta$.\\
+Assume $V(s)\approx f(s,\weights)$ where $f$ is some approximation function, and optimize over the parameters $\weights$.\\
 The most standard model is a linear combination of some $k$ features (which are not necessarily linear):
-$$\bar{V}(s|\theta) = \sum_{j=1}^k \theta_j \phi_j(s),$$
-where $\theta_j$ are the model parameters and $\phi_j$ are the model's \emph{features} (a.k.a. basis functions).\\
+$$\bar{V}(s|\weights) = \sum_{j=1}^k \weights_j \ftrs_j(s),$$
+where $\weights_j$ are the model parameters and $\ftrs_j$ are the model's \emph{features} (a.k.a. basis functions).\\
 Given $\bar{V}$, we can derive a policy by choosing the \emph{greedy} action with respect to $\bar{V}$ (corresponding to a lookahead of 1 time step). If a model or a simulator is also available, we can also use a longer lookahead.\\
 \\
 Example: a chess game with $K$-step lookahead\\
@@ -89,9 +97,9 @@ Example: a chess game with $K$-step lookahead\\
 \begin{tikzpicture}[node distance = 1cm, auto]
     % Place nodes
 %    \node [blocks] (a) {Chess game model};
-    \node [block] (b) {Feature extraction\\$\phi_1(s),...,\phi_k(s)$};
-    \node [block, right of = b, node distance=1.3in] (c) {Compute value\\function weights\\$\theta_1,...,\theta_k$};
-    \node [block, right of = c, node distance=1.3in] (d) {$\bar{V}(s)=f(s,\theta)$};
+    \node [block] (b) {Feature extraction\\$\ftrs_1(s),...,\ftrs_k(s)$};
+    \node [block, right of = b, node distance=1.3in] (c) {Compute value\\function weights\\$\weights_1,...,\weights_k$};
+    \node [block, right of = c, node distance=1.3in] (d) {$\bar{V}(s)=f(s,\weights)$};
     \node [lblock, right of = d, node distance=2.1in] (e) {\small$\pi(s_t) = \underset{\pi' \in \Pi}{\operatorname{argmax}}\  \mathbb{E}^{\pi'} \left[\sum_{t'=t}^{t+K-1} R(s_{t'}) + \bar{V}(s_{t+K}))\right]$};
     % Draw edges
 %    \path [line] (a) -- (b);
@@ -102,13 +110,13 @@ Example: a chess game with $K$-step lookahead\\
 
 \paragraph{Issues:}
 \begin{enumerate}
-\item Choosing the parametric class $\phi$ (architecture): e.g., Radial Basis Functions (RBFs) or kernels. The difficulty is that the value function structure may be hard to know in advance.
-\item Tuning the weights $\theta$ (learning): here we focus on simulation.\\
+\item Choosing the parametric class $\ftrs$ (architecture): e.g., Radial Basis Functions (RBFs) or kernels. The difficulty is that the value function structure may be hard to know in advance.
+\item Tuning the weights $\weights$ (learning): here we focus on simulation.\\
 In the linear architecture, we can write
-$$\tilde{V}(s;\theta)=\phi(s)^\top \theta$$
-(replacing $\theta$ with $r$ for the parameters), or in matrix-vector form,
-$$\tilde{ {V}}( {\theta}) =  { {\Phi}} { \theta}$$
-Therefore tuning the parameters $ {\theta}$ reduces to approximating $ {V} \in \mathbb{R}^{|S|}$ on $\mathcal{S}=\{  { {\Phi}} {\theta}:  {\theta} \in \mathbb{R}^k\} \subseteq  \mathbb{R}^{|S|} $.
+$$\tilde{V}(s;\weights)=\ftrs(s)^\top \weights$$
+(replacing $\weights$ with $r$ for the parameters), or in matrix-vector form,
+$$\tilde{ {V}}( {\weights}) =  { {\FtrMtx}} { \weights}$$
+Therefore tuning the parameters $ {\weights}$ reduces to approximating $ {V} \in \mathbb{R}^{|S|}$ on $\mathcal{S}=\{  { {\FtrMtx}} {\weights}:  {\weights} \in \mathbb{R}^k\} \subseteq  \mathbb{R}^{|S|} $.
 
 \end{enumerate}
 
@@ -163,10 +171,10 @@ In many practical problems, UCT has been shown to be much more efficient than tr
 
 \section{Approximation methods in value space}
 \begin{enumerate}
-\item Approximate policy iteration: approximate $V^\mu$; improve $\mu$; repeat.
-\item Approximate value iteration / Q-learning: $\hat{Q}(s,a)\approx {\phi}(s,a)^\top {\theta}$
+\item Approximate policy iteration: approximate $V^\policy$; improve $\policy$; repeat.
+\item Approximate value iteration / Q-learning: $\hat{Q}(s,a)\approx {\ftrs}(s,a)^\top {\weights}$
 % \item Bellman error minimization:
-% $$ \min_\theta \  \mathbb{E}_s \left[\left(\tilde{V}(s;\theta)-T\tilde{V}(s;\theta)\right)^2\right]$$
+% $$ \min_\weights \  \mathbb{E}_s \left[\left(\tilde{V}(s;\weights)-T\tilde{V}(s;\weights)\right)^2\right]$$
 % where $T$ is the Bellman operator and $\mathbb{E}_s$ is w.r.t. some distribution over the states.
 \item Linear programming: not discussed.
 \end{enumerate}
@@ -179,66 +187,66 @@ We start with the simplest setting - approximating the value of a fixed policy. 
 
 \subsubsection{Least Squares Regression}
 Assume we have some function $y = f(x)$, and a distribution over a finite set of inputs $\xi(x)$. 
-We want to fit a parametric function $g(x;\theta)$ to our data such that $g$ approximates $f$. The least squares approach solves the following problem:
+We want to fit a parametric function $g(x;\weights)$ to our data such that $g$ approximates $f$. The least squares approach solves the following problem:
 $$
-\min_\theta \mathbb{E}_{x\sim\xi} (g(x;\theta) - f(x))^2.
+\min_\weights \mathbb{E}_{x\sim\xi} (g(x;\weights) - f(x))^2.
 $$
-When $g$ is linear in some features $\phi(x)$, i.e., $g(x;\theta) = \theta^T \phi(x)$, then we can write the above equation in vector notation as
+When $g$ is linear in some features $\ftrs(x)$, i.e., $g(x;\weights) = \weights^T \ftrs(x)$, then we can write the above equation in vector notation as
 $$
-\min_\theta (\Phi \theta - Y)^T \Xi (\Phi \theta - Y),
+\min_\weights (\FtrMtx \weights - Y)^T \Xi (\FtrMtx \weights - Y),
 $$
-where $Y$ is a vector of $f(x)$ for every $x$, and $\Phi$ is a matrix with $\phi(x)$ as its rows. The solution is given by:
+where $Y$ is a vector of $f(x)$ for every $x$, $\Xi = \text{diag}(\xi)$, and $\FtrMtx$ is a matrix with $\ftrs(x)$ as its rows. The solution is given by:
 $$
-\theta_{LS} = (\Phi^T \Xi \Phi)^{-1} \Phi^T \Xi Y.
+\weights_{LS} = (\FtrMtx^T \Xi \FtrMtx)^{-1} \FtrMtx^T \Xi Y.
 $$
-Note that $\Phi \theta_{LS}$ denotes the approximated function $g(x;\theta)$. We will call this the \emph{projection} of $y$ onto the space spanned by $\theta^T \phi(x)$, and we can write the projection operator explicitly as:
+Note that $\FtrMtx \weights_{LS}$ denotes the approximated function $g(x;\weights)$. We will call this the \emph{projection} of $y$ onto the space spanned by $\weights^T \ftrs(x)$, and we can write the projection operator explicitly as:
 $$
-\Pi_\epsilon Y = \Phi \theta_{LS}(Y) = \Phi (\Phi^T \Xi \Phi)^{-1} \Phi^T \Xi Y.
+\Pi_\epsilon Y = \FtrMtx \weights_{LS}(Y) = \FtrMtx (\FtrMtx^T \Xi \FtrMtx)^{-1} \FtrMtx^T \Xi Y.
 $$
 
-In the non-linear case, a common approach is to solve the least squares problem by gradient descent, i.e., $\theta_{k+1} = \theta_k - \alpha_k \nabla_\theta \mathbb{E}_{x\sim\xi} (g(x;\theta) - f(x))^2,$ where the gradient is simply $2 \mathbb{E}_{x\sim\xi} (g(x;\theta) - f(x))\nabla_\theta g(x;\theta)$. 
+In the non-linear case, a common approach is to solve the least squares problem by gradient descent, i.e., $\weights_{k+1} = \weights_k - \alpha_k \nabla_\weights \mathbb{E}_{x\sim\xi} (g(x;\weights) - f(x))^2,$ where the gradient is simply $2 \mathbb{E}_{x\sim\xi} (g(x;\weights) - f(x))\nabla_\weights g(x;\weights)$. 
 
 In a practical case, we are given $N$ data samples $\{ x_i, y_i \}: x_i\sim \xi, y_i=f(x_i)$. The least squares solution can be approximated from the samples as:
 $$
-\min_\theta \sum_i (g(x_i;\theta) - y_i)^2,
+\min_\weights \sum_i (g(x_i;\weights) - y_i)^2,
 $$
 The stochastic gradient descent (SGD) version of this update is
 $$
-\theta_{k+1} = \theta_k - \alpha_k (g(x_i;\theta_k) - y_i)\nabla_\theta g(x_i;\theta_k).
+\weights_{k+1} = \weights_k - \alpha_k (g(x_i;\weights_k) - y_i)\nabla_\weights g(x_i;\weights_k).
 $$
 
 For the linear case, we can solve directly:
 $$
-\hat{\theta}_{LS} = (\hat{\Phi}^T \hat{\Phi})^{-1} \hat{\Phi}^T \hat{Y},
+\hat{\weights}_{LS} = (\hat{\FtrMtx}^T \hat{\FtrMtx})^{-1} \hat{\FtrMtx}^T \hat{Y},
 $$
-where in this case the rows of $\hat{\Phi}$ and $\hat{Y}$ are given by the $N$ samples. By the law of large numbers, we have that $\frac{1}{N}(\hat{\Phi}^T \hat{\Phi}) \to (\Phi^T \Xi \Phi)$ and $\frac{1}{N}\hat{\Phi}^T \hat{Y} \to \Phi^T \Xi Y$, thus the sampled solution converges to the solution $\theta_{LS}$ above.
+where in this case the rows of $\hat{\FtrMtx}$ and $\hat{Y}$ are given by the $N$ samples. By the law of large numbers, we have that $\frac{1}{N}(\hat{\FtrMtx}^T \hat{\FtrMtx}) \to (\FtrMtx^T \Xi \FtrMtx)$ and $\frac{1}{N}\hat{\FtrMtx}^T \hat{Y} \to \FtrMtx^T \Xi Y$, thus the sampled solution converges to the solution $\weights_{LS}$ above.
 
 \subsubsection{Approximate Policy Evaluation: Regression}
 
-The direct approach to policy evaluation: Evaluate $V^\mu(s)$ only for several states (e.g. by simulation) and interpolate, e.g., using least squares regression: $\Phi \theta = \Pi V^\mu$. This method is simple, however, it has several drawbacks. The first is that value estimates typically have a large variance, as they accumulate rewards from multiple states in the future. The second is that we need to wait for full simulations to complete before updating the value estimate. Practically, this can take too long in some problems. 
+The direct approach to policy evaluation: Evaluate $V^\policy(s)$ only for several states (e.g. by simulation) and interpolate, e.g., using least squares regression: $\FtrMtx \weights = \Pi V^\policy$. This method is simple, however, it has several drawbacks. The first is that value estimates typically have a large variance, as they accumulate rewards from multiple states in the future. The second is that we need to wait for full simulations to complete before updating the value estimate. Practically, this can take too long in some problems. 
 
 We next describe an alternative approach, using the fact that the value function satisfies Bellman's equation.
 
 \subsubsection{Approximate Policy Evaluation: the Projected Bellman Equation}
 
-% A key step in approximate policy iteration here is the policy evaluation: given $\mu$ we would like to approximate $V^\mu$. There are two main methods for approximate policy evaluation:
+% A key step in approximate policy iteration here is the policy evaluation: given $\policy$ we would like to approximate $V^\policy$. There are two main methods for approximate policy evaluation:
 % \begin{enumerate}
-% \item Direct approach: Evaluate $V^\mu(s)$ only for several states (e.g. by simulation) and interpolate, e.g., using least squares regression: $\Phi \theta = \Pi V^\mu$. This method is simple, however, it has several drawbacks. The first is that value estimates typically have a large variance, as they accumulate rewards from multiple states in the future. The second is that we need to wait for full simulations to complete before updating the value estimate. Practically, this can take too long in some problems. 
+% \item Direct approach: Evaluate $V^\policy(s)$ only for several states (e.g. by simulation) and interpolate, e.g., using least squares regression: $\FtrMtx \weights = \Pi V^\policy$. This method is simple, however, it has several drawbacks. The first is that value estimates typically have a large variance, as they accumulate rewards from multiple states in the future. The second is that we need to wait for full simulations to complete before updating the value estimate. Practically, this can take too long in some problems. 
 % \item 
-The indirect approach to policy evaluation is based on the projected Bellman equation (PBE). Recall that $V^\mu(s)$ satisfies the Bellman equation: $V^\mu = T^\mu V^\mu$. We can evaluate $V^\mu(s)$ by projecting the Bellman operator $T^\mu$ onto $\mathcal{S}$ (the subspace spanned by $\Phi$):
+The indirect approach to policy evaluation is based on the projected Bellman equation (PBE). Recall that $V^\policy(s)$ satisfies the Bellman equation: $V^\policy = T^\policy V^\policy$. We can evaluate $V^\policy(s)$ by projecting the Bellman operator $T^\policy$ onto $\mathcal{S}$ (the subspace spanned by $\FtrMtx$):
 \begin{equation*}
-    \Phi \theta = \Pi T^\mu \{\Phi \theta\},
+    \FtrMtx \weights = \Pi T^\policy \{\FtrMtx \weights\},
 \end{equation*}
 where $\Pi$ is the projection operator onto $\mathcal{S}$ under some norm.
     % \begin{equation*}
-    %     \theta_k= \underset{\theta}{\operatorname{argmin}} \{||\Phi \theta - T^{\mu_k}\Phi \theta_k||_\epsilon^2\}.
+    %     \weights_k= \underset{\weights}{\operatorname{argmin}} \{||\FtrMtx \weights - T^{\policy_k}\FtrMtx \weights_k||_\epsilon^2\}.
     % \end{equation*}
 Includes:
 \begin{itemize}
 \item Temporal differences - TD(0): online solution of the PBE.
-% $\Phi \theta = \Pi T^\mu \{\Phi \theta\}$, where $\Pi$ is the projection operator onto $\mathcal{S}$ under some norm.\\
+% $\FtrMtx \weights = \Pi T^\policy \{\FtrMtx \weights\}$, where $\Pi$ is the projection operator onto $\mathcal{S}$ under some norm.\\
 \item Least-squares policy evaluation - LSPE(0): simulation-based form
-\begin{align*}\Phi \theta_{k+1} = \Pi T^\mu \{\Phi \theta_k\} + \mathrm{noise}.\end{align*} 
+\begin{align*}\FtrMtx \weights_{k+1} = \Pi T^\policy \{\FtrMtx \weights_k\} + \mathrm{noise}.\end{align*} 
 \item Least-squares temporal differences - LSTD(0): batch solution of the PBE.
 \end{itemize}
 % \end{enumerate}
@@ -251,11 +259,11 @@ and the induced weighted Euclidean norm:
 $$||V||_\epsilon = \sqrt{\langle V,V\rangle_\epsilon} = \sqrt{\sum_{i=1}^n \epsilon_i V(i)^2}, \ \ \epsilon_i\ge0,$$
 and let $\Pi_\epsilon$ be the operator of projection onto $\mathcal{S}$ w.r.t. this norm:
 \begin{align*}\Pi_\epsilon V &=\underset{V' \in \mathcal{S}}{\operatorname{argmin}} \ ||V'-V||_\epsilon =\\
-&= \Phi \theta \ \ \ \mathrm{s.t.} \ \ \theta = \underset{\theta' \in \mathbb{R}^k}{\operatorname{argmin}} \ ||\Phi \theta' - V||_\epsilon.\end{align*}
+&= \FtrMtx \weights \ \ \ \mathrm{s.t.} \ \ \weights = \underset{\weights' \in \mathbb{R}^k}{\operatorname{argmin}} \ ||\FtrMtx \weights' - V||_\epsilon.\end{align*}
 
 We want to solve the projected Bellman equation (PBE):
 \begin{equation}\label{eq:PBE}
-\Phi \theta^*  = \Pi_\epsilon T^\mu \Phi \theta^*.
+\FtrMtx \weights^*  = \Pi_\epsilon T^\policy \FtrMtx \weights^*.
 \end{equation}
 The main reason to consider the approximation in \eqref{eq:PBE} is that, as we shall see, it will allow us to derive efficient sampling based algorithms with provable error guarantees.
 
@@ -263,30 +271,30 @@ The main reason to consider the approximation in \eqref{eq:PBE} is that, as we s
 We are interested in the following questions:
 \begin{enumerate}
 \item Does the PBE \eqref{eq:PBE} have a solution?
-\item When is $\Pi_\epsilon T^\mu$ a contraction, and what is its fixed point?
-\item If $\Pi_\epsilon T^\mu$ has a fixed point $\Phi\theta^*$, how far is it from $\Pi_\epsilon V^\mu$?
+\item When is $\Pi_\epsilon T^\policy$ a contraction, and what is its fixed point?
+\item If $\Pi_\epsilon T^\policy$ has a fixed point $\FtrMtx\weights^*$, how far is it from $\Pi_\epsilon V^\policy$?
 \end{enumerate}
 Let us assume the following:
-\begin{assumption}\label{ass:recurrent}The Markov chain corresponding to $\mu$ has a single recurrent class and no transient states. We further let
+\begin{assumption}\label{ass:recurrent}The Markov chain corresponding to $\policy$ has a single recurrent class and no transient states. We further let
 $$\epsilon_j = \lim_{N\rightarrow \infty} \frac{1}{N} \sum_{t=1}^N p(s_t=j|s_0=s)>0,$$
 which is the probability of being in state $j$ when the process reaches its steady state, given $s_0=s$.
 \end{assumption}
 We have the following result:
 \begin{proposition}\label{prop:PBE_contraction} Under Assumption \ref{ass:recurrent} we have that
 \begin{enumerate}
-\item $\Pi_\epsilon T^\mu$ is a contraction operator with modulus $\gamma$ w.r.t. $||\cdot||_\epsilon$.
-\item The unique fixed point $\Phi \theta^*$ of $\Pi_\epsilon T^\mu$ satisfies
-$$||V^\mu - \Phi \theta^*||_\epsilon^2 \le \frac{1}{1-\gamma^2}||V^\mu-\Pi_\epsilon V^\mu||_\epsilon^2.$$
+\item $\Pi_\epsilon T^\policy$ is a contraction operator with modulus $\gamma$ w.r.t. $||\cdot||_\epsilon$.
+\item The unique fixed point $\FtrMtx \weights^*$ of $\Pi_\epsilon T^\policy$ satisfies
+$$||V^\policy - \FtrMtx \weights^*||_\epsilon^2 \le \frac{1}{1-\gamma^2}||V^\policy-\Pi_\epsilon V^\policy||_\epsilon^2.$$
 \end{enumerate}
 \end{proposition}
 \begin{proof}
 We begin by showing the contraction property. We use the following lemma:
-\begin{lemma}\label{lem:P_non_expansion} If $P^\mu$ is the transition matrix induced by $\mu$, then
-$$\forall z \ \ ||P^\mu z||_\epsilon \le ||z||_\epsilon.$$
+\begin{lemma}\label{lem:P_non_expansion} If $P^\policy$ is the transition matrix induced by $\policy$, then
+$$\forall z \ \ ||P^\policy z||_\epsilon \le ||z||_\epsilon.$$
 \end{lemma}
 \begin{proof}
-Proof: Let $p_{ij}$ be the components of $P^\mu$. For all $z \in \mathbb{R}^n$:
-$$||P^\mu z||_\epsilon^2 = \sum_i \epsilon_i\left(\sum_j p_{ij}z_j\right)^2 \underbrace{\leq}_{\textrm{Jensen}} \sum_i \epsilon_i \sum_j p_{ij} z_j^2 =  \sum_j z_j^2 \sum_i\epsilon_i p_{ij} = ||z||_\epsilon^2,$$
+Proof: Let $p_{ij}$ be the components of $P^\policy$. For all $z \in \mathbb{R}^n$:
+$$||P^\policy z||_\epsilon^2 = \sum_i \epsilon_i\left(\sum_j p_{ij}z_j\right)^2 \underbrace{\leq}_{\textrm{Jensen}} \sum_i \epsilon_i \sum_j p_{ij} z_j^2 =  \sum_j z_j^2 \sum_i\epsilon_i p_{ij} = ||z||_\epsilon^2,$$
 where the last equality is since by definition of $\epsilon_i$, $\sum_i\epsilon_i p_{ij}  =\epsilon_j$, and
 $\sum_{j=1}^n\epsilon_j z_j^2 = ||z||_\epsilon^2.$
 \end{proof}
@@ -310,37 +318,37 @@ where the first inequality is by linearity of $\Pi_\epsilon$, and the last equal
 In order to prove the contraction $\forall {J}_1,{J}_2\in \mathbb{R}^{|S|}$:
 \begin{equation*}
 \begin{split}
-||\Pi_\epsilon T^\mu {J}_1 - \Pi_\epsilon T^\mu {J}_2||_\epsilon &\overset{\Pi_\epsilon \textrm{ non-expansive}}{\le} ||T^\mu {J}_1 - T^\mu {J}_2||_\epsilon\\
-&\overset{\textrm{definition of } T^\mu}{=} \gamma||P^\mu({J}_1-{J}_2)||_\epsilon \overset{\textrm{Lemma \ref{lem:P_non_expansion}}}{\le} \gamma||{J}_1-{J}_2||_\epsilon ,
+||\Pi_\epsilon T^\policy {J}_1 - \Pi_\epsilon T^\policy {J}_2||_\epsilon &\overset{\Pi_\epsilon \textrm{ non-expansive}}{\le} ||T^\policy {J}_1 - T^\policy {J}_2||_\epsilon\\
+&\overset{\textrm{definition of } T^\policy}{=} \gamma||P^\policy({J}_1-{J}_2)||_\epsilon \overset{\textrm{Lemma \ref{lem:P_non_expansion}}}{\le} \gamma||{J}_1-{J}_2||_\epsilon ,
 \end{split}
 \end{equation*}
-and therefore $\Pi_\epsilon T^\mu$ is a contraction operator.
+and therefore $\Pi_\epsilon T^\policy$ is a contraction operator.
 \\
 \\
 Proof of the error bound:
 \begin{equation}
 \begin{split}
-  ||V^\mu - \Phi \theta^*||_\epsilon^2  &= ||V^\mu
--\Pi_\epsilon V^\mu||_\epsilon^2 + ||\Pi_\epsilon V^\mu -\Phi \theta^*||_\epsilon^2  \\
-    &= ||V^\mu -\Pi_\epsilon V^\mu||_\epsilon^2 + ||\Pi_\epsilon T^\mu V^\mu -\Pi_\epsilon T^\mu\Phi \theta^*||_\epsilon^2 \\
-&\leq ||V^\mu -\Pi_\epsilon V^\mu||_\epsilon^2 + \gamma^2||V^\mu-\Phi \theta^*||_\epsilon^2,
+  ||V^\policy - \FtrMtx \weights^*||_\epsilon^2  &= ||V^\policy
+-\Pi_\epsilon V^\policy||_\epsilon^2 + ||\Pi_\epsilon V^\policy -\FtrMtx \weights^*||_\epsilon^2  \\
+    &= ||V^\policy -\Pi_\epsilon V^\policy||_\epsilon^2 + ||\Pi_\epsilon T^\policy V^\policy -\Pi_\epsilon T^\policy\FtrMtx \weights^*||_\epsilon^2 \\
+&\leq ||V^\policy -\Pi_\epsilon V^\policy||_\epsilon^2 + \gamma^2||V^\policy-\FtrMtx \weights^*||_\epsilon^2,
 \end{split}
 \end{equation}
-where the first equality is by the Pythagorean theorem, the second equality is since $V^\mu$ is $T^\mu$'s fixed point, and $\Phi \theta^*$ is $\Pi T^\mu$'s fixed point, and the inequality is by the contraction of $\Pi_\epsilon T^\mu$.
+where the first equality is by the Pythagorean theorem, the second equality is since $V^\policy$ is $T^\policy$'s fixed point, and $\FtrMtx \weights^*$ is $\Pi T^\policy$'s fixed point, and the inequality is by the contraction of $\Pi_\epsilon T^\policy$.
 
 Therefore
-$$||V^\mu - \Phi \theta^*||_\epsilon^2 \le \frac{1}{1-\gamma^2}||V^\mu-\Pi_\epsilon V^\mu||_\epsilon^2.$$
+$$||V^\policy - \FtrMtx \weights^*||_\epsilon^2 \le \frac{1}{1-\gamma^2}||V^\policy-\Pi_\epsilon V^\policy||_\epsilon^2.$$
 \end{proof}
 
 \begin{remark}
-A weaker error bound of $||V^\mu - \Phi \theta^*||_\epsilon \le \frac{1}{1-\gamma}||V^\mu-\Pi_\epsilon
-V^\mu||_\epsilon$ may be obtained by the following argument:
+A weaker error bound of $||V^\policy - \FtrMtx \weights^*||_\epsilon \le \frac{1}{1-\gamma}||V^\policy-\Pi_\epsilon
+V^\policy||_\epsilon$ may be obtained by the following argument:
 \begin{equation}
 \begin{split}
-  ||V^\mu - \Phi \theta^*||_\epsilon  &\leq ||V^\mu
--\Pi_\epsilon V^\mu||_\epsilon + ||\Pi_\epsilon V^\mu -\Phi \theta^*||_\epsilon  \\
-    &= ||V^\mu -\Pi_\epsilon V^\mu||_\epsilon + ||\Pi_\epsilon T^\mu V^\mu -\Pi_\epsilon T^\mu\Phi \theta^*||_\epsilon \\
-&\leq ||V^\mu -\Pi_\epsilon V^\mu||_\epsilon + \gamma||V^\mu-\Phi \theta^*||_\epsilon,
+  ||V^\policy - \FtrMtx \weights^*||_\epsilon  &\leq ||V^\policy
+-\Pi_\epsilon V^\policy||_\epsilon + ||\Pi_\epsilon V^\policy -\FtrMtx \weights^*||_\epsilon  \\
+    &= ||V^\policy -\Pi_\epsilon V^\policy||_\epsilon + ||\Pi_\epsilon T^\policy V^\policy -\Pi_\epsilon T^\policy\FtrMtx \weights^*||_\epsilon \\
+&\leq ||V^\policy -\Pi_\epsilon V^\policy||_\epsilon + \gamma||V^\policy-\FtrMtx \weights^*||_\epsilon,
 \end{split}
 \end{equation}
 where the first inequality is by the triangle inequality.
@@ -349,92 +357,91 @@ where the first inequality is by the triangle inequality.
 The error bounds in this section are in the $\| \cdot \|_\epsilon$ norm, while the approximate policy iteration error bounds of Theorem \ref{thm:API} are in the $\| \cdot \|_\infty$ norm. In general, for large or continuous state spaces, an $\| \cdot \|_\epsilon$ norm error bound does not provide a strong guarantee on the error in the $\| \cdot \|_\infty$ norm, and the results of Theorem \ref{thm:API} therefore do not apply. A result similar to that of Theorem \ref{thm:API} may be shown to hold in the $\| \cdot \|_\epsilon$ norm, however this is much more complicated, and beyond the scope of this course.
 \end{remark}
 \begin{remark}
-At this point, the reader should wonder why the PBE solution is sought instead of $\Pi_\epsilon V^\mu$. In fact, an algorithm for estimating $\Pi_\epsilon V^\mu$ can easily be derived using regression. For example, consider an algorithm that samples states $s_1,\dots,s_N \sim \epsilon$, and from each state $s_i$ runs a trajectory in the MDP following policy $\mu$. Let $y_i$ denote the discounted return in that trajectory. Then, a least squares fit:
+At this point, the reader should wonder why the PBE solution is sought instead of $\Pi_\epsilon V^\policy$. In fact, an algorithm for estimating $\Pi_\epsilon V^\policy$ can easily be derived using regression. For example, consider an algorithm that samples states $s_1,\dots,s_N \sim \epsilon$, and from each state $s_i$ runs a trajectory in the MDP following policy $\policy$. Let $y_i$ denote the discounted return in that trajectory. Then, a least squares fit:
 \begin{equation*}
-    \min_\theta \frac{1}{2}\sum_{i=1}^{N} \left(y_i - \phi(s_i)^\top\theta\right)^2
+    \min_\weights \frac{1}{2}\sum_{i=1}^{N} \left(y_i - \ftrs(s_i)^\top\weights\right)^2
 \end{equation*}
-would converge to $\Pi_\epsilon V^\mu$ as $N\to \infty$. However, such an algorithm would suffer a high variance, since the discounted return in the whole trajectory often has a high variance. The PBE approach typically has lower variance, since it only considers 1-step transitions instead of complete trajectories. However, it may have a \emph{bias}, as seen by the error bound in Proposition \ref{prop:PBE_contraction}. We thus have a bias-variance tradeoff between the direct and indirect approaches to policy evaluation.
+would converge to $\Pi_\epsilon V^\policy$ as $N\to \infty$. However, such an algorithm would suffer a high variance, since the discounted return in the whole trajectory often has a high variance. The PBE approach typically has lower variance, since it only considers 1-step transitions instead of complete trajectories. However, it may have a \emph{bias}, as seen by the error bound in Proposition \ref{prop:PBE_contraction}. We thus have a bias-variance tradeoff between the direct and indirect approaches to policy evaluation.
 \end{remark}
 \subsection{Solving the PBE}
 We now move to solving the projected Bellman equation.\\
-We would like to find $J = \Phi \theta^*$ where $\theta^*$ solves
-$$\theta^* = \underset{{\theta \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\Phi \theta - (R^\mu+\gamma P^\mu\Phi \theta)||_\epsilon^2$$
+We would like to find $J = \FtrMtx \weights^*$ where $\weights^*$ solves
+$$\weights^* = \underset{{\weights \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\FtrMtx \weights - (R^\policy+\gamma P^\policy\FtrMtx \weights)||_\epsilon^2$$
 Setting the gradient of the to $0$, we get
-$$\Phi^T \Xi (\Phi \theta^* - (R^\mu+\gamma P^\mu \Phi \theta^*)) = 0$$
+$$\FtrMtx^T \Xi (\FtrMtx \weights^* - (R^\policy+\gamma P^\policy \FtrMtx \weights^*)) = 0$$
 where $\Xi = \textrm{diag} \ (\epsilon_1,...,\epsilon_n)$.\\
 This is in fact the orthogonality condition from random signals.\\
 Equivalently we can write
-$$C \theta^* = d$$
+$$C \weights^* = d$$
 where
-$$C = \Phi^T \Xi(I-\gamma P^\mu) \Phi, \ \ d = \Phi^T\Xi R^\mu$$
+$$C = \FtrMtx^T \Xi(I-\gamma P^\policy) \FtrMtx, \ \ d = \FtrMtx^T\Xi R^\policy$$
 
 \paragraph{Solution approaches:}
 \begin{enumerate}\negspace
-\item \textbf{Matrix inversion (LSTD)}: $$\theta^* = C^{-1}d$$
-In order to evaluate $C,d$, calculate a simulation-based approximation $\hat{C}_k,\hat{d}_k \rightarrow C,d$ by the LLN, and then use $\hat{\theta}_k = \hat{C}_k^{-1} \hat{d}_k$ -- this is the Least Squares Temporal Difference algorithm (LSTD). Note that the simulation must use the policy $\mu$, such that (after some burn-in time) the states are samples from the distribution $\epsilon$.\\
+\item \textbf{Matrix inversion (LSTD)}: $$\weights^* = C^{-1}d$$
+In order to evaluate $C,d$, calculate a simulation-based approximation $\hat{C}_k,\hat{d}_k \rightarrow C,d$ by the LLN, and then use $\hat{\weights}_k = \hat{C}_k^{-1} \hat{d}_k$ -- this is the Least Squares Temporal Difference algorithm (LSTD). Note that the simulation must use the policy $\policy$, such that (after some burn-in time) the states are samples from the distribution $\epsilon$.\\
 Recall that
-$$d = \Phi^T \Xi R^\mu = \sum_{s=1}^{|S|} \epsilon_s  {\phi}(s) R^\mu(s).$$
+$$d = \FtrMtx^T \Xi R^\policy = \sum_{s=1}^{|S|} \epsilon_s  {\ftrs}(s) R^\policy(s).$$
 So the following estimate converges to $d$:
 \begin{align*}
-\hat{d}_n &= \frac{1}{n} \sum_{t=1}^n  {\phi}(s_t) r(s_t,\mu(s_t)) = \\
-&= \frac{1}{n}\sum_{t=1}^n\sum_{s=1}^{|S|} {\bf1}(s_t=s) {\phi}(s) R^\mu(s) \underset{n\rightarrow \infty}{\longrightarrow} d .
+\hat{d}_n &= \frac{1}{n} \sum_{t=1}^n  {\ftrs}(s_t) r(s_t,\policy(s_t)) = \\
+&= \frac{1}{n}\sum_{t=1}^n\sum_{s=1}^{|S|} {\bf1}(s_t=s) {\ftrs}(s) R^\policy(s) \underset{n\rightarrow \infty}{\longrightarrow} d .
 \end{align*}
 Similarly,
 \begin{align*}
-\hat{C}_n &= \frac{1}{n} \sum_{t=1}^n  {\phi}(s_t)(I-\gamma P^\mu) {\phi}^T(s_t) \approx \\
-&\frac{1}{n} \sum_{t=1}^n {\phi}(s_t)( {\phi}^T(s_t)-\gamma {\phi}^T(s_{t+1}))  \underset{n\rightarrow \infty}{\longrightarrow} C .
+\hat{C}_n &= \frac{1}{n} \sum_{t=1}^n  {\ftrs}(s_t)(I-\gamma P^\policy) {\ftrs}^T(s_t) \approx \\
+&\frac{1}{n} \sum_{t=1}^n {\ftrs}(s_t)( {\ftrs}^T(s_t)-\gamma {\ftrs}^T(s_{t+1}))  \underset{n\rightarrow \infty}{\longrightarrow} C .
 \end{align*}
 
 \item \textbf{Projected value iteration:}
-$$\Phi \theta_{n+1} = \Pi_\epsilon T^\mu \Phi \theta_n = \Pi_\epsilon(R^\mu+\gamma P^\mu \Phi \theta_n),$$
-which converges to $\theta^*$ since $\Pi_\epsilon T^\mu$ is a contraction operator.\\
+$$\FtrMtx \weights_{n+1} = \Pi_\epsilon T^\policy \FtrMtx \weights_n = \Pi_\epsilon(R^\policy+\gamma P^\policy \FtrMtx \weights_n),$$
+which converges to $\weights^*$ since $\Pi_\epsilon T^\policy$ is a contraction operator.\\
 
 The projection step is
-$$ \theta_{n+1} = \underset{\theta}{\operatorname{argmin}}||\Phi \theta - (R^\mu+\gamma P^\mu \Phi \theta_n)||_\epsilon^2.$$
-Setting the gradient to $0$ w.r.t. $\theta$:
-$$\Phi^T \Xi(\Phi \theta_{n+1} - (R^\mu+\gamma P^\mu \Phi \theta_n)) = 0$$
-$$\Rightarrow \theta_{n+1} = \theta_n - (\Phi^T\Xi\Phi)^{-1}(C \theta_n-d).$$
+$$ \weights_{n+1} = \underset{\weights}{\operatorname{argmin}}||\FtrMtx \weights - (R^\policy+\gamma P^\policy \FtrMtx \weights_n)||_\epsilon^2.$$
+Setting the gradient to $0$ w.r.t. $\weights$:
+$$\FtrMtx^T \Xi(\FtrMtx \weights_{n+1} - (R^\policy+\gamma P^\policy \FtrMtx \weights_n)) = 0$$
+$$\Rightarrow \weights_{n+1} = \weights_n - (\FtrMtx^T\Xi\FtrMtx)^{-1}(C \weights_n-d).$$
 So we can approximate
-$$\theta_{n+1} = \theta_n - G_n(C_n \theta_n -d_n),$$
+$$\weights_{n+1} = \weights_n - G_n(C_n \weights_n -d_n),$$
 where
-$$G_n^{-1} \approx \frac{1}{n+1} \sum_{t=0}^n  {\phi}(s_t) {\phi}(s_t)^T \Rightarrow G_n \approx (\Phi^T \Xi \Phi)^{-1}.$$
+$$G_n^{-1} \approx \frac{1}{n+1} \sum_{t=0}^n  {\ftrs}(s_t) {\ftrs}(s_t)^T \Rightarrow G_n \approx (\FtrMtx^T \Xi \FtrMtx)^{-1}.$$
 We observe that $C_n,d_n,G_n$ can also be computed via the SA algorithm.
 
 More generally, for the non-linear case, we have the iterative algorithm:
-$$\hat{V}(\theta_{n+1}) = \Pi T^\mu \hat{V}(\theta_{n}),$$
+$$\hat{V}(\weights_{n+1}) = \Pi T^\policy \hat{V}(\weights_{n}),$$
 where the projection $\Pi$ here denotes a non-linear least squares fit, or even a non-parametric regression such as K-nearest neighbors. Convergence in this case is not guaranteed.
 
 \item \textbf{Stochastic approximation -- TD(0):} Consider the function-approximation variant of the TD(0) algorithm (cf. Section \ref{ss:TD0})
 \begin{equation*}
-    \theta_{n+1} = \theta_n + \alpha_n \underbrace{( r(s_n,\mu(s_n)) + {\phi}(s_{n+1})^\top \theta_n - {\phi}(s_{n})^\top \theta_n)}_{\textrm{temporal difference}} \phi(s_{n}),
+    \weights_{n+1} = \weights_n + \alpha_n \underbrace{( r(s_n,\policy(s_n)) + {\ftrs}(s_{n+1})^\top \weights_n - {\ftrs}(s_{n})^\top \weights_n)}_{\textrm{temporal difference}} \ftrs(s_{n}),
 \end{equation*}
-where the temporal difference term is the approximation (w.r.t. the weights at time $n$) of $r(s_n,\mu(s_n)) + V(s_{n+1}) - V(s_n)$.
+where the temporal difference term is the approximation (w.r.t. the weights at time $n$) of $r(s_n,\policy(s_n)) + V(s_{n+1}) - V(s_n)$.
 \\
 This algorithm can be written as a stochastic approximation:
 \begin{equation*}
-    \theta_{n+1} = \theta_n + \alpha_n ( d -  C \theta_n + m_n ),
+    \weights_{n+1} = \weights_n + \alpha_n ( d -  C \weights_n + m_n ),
 \end{equation*}
-where $m_t$ is a noise term, and the corresponding ODE is $\dot{\theta} = d -  C \theta_n$, with a unique stable fixed point at $\theta^* = C^{-1}d$. More details will be given in the tutorial.
+where $m_t$ is a noise term, and the corresponding ODE is $\dot{\weights} = d -  C \weights_n$, with a unique stable fixed point at $\weights^* = C^{-1}d$. More details will be given in the tutorial.
 \end{enumerate}
-
-\begin{remark}
+% \begin{remark}
 For a general (not necessarily linear) function approximation, the TD(0) algorithm takes the form:
 \begin{equation*}
-    \theta_{n+1} = \theta_n + \alpha_n \left( r(s_n,\mu(s_n)) + f(s_{n+1},\theta_n) - f(s_{n},\theta_n) \right) \nabla_{\theta} f(s,\theta).
+    \weights_{n+1} = \weights_n + \alpha_n \left( r(s_n,\policy(s_n)) + \hat{V}(s_{n+1},\weights_n) - \hat{V}(s_{n},\weights_n) \right) \nabla_{\weights} \hat{V}(s,\weights).
 \end{equation*}
 It can be derived as a stochastic gradient descent algorithm for the loss function
 \begin{equation*}
-    Loss(\theta) = ||f(s,\theta) - V^\mu(s)||_\epsilon,
+    Loss(\weights) = ||\hat{V}(s,\weights) - V^\policy(s)||_\epsilon,
 \end{equation*}
-and replacing the unknown $V^\mu(s)$ with a Bellman-type estimator $r(s,\mu(s))+f(s',\theta)$.
-\end{remark}
+and replacing the unknown $V^\policy(s)$ with a Bellman-type estimator $r(s,\policy(s))+f(s',\weights)$.
+% \end{remark}
 %\end{document}
 %~
 
 \subsection{Approximate Policy Iteration}
 
-\paragraph{The algorithm:} iterate between projection of $V^{\mu_k}$ onto $\mathcal{S}$ and policy improvement via a greedy policy update w.r.t. the projected $V^{\mu_k}$.
-%$T^\mu$ (recall $T^\mu V = R^\mu + \gamma  P\mu V$, and Bellman's operator satisfies $TV = \max_{\mu \in \Pi} T^\mu V$):
+\paragraph{The algorithm:} iterate between projection of $V^{\policy_k}$ onto $\mathcal{S}$ and policy improvement via a greedy policy update w.r.t. the projected $V^{\policy_k}$.
+%$T^\policy$ (recall $T^\policy V = R^\policy + \gamma  P\policy V$, and Bellman's operator satisfies $TV = \max_{\policy \in \Pi} T^\policy V$):
 
 \vspace{20pt}
 \tikzstyle{block} = [rectangle, draw,
@@ -442,9 +449,9 @@ and replacing the unknown $V^\mu(s)$ with a Bellman-type estimator $r(s,\mu(s))+
 \tikzstyle{line} = [draw, -latex']
 \begin{tikzpicture}[node distance = 2cm, auto]
     % Place nodes
-    \node [block, node distance=1.5in, text width=3em] (a) {Guess $\mu_0$};
-    \node [block, node distance=2in, right of =a, text width=15em] (b) {evaluate: \\ $\tilde{V}_k=\Phi \theta_k \approx V^{\mu_{k}}$ };
-    \node [block, node distance=2in, right of = b, text width=5em] (c) {improve: $\mu_{k+1}$};
+    \node [block, node distance=1.5in, text width=3em] (a) {Guess $\policy_0$};
+    \node [block, node distance=2in, right of =a, text width=15em] (b) {evaluate: \\ $\tilde{V}_k=\FtrMtx \weights_k \approx V^{\policy_{k}}$ };
+    \node [block, node distance=2in, right of = b, text width=5em] (c) {improve: $\policy_{k+1}$};
     % Draw edges
     \path [line] (a) -- (b);
     \path [line] (b) -- (c);
@@ -456,50 +463,50 @@ The key question in approximate policy iteration, is how errors in the value-fun
 
 \begin{theorem}\label{thm:API}
 If for each iteration $k$ the policies are approximated well over $\mathcal{S}$:
-$$\max_s |\tilde{V}(s;\theta_k)-V^{\mu_k}(s)| \le \delta,$$
+$$\max_s |\tilde{V}(s;\weights_k)-V^{\policy_k}(s)| \le \delta,$$
 and policy improvement approximates well
-$$ \max_s |T^{\mu_{k+1}}\tilde{V}(s;\theta_k) - T\tilde{V}(s;\theta_k)| < \epsilon,$$
+$$ \max_s |T^{\policy_{k+1}}\tilde{V}(s;\weights_k) - T\tilde{V}(s;\weights_k)| < \epsilon,$$
 Then
-$$ \limsup_k \ \max_s | V^{\mu_k}(s)-V^*(s)| \le \frac{\epsilon+2\gamma\delta}{(1-\gamma)^2}.$$
+$$ \limsup_k \ \max_s | V^{\policy_k}(s)-V^*(s)| \le \frac{\epsilon+2\gamma\delta}{(1-\gamma)^2}.$$
 \end{theorem}
 
 \subsubsection{Online - SARSA}
-As we have seen earlier, it is easier to define a policy improvement step using the $Q$ function. We can easily modify the TD(0) algorithm above to learn $\hat{Q}^\mu(s,a) = f(s,a;\theta)$:
+As we have seen earlier, it is easier to define a policy improvement step using the $Q$ function. We can easily modify the TD(0) algorithm above to learn $\hat{Q}^\policy(s,a) = f(s,a;\weights)$:
 \begin{equation*}
-    \theta_{n+1} = \theta_n + \alpha_n \left( r(s_n,a_n) + f(s_{n+1},a_{n+1};\theta_n) - f(s_{n},a_{n}; \theta_n) \right) \nabla_{\theta} f(s,a,\theta).
+    \weights_{n+1} = \weights_n + \alpha_n \left( r(s_n,a_n) + f(s_{n+1},a_{n+1};\weights_n) - f(s_{n},a_{n}; \weights_n) \right) \nabla_{\weights} f(s,a,\weights).
 \end{equation*}
 The actions are typically selected according to an $\epsilon-$greedy or softmax rule. Thus, policy evaluation is interleaved with policy improvement.
 
 \subsubsection{Batch - Least Squares Policy Iteration (LSPI)}
-One can also derive an approximate PI algorithm that works on a batch of data. Consider the linear case $\hat{Q}^\mu(s,a) = \theta^T \phi(s,a)$. The idea is to use LSTD(0) to iteratively fit $\hat{Q}^{\mu_k}$, where $\mu_k$ is the greedy policy w.r.t. $\hat{Q}^{\mu_{k-1}}$.
+One can also derive an approximate PI algorithm that works on a batch of data. Consider the linear case $\hat{Q}^\policy(s,a) = \weights^T \ftrs(s,a)$. The idea is to use LSTD(0) to iteratively fit $\hat{Q}^{\policy_k}$, where $\policy_k$ is the greedy policy w.r.t. $\hat{Q}^{\policy_{k-1}}$.
 
 \begin{align*}
-\hat{d}_n^k &= \frac{1}{n} \sum_{t=1}^n  {\phi}(s_t, a_t) r(s_t,a_t) 
+\hat{d}_n^k &= \frac{1}{n} \sum_{t=1}^n  {\ftrs}(s_t, a_t) r(s_t,a_t) 
 \end{align*}
 \begin{align*}
-\hat{C}_n^k &= \frac{1}{n} \sum_{t=1}^n {\phi}(s_t,a_t)( {\phi}^T(s_t,a_t)-\gamma {\phi}^T(s_{t+1},a^*_{t+1})),
+\hat{C}_n^k &= \frac{1}{n} \sum_{t=1}^n {\ftrs}(s_t,a_t)( {\ftrs}^T(s_t,a_t)-\gamma {\ftrs}^T(s_{t+1},a^*_{t+1})),
 \end{align*}
 \begin{align*}
-\theta_k &= (\hat{C}_n^k)^{-1} \hat{d}_n^k.
+\weights_k &= (\hat{C}_n^k)^{-1} \hat{d}_n^k.
 \end{align*}
-where $a^*_{t+1} = \argmax_a \hat{Q}^{\mu_{k-1}}(s_{t+1},a) = \argmax_a \theta_{k-1}^T\phi(s_{t+1},a)$.
+where $a^*_{t+1} = \argmax_a \hat{Q}^{\policy_{k-1}}(s_{t+1},a) = \argmax_a \weights_{k-1}^T\ftrs(s_{t+1},a)$.
 
 \subsection{Approximate Value Iteration}
-Approximate VI algorithms directly approximate the optimal value function (or optimal $Q$ function). Let us first consider the linear case. The idea in approximate VI is similar to the PBE, but replacing $T^\mu$ with $T$. That is, we seek solutions to the following projected equation:
+Approximate VI algorithms directly approximate the optimal value function (or optimal $Q$ function). Let us first consider the linear case. The idea in approximate VI is similar to the PBE, but replacing $T^\policy$ with $T$. That is, we seek solutions to the following projected equation:
 \begin{equation*}
-    \Phi \theta = \Pi T \{\Phi \theta\},
+    \FtrMtx \weights = \Pi T \{\FtrMtx \weights\},
 \end{equation*}
 where $\Pi$ is some projection. Recall that $T$ is a contraction in the $\|.\|_\infty$ norm. Unfortunately, $\Pi$ is not necessarily a contraction in $\|.\|_\infty$ for general function approximation.\footnote{A restricted class of function approximators for which contraction does hold is called averagers, as was proposed in \cite{gordon1995stable}.} Similarly, $T$ is not a contraction in the $\|.\|_\epsilon$ norm. Thus, we have no guarantee that the projected equation has a solution. Nevertheless, algorithms based on this approach have achieved impressive success in practice. 
 
 For the non-linear case, we have:
 \begin{equation*}
-    \hat{Q}(\theta_{n+1}) = \Pi T \hat{Q}(\theta_{n}).
+    \hat{Q}(\weights_{n+1}) = \Pi T \hat{Q}(\weights_{n}).
 \end{equation*}
 
 \subsubsection{Online - Q learning}
 The function approximation version of online Q-learning resembles SARSA, only with an additional maximization over the next action:
 \begin{equation*}
-    \theta_{n+1} = \theta_n + \alpha_n \left( r(s_n,a_n) + \max_a f(s_{n+1},a;\theta_n) - f(s_{n},a_{n}; \theta_n) \right) \nabla_{\theta} f(s,a,\theta).
+    \weights_{n+1} = \weights_n + \alpha_n \left( r(s_n,a_n) + \max_a \hat{Q}(s_{n+1},a;\weights_n) - \hat{Q}(s_{n},a_{n}; \weights_n) \right) \nabla_{\weights} \hat{Q}(s,a,\weights).
 \end{equation*}
 The actions are typically selected according to an $\epsilon-$greedy or softmax rule, to balance exploration and exploitation.
 
@@ -507,9 +514,9 @@ The actions are typically selected according to an $\epsilon-$greedy or softmax 
 
 In this approach, we iteratively project (fit) the Q function based on the projected equation:
 \begin{equation*}
-    \hat{Q}(\theta_{n+1}) = \Pi T \hat{Q}(\theta_{n}).
+    \hat{Q}(\weights_{n+1}) = \Pi T \hat{Q}(\weights_{n}).
 \end{equation*}
 
-Assume we have a data set of samples $\{s_i,a_i,s'_i,r_i\}$,obtained from some data colletion policy. Then, the right hand side of the equation denotes a regression problem where the samples are: $X = \{s_i,a_i\}$ and $Y = \{ r_i + \gamma \max_a \hat{Q}(s'_i, a;\theta_{n})\}$. Thus, by solving a sequence of regression problems we approximate a solution to the projected equation.
+Assume we have a data set of samples $\{s_i,a_i,s'_i,r_i\}$,obtained from some data colletion policy. Then, the right hand side of the equation denotes a regression problem where the samples are: $X = \{s_i,a_i\}$ and $Y = \{ r_i + \gamma \max_a \hat{Q}(s'_i, a;\weights_{n})\}$. Thus, by solving a sequence of regression problems we approximate a solution to the projected equation.
 
 Note that approximate VI algorithms are \emph{off-policy} algorithms. Thus, in both Q-learning and fitted-Q, the policy that explores the MDP can be arbitrary (assuming of course it explores `enough' interesting states).
